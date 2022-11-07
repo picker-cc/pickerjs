@@ -1,6 +1,6 @@
 {
   "name": "@picker-cc/ali-sms-plugin",
-  "version": "6.0.0",
+  "version": "0.1.2-beta.0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,12 +27,12 @@
   "dependencies": {
     "@alicloud/pop-core": "^1.7.12",
     "@nestjs/config": "^2.2.0",
-    "@picker-cc/common": "workspace:^6.0.0"
+    "@picker-cc/common": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/common": "^9.1.2",
     "@nestjs/core": "^9.1.2",
-    "@picker-cc/core": "workspace:^6.0.0",
+    "@picker-cc/core": "workspace:*",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.6",

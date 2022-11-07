@@ -1,6 +1,6 @@
 {
   "name": "@picker-cc/asset-server-plugin",
-  "version": "6.0.0",
+  "version": "0.1.2-beta.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -28,8 +28,8 @@
     "@nestjs/common": "^9.1.2",
     "@nestjs/core": "^9.1.2",
     "@nestjs/platform-express": "^9.1.2",
-    "@picker-cc/common": "workspace:^6.0.0",
-    "@picker-cc/core": "workspace:^6.0.0",
+    "@picker-cc/common": "workspace:*",
+    "@picker-cc/core": "workspace:*",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.13",
     "@types/node-fetch": "^2.6.1",
