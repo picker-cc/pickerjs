@@ -10,7 +10,7 @@ Picker Create 需要 [Node.js](https://nodejs.org/en/) v8.9.0+ 以上版本已�
 ### npx
 
 ```sh
-npx @picker-cc/create my-app
+npx @pickerjs/create my-app
 ```
 
 *[npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) comes with npm 5.2+ and higher.*
@@ -18,7 +18,7 @@ npx @picker-cc/create my-app
 ### npm
 
 ```sh
-npm init @picker-cc my-app
+npm init @pickerjs my-app
 ```
 
 *`npm init <initializer>` is available in npm 6+*
@@ -26,13 +26,13 @@ npm init @picker-cc my-app
 ### Pnpm
 
 ```sh
-pnpm create @picker-cc my-app
+pnpm create @pickerjs my-app
 ```
 
 ### Yarn
 
 ```sh
-yarn create @picker-cc my-app
+yarn create @pickerjs my-app
 ```
 
 *`yarn create` is available in Yarn 0.25+*
@@ -52,6 +52,6 @@ yarn create @picker-cc my-app
 示例:
 
 ```sh 
-npx @picker-cc/create my-app --log-level verbose
+npx @pickerjs/create my-app --log-level verbose
 ```
 

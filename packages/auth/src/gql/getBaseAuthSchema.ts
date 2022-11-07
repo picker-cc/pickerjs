@@ -2,7 +2,7 @@
 import { AuthGqlNames, SecretFieldImpl } from '../types';
 
 import { validateSecret } from '../lib/validateSecret';
-import {BaseItem, graphql} from "@picker-cc/core";
+import {BaseItem, graphql} from "@pickerjs/core";
 
 export function getBaseAuthSchema<I extends string, S extends string>({
   listKey,

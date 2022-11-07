@@ -3,7 +3,7 @@ import {Request} from 'express';
 import {ReadStream} from 'fs';
 import fs from 'fs-extra';
 import {Stream} from 'stream';
-import {AssetStorageStrategy} from "@picker-cc/core";
+import {AssetStorageStrategy} from "@pickerjs/core";
 
 const STS = (OSS as any).STS;
 

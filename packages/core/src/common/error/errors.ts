@@ -1,6 +1,6 @@
 import { LogLevel } from '../../config';
 import { I18nError } from '../../i18n/i18n-error';
-import {ID} from "@picker-cc/common/lib/shared-types";
+import {ID} from "@pickerjs/common/lib/shared-types";
 
 /**
  * @description

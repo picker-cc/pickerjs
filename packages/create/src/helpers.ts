@@ -248,13 +248,13 @@ export function getDependencies(
     pickerPkgVersion = '',
 ): { dependencies: string[]; devDependencies: string[] } {
     const dependencies = [
-        `@picker-cc/common${pickerPkgVersion}`,
-        `@picker-cc/core${pickerPkgVersion}`,
+        `@pickerjs/common${pickerPkgVersion}`,
+        `@pickerjs/core${pickerPkgVersion}`,
         `prisma`,
         `@prisma/client`
-        // `@picker-cc/email-plugin${vendurePkgVersion}`,
-        // `@picker-cc/asset-server-plugin${pickerPkgVersion}`,
-        // `@picker-cc/admin-ui-plugin${vendurePkgVersion}`,
+        // `@pickerjs/email-plugin${vendurePkgVersion}`,
+        // `@pickerjs/asset-server-plugin${pickerPkgVersion}`,
+        // `@pickerjs/admin-ui-plugin${vendurePkgVersion}`,
         // dbDriverPackage(dbType),
     ];
     const devDependencies = ['concurrently'];

@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import path from 'path';
-import {DefaultAssetNamingStrategy} from "@picker-cc/core";
+import {DefaultAssetNamingStrategy} from "@pickerjs/core";
 
 /**
  * @description

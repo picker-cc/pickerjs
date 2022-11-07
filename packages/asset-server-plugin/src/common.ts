@@ -1,4 +1,4 @@
-import { REQUEST_CONTEXT_KEY } from '@picker-cc/core/dist/common/constants';
+import { REQUEST_CONTEXT_KEY } from '@pickerjs/core/dist/common/constants';
 import { Request } from 'express';
 
 import { AssetServerOptions } from './types';

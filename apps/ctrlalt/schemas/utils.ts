@@ -1,4 +1,4 @@
-import {BasePickerTypeInfo, DatabaseConfig, timestamp} from "@picker-cc/core";
+import {BasePickerTypeInfo, DatabaseConfig, timestamp} from "@pickerjs/core";
 
 export const dbConfig: DatabaseConfig<BasePickerTypeInfo> = {
     provider: 'sqlite',

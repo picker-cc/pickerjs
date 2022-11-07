@@ -1,6 +1,6 @@
 import { AuthTokenRedemptionErrorCode, SecretFieldImpl } from '../types';
 import { validateSecret } from './validateSecret';
-import {PickerDbAPI} from "@picker-cc/core";
+import {PickerDbAPI} from "@pickerjs/core";
 
 // The tokensValidForMins config is from userland so could be anything; make it sane
 function sanitiseValidForMinsConfig(input: any): number {

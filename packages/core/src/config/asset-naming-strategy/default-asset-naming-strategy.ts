@@ -1,4 +1,4 @@
-import { normalizeString } from '@picker-cc/common/lib/normalize-string';
+import { normalizeString } from '@pickerjs/common/lib/normalize-string';
 import path from 'path';
 
 import { AssetNamingStrategy } from './asset-naming-strategy';

@@ -132,7 +132,7 @@ export const idFieldType =
                         return value.toString();
                     },
                 }),
-                views: '@picker-cc/core/___internal-do-not-use-will-break-in-patch/admin-ui/id-field-view',
+                views: '@pickerjs/core/___internal-do-not-use-will-break-in-patch/admin-ui/id-field-view',
                 getAdminMeta: () => ({ kind: config.kind }),
                 ui: {
                     createView: {

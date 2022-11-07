@@ -4,7 +4,7 @@ exports.getSchemaExtension = void 0;
 const getBaseAuthSchema_1 = require("./gql/getBaseAuthSchema");
 const getInitFirstItemSchema_1 = require("./gql/getInitFirstItemSchema");
 const graphql_1 = require("graphql");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 const getSchemaExtension = ({ identityField, listKey, secretField, gqlNames, initFirstItem, sessionData, }) => core_1.graphql.extend(base => {
     const uniqueWhereInputType = (0, graphql_1.assertInputObjectType)(base.schema.getType(`${listKey}WhereUniqueInput`));
     const identityFieldOnUniqueWhere = uniqueWhereInputType.getFields()[identityField];

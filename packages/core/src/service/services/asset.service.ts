@@ -1,11 +1,11 @@
-import {Asset, AssetListOptions, AssetType, CreateAssetInput} from '@picker-cc/common/lib/generated-types';
+import {Asset, AssetListOptions, AssetType, CreateAssetInput} from '@pickerjs/common/lib/generated-types';
 import { Injectable } from '@nestjs/common';
 import slug from 'limax';
 import mime from 'mime-types';
 import path from 'path';
 import { Stream } from 'stream';
 
-import {notNullOrUndefined} from "@picker-cc/common/lib/shared-utils";
+import {notNullOrUndefined} from "@pickerjs/common/lib/shared-utils";
 import {ConfigService, Logger} from "../../config";
 // import {EventBus} from "../../event-bus";
 import {RequestContext} from "../../api";

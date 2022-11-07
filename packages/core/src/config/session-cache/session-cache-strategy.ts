@@ -1,5 +1,5 @@
-import { Permission } from '@picker-cc/common/lib/generated-types';
-import { ID } from '@picker-cc/common/lib/shared-types';
+import { Permission } from '@pickerjs/common/lib/generated-types';
+import { ID } from '@pickerjs/common/lib/shared-types';
 
 import { InjectableStrategy } from '../../common/types/injectable-strategy';
 

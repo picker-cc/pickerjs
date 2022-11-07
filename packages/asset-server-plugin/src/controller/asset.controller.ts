@@ -1,5 +1,5 @@
 import {Controller, Post, UploadedFile, UseInterceptors} from "@nestjs/common";
-import {AssetService, Ctx, RequestContext} from "@picker-cc/core";
+import {AssetService, Ctx, RequestContext} from "@pickerjs/core";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {Readable} from "stream";
 import {imageFileFilter} from "../plugin";

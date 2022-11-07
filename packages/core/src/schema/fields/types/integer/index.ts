@@ -189,7 +189,7 @@ export const integer =
                 output: graphql.field({
                     type: config.graphql?.read?.isNonNull ? graphql.nonNull(graphql.Int) : graphql.Int,
                 }),
-                views: '@picker-cc/core/fields/types/integer/views',
+                views: '@pickerjs/core/fields/types/integer/views',
                 getAdminMeta() {
                     return {
                         validation: {

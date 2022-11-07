@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pickerConfig = void 0;
-const core_1 = require("@picker-cc/core");
-const shared_constants_1 = require("@picker-cc/common/lib/shared-constants");
+const core_1 = require("@pickerjs/core");
+const shared_constants_1 = require("@pickerjs/common/lib/shared-constants");
 const User_1 = require("../schemas/User");
 const Post_1 = require("../schemas/Post");
 const plugin_1 = require("./plugin");
-const wechat_plugin_1 = require("@picker-cc/wechat-plugin");
+const wechat_plugin_1 = require("@pickerjs/wechat-plugin");
 const auth_1 = require("./auth");
 const sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
 const sessionMaxAge = 60 * 60 * 24 * 30;

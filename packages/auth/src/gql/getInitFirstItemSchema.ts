@@ -1,7 +1,7 @@
 import { assertInputObjectType, GraphQLInputObjectType, GraphQLSchema } from 'graphql';
 
 import { AuthGqlNames, InitFirstItemConfig } from '../types';
-import {BaseItem, graphql} from "@picker-cc/core";
+import {BaseItem, graphql} from "@pickerjs/core";
 
 export function getInitFirstItemSchema({
   listKey,

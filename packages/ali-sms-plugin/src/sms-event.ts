@@ -1,4 +1,4 @@
-import {PickerEvent} from "@picker-cc/core";
+import {PickerEvent} from "@pickerjs/core";
 
 export class SmsEvent extends PickerEvent {
     constructor(

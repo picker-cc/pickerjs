@@ -19,8 +19,8 @@ import {TargetType} from "./types/target-type.enum";
 import {InputTarget} from "./types/input-target.class";
 import {OutputTarget} from "./types/output-target.class";
 import {Injectable} from "@nestjs/common";
-// import {Picker} from "@picker-cc/core/src/picker-context/picker-context";
-import {Picker, ProcessContext} from "@picker-cc/core";
+// import {Picker} from "@pickerjs/core/src/picker-context/picker-context";
+import {Picker, ProcessContext} from "@pickerjs/core";
 import { Context } from '.picker/types';
 
 @Injectable()

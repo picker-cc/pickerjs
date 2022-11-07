@@ -117,6 +117,6 @@ export const file =
                         return {filename, filesize, storage: config.storage};
                     },
                 }),
-                views: '@picker-cc/core/fields/types/file/views',
+                views: '@pickerjs/core/fields/types/file/views',
             });
         };

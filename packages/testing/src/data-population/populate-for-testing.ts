@@ -1,11 +1,11 @@
 /* tslint:disable:no-console */
 import { INestApplicationContext } from '@nestjs/common';
-import { LanguageCode } from '@picker-cc/common/lib/generated-types';
+import { LanguageCode } from '@pickerjs/common/lib/generated-types';
 // import { VendureConfig } from '@vendure/core';
-import { importProductsFromCsv, populateCollections, populateInitialData } from '@picker-cc/core/cli';
+import { importProductsFromCsv, populateCollections, populateInitialData } from '@pickerjs/core/cli';
 
 import { TestServerOptions } from '../types';
-import {PickerConfig} from "@picker-cc/core";
+import {PickerConfig} from "@pickerjs/core";
 
 // import { populateCustomers } from './populate-customers';
 

@@ -11,7 +11,7 @@ let currentContext: PickerContext;
  * @example
  * ```TypeScript
  * import { Injectable, OnApplicationBootstrap } from '\@nestjs/common';
- * import { ProcessContext } from '\@picker-cc/core';
+ * import { ProcessContext } from '\@pickerjs/core';
  *
  * \@Injectable()
  * export class MyService implements OnApplicationBootstrap {

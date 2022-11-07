@@ -1,4 +1,4 @@
-import { PickerDbAPI } from "@picker-cc/core";
+import { PickerDbAPI } from "@pickerjs/core";
 export declare function createAuthToken(identityField: string, identity: string, dbItemAPI: PickerDbAPI<any>[string]): Promise<{
     success: false;
 } | {

@@ -1,5 +1,5 @@
-import { Type } from '@picker-cc/common/lib/shared-types';
-import { notNullOrUndefined } from '@picker-cc/common/lib/shared-utils';
+import { Type } from '@pickerjs/common/lib/shared-types';
+import { notNullOrUndefined } from '@pickerjs/common/lib/shared-utils';
 import { DynamicModule } from '@nestjs/common';
 import { getConfig } from '../config/config-helpers';
 

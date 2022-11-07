@@ -24,7 +24,7 @@ import {setPickerContext} from "./picker-context/picker-context";
  * Picker Server 引导服务，这个是应用程序的入口。
  * @example
  * ```Typescript
- * import { bootstrap } from '\@picker-cc/core';
+ * import { bootstrap } from '\@pickerjs/core';
  * import { config } from './picker-config';
  *
  * bootstrap(config).catch(err => {

@@ -77,7 +77,7 @@ export const virtual =
                         return usableField.resolve!(item as any, ...args);
                     },
                 }),
-                views: '@picker-cc/core/fields/types/virtual/views',
+                views: '@pickerjs/core/fields/types/virtual/views',
                 getAdminMeta: () => ({ query: config.ui?.query || '' }),
             });
         };

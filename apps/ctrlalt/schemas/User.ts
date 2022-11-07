@@ -1,7 +1,7 @@
-import {checkbox, image, list, password, relationship, text, timestamp} from "@picker-cc/core";
+import {checkbox, image, list, password, relationship, text, timestamp} from "@pickerjs/core";
 import {trackingFields} from "./utils";
-import {SmsEvent} from "@picker-cc/ali-sms-plugin";
-import {generateCode} from "@picker-cc/common/lib/generate-public-id";
+import {SmsEvent} from "@pickerjs/ali-sms-plugin";
+import {generateCode} from "@pickerjs/common/lib/generate-public-id";
 import {ScraperService} from "../server/scraper/scraper.service";
 import got from "got";
 

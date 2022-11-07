@@ -11,7 +11,7 @@ import {
     PickerConfig,
     RuntimePickerConfig,
 } from './picker-config';
-import {CustomFields} from "@picker-cc/common/lib/shared-types";
+import {CustomFields} from "@pickerjs/common/lib/shared-types";
 import {GraphQLSchema} from "graphql";
 import {ModuleRef} from "@nestjs/core";
 import {Injector} from "../common";

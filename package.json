@@ -1,10 +1,10 @@
 {
-  "name": "picker-cc",
+  "name": "pickercc",
   "version": "0.1.8",
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
-    "watch:core-common": "pnpm run --filter @picker-cc/common --filter @picker-cc/core watch --parallel",
+    "watch:core-common": "pnpm run --filter @pickerjs/common --filter @pickerjs/core watch --parallel",
     "format": "prettier --write --html-whitespace-sensitivity ignore",
     "bootstrap": "pnpm recursive install",
     "docs:generate-typescript-docs": "ts-node scripts/docs/generate-typescript-docs.ts",
@@ -17,7 +17,7 @@
     "dev-server:start": "cd packages/dev-server && pnpm run start",
     "test": "pnpm run test --stream --no-bail",
     "e2e": "pnpm run e2e --stream --no-bail",
-    "build": "pnpm --filter=@picker-cc/* run build",
+    "build": "pnpm --filter=@pickerjs/* run build",
     "clean": "rimraf 'packages/*/{lib, node_modules}' && rimraf node_modules",
     "check-imports": "ts-node scripts/check-imports.ts",
     "generate-changelog": "ts-node scripts/changelogs/generate-changelog.ts",

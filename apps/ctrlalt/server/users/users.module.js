@@ -10,8 +10,8 @@ exports.UsersModule = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const users_controller_1 = require("./users.controller");
-const core_1 = require("@picker-cc/core");
-const wechat_plugin_1 = require("@picker-cc/wechat-plugin");
+const core_1 = require("@pickerjs/core");
+const wechat_plugin_1 = require("@pickerjs/wechat-plugin");
 let UsersModule = class UsersModule {
 };
 UsersModule = __decorate([

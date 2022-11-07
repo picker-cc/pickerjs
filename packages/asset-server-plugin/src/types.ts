@@ -10,7 +10,7 @@
  *
  * @docsCategory AssetServerPlugin
  */
-import { AssetNamingStrategy, AssetStorageStrategy } from '@picker-cc/core';
+import { AssetNamingStrategy, AssetStorageStrategy } from '@pickerjs/core';
 
 /** 图像文件的转换模式 */
 export type ImageTransformMode = 'crop' | 'resize';

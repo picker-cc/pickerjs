@@ -1,5 +1,5 @@
 import { AuthGqlNames, InitFirstItemConfig } from './types';
-import { ExtendGraphqlSchema } from "@picker-cc/core";
+import { ExtendGraphqlSchema } from "@pickerjs/core";
 export declare const getSchemaExtension: ({ identityField, listKey, secretField, gqlNames, initFirstItem, sessionData, }: {
     identityField: string;
     listKey: string;

@@ -1,5 +1,5 @@
 {
-  "name": "@picker-cc/auth",
+  "name": "@pickerjs/auth",
   "version": "0.1.2-beta.0",
   "description": "",
   "main": "dist/picker-cc-auth.cjs.js",
@@ -21,9 +21,9 @@
     ]
   },
   "devDependencies": {
-    "@picker-cc/core": "workspace:*"
+    "@pickerjs/core": "workspace:*"
   },
   "peerDependencies": {
-    "@picker-cc/core": "workspace:*"
+    "@pickerjs/core": "workspace:*"
   }
 }

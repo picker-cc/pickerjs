@@ -1,7 +1,7 @@
 import path from 'path';
 import sharp from 'sharp';
-import {AssetType} from "@picker-cc/common/lib/generated-types";
-import {AssetPreviewStrategy, getAssetType} from "@picker-cc/core";
+import {AssetType} from "@pickerjs/common/lib/generated-types";
+import {AssetPreviewStrategy, getAssetType} from "@pickerjs/core";
 
 /**
  * 资产文件的预览策略

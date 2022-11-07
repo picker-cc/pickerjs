@@ -1,8 +1,8 @@
 import {AuthGqlNames} from '../types';
 
-import {graphql, BaseItem, PickerContext, PickerDbAPI} from "@picker-cc/core";
-import {SmsEvent} from "@picker-cc/ali-sms-plugin";
-import {generateCode} from "@picker-cc/common/lib/generate-public-id";
+import {graphql, BaseItem, PickerContext, PickerDbAPI} from "@pickerjs/core";
+import {SmsEvent} from "@pickerjs/ali-sms-plugin";
+import {generateCode} from "@pickerjs/common/lib/generate-public-id";
 
 export function getBaseAuthSchema<I extends string, S extends string>({
                                                                           listKey,

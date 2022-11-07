@@ -1,5 +1,5 @@
 import { stitchSchemas, ValidationLevel } from '@graphql-tools/stitch';
-import { notNullOrUndefined } from '@picker-cc/common/lib/shared-utils';
+import { notNullOrUndefined } from '@pickerjs/common/lib/shared-utils';
 import {
     GraphQLEnumType,
     GraphQLField,

@@ -147,7 +147,7 @@ function generateIsErrorFunction(schema: GraphQLSchema) {
         .filter(node => inheritsFromErrorResult(node));
     return `
 const errorTypeNames = new Set([${errorNodes.map(n => `'${n.name.value}'`).join(', ')}]);
-function isGraphQLError(input: any): input is import('@picker-cc/common/lib/generated-types').${ERROR_INTERFACE_NAME} {
+function isGraphQLError(input: any): input is import('@pickerjs/common/lib/generated-types').${ERROR_INTERFACE_NAME} {
   return input instanceof ${ERROR_INTERFACE_NAME} || errorTypeNames.has(input.__typename);
 }`;
 }

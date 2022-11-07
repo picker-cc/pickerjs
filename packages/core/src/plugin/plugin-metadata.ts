@@ -1,7 +1,7 @@
 import { DynamicModule } from '@nestjs/common';
 import { MODULE_METADATA } from '@nestjs/common/constants';
-import { Type } from '@picker-cc/common/lib/shared-types';
-import { notNullOrUndefined } from '@picker-cc/common/lib/shared-utils';
+import { Type } from '@pickerjs/common/lib/shared-types';
+import { notNullOrUndefined } from '@pickerjs/common/lib/shared-utils';
 
 import { APIExtensionDefinition, PluginConfigurationFn } from './picker-plugin';
 

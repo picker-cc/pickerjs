@@ -182,7 +182,7 @@ export const decimal =
                         return val;
                     },
                 }),
-                views: '@picker-cc/core/fields/types/decimal/views',
+                views: '@pickerjs/core/fields/types/decimal/views',
                 getAdminMeta: (): DecimalFieldMeta => ({
                     defaultValue: defaultValue ?? null,
                     precision,

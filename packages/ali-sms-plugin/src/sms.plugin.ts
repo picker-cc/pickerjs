@@ -1,7 +1,7 @@
 import type { MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
 // import { CACHE_MANAGER } from '@nestjs/common';
-import type { EventBus, Type } from '@picker-cc/core';
-import { Logger, PickerPlugin, PluginCommonModule } from '@picker-cc/core';
+import type { EventBus, Type } from '@pickerjs/core';
+import { Logger, PickerPlugin, PluginCommonModule } from '@pickerjs/core';
 import { debounceTime } from 'rxjs';
 import { SmsEvent } from './sms-event';
 import type { SMSOptions } from './types';

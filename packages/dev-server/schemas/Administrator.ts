@@ -1,5 +1,5 @@
 import {trackingFields} from "./utils";
-import {list, relationship, text, timestamp} from "@picker-cc/core";
+import {list, relationship, text, timestamp} from "@pickerjs/core";
 
 export const Administrator = list({
     // access: {},

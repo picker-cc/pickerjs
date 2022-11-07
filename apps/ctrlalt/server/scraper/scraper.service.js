@@ -31,7 +31,7 @@ const metascraper_url_1 = __importDefault(require("metascraper-url"));
 const metascraper_video_1 = __importDefault(require("metascraper-video"));
 const target_type_enum_1 = require("./types/target-type.enum");
 const common_1 = require("@nestjs/common");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 let ScraperService = class ScraperService {
     constructor(processContext, picker) {
         this.processContext = processContext;

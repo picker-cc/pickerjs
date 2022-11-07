@@ -1,7 +1,7 @@
 //
 //
 // import { Injectable } from '@nestjs/common';
-// import {generateCode} from "@picker-cc/common/lib/generate-public-id";
+// import {generateCode} from "@pickerjs/common/lib/generate-public-id";
 // const Core = require('@alicloud/pop-core');
 // // import { randomNumber } from 'src/utils';
 // @Injectable()

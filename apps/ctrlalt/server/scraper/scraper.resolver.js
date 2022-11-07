@@ -18,7 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScraperResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const scraper_service_1 = require("./scraper.service");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 const got_1 = __importDefault(require("got"));
 let ScraperResolver = class ScraperResolver {
     constructor(scraperService) {

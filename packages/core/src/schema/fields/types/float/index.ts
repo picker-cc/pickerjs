@@ -158,7 +158,7 @@ export const float =
                 output: graphql.field({
                     type: config.graphql?.read?.isNonNull ? graphql.nonNull(graphql.Float) : graphql.Float,
                 }),
-                views: '@picker-cc/core/fields/types/float/views',
+                views: '@pickerjs/core/fields/types/float/views',
                 getAdminMeta() {
                     return {
                         validation: {

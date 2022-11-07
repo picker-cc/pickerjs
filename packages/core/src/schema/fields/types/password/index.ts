@@ -192,7 +192,7 @@ export const password =
                         resolve: inputResolver,
                     },
                 },
-                views: '@picker-cc/core/fields/types/password/views',
+                views: '@pickerjs/core/fields/types/password/views',
                 getAdminMeta: (): PasswordFieldMeta => ({
                     isNullable,
                     validation: {

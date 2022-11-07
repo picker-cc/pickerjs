@@ -1,4 +1,4 @@
-import {EventBus} from "@picker-cc/core";
+import {EventBus} from "@pickerjs/core";
 
 export class AuthService {
     constructor(

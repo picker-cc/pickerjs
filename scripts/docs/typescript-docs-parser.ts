@@ -428,8 +428,8 @@ export class TypescriptDocsParser {
 
     /**
      * TypeScript v3.5.1 版本开始会将标记注释中的所有 '@' 标记解释为一个新 tag。这是一个问题：
-     * 比如当一个插件在它的描述中包含一些广西，如 "install @picker-cc/some-plugin 包"。在这里，
-     * TypeScript 会将 "@picker-cc" 解释为 JSDoc tag，并从注释中删除它和所有剩余的文本。
+     * 比如当一个插件在它的描述中包含一些广西，如 "install @pickerjs/some-plugin 包"。在这里，
+     * TypeScript 会将 "@pickerjs" 解释为 JSDoc tag，并从注释中删除它和所有剩余的文本。
      *
      * 解决方案是用一个替换字段串替换所有转义的 @ 标记 ("\@")，以便 TypeScript 处理它们作为常规的注释文本，
      * 然后一旦它解析了语句，我们就用 "@" 字符替换它们。

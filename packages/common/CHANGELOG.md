@@ -1,1 +1,1 @@
-# @picker-cc/common
+# @pickerjs/common

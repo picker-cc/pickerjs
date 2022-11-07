@@ -44,7 +44,7 @@ export const json =
                         update: { arg: graphql.arg({ type: graphql.JSON }) },
                     },
                     output: graphql.field({ type: graphql.JSON }),
-                    views: '@picker-cc/core/fields/types/json/views',
+                    views: '@pickerjs/core/fields/types/json/views',
                     getAdminMeta: () => ({ defaultValue }),
                 },
                 {

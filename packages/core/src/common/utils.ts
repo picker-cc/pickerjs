@@ -1,5 +1,5 @@
-import { AssetType } from '@picker-cc/common/lib/generated-types';
-import { ID } from '@picker-cc/common/lib/shared-types';
+import { AssetType } from '@pickerjs/common/lib/generated-types';
+import { ID } from '@pickerjs/common/lib/shared-types';
 import { Observable, Observer } from 'rxjs';
 
 /**

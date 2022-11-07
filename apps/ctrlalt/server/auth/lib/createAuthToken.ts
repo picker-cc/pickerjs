@@ -1,5 +1,5 @@
 import {randomBytes} from 'crypto';
-import {PickerDbAPI} from "@picker-cc/core";
+import {PickerDbAPI} from "@pickerjs/core";
 
 function generateToken(length: number): string {
     return randomBytes(length) // Generates N*8 bits of data

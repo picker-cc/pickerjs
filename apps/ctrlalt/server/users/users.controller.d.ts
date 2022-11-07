@@ -1,7 +1,7 @@
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { RequestContext, EventBus } from "@picker-cc/core";
+import { RequestContext, EventBus } from "@pickerjs/core";
 export declare class UsersController {
     private readonly usersService;
     private readonly eventBus;

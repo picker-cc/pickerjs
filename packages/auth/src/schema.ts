@@ -13,7 +13,7 @@ import {
     parse,
     validate
 } from "graphql";
-import {ExtendGraphqlSchema, getGqlNames, graphql} from "@picker-cc/core";
+import {ExtendGraphqlSchema, getGqlNames, graphql} from "@pickerjs/core";
 
 function assertSecretFieldImpl(
     impl: any,

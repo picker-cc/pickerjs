@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInitFirstItemSchema = void 0;
 const graphql_1 = require("graphql");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 function getInitFirstItemSchema({ listKey, fields, itemData, gqlNames, graphQLSchema, ItemAuthenticationWithPasswordSuccess, }) {
     const createInputConfig = (0, graphql_1.assertInputObjectType)(graphQLSchema.getType(`${listKey}CreateInput`)).toConfig();
     const fieldsSet = new Set(fields);

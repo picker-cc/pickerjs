@@ -1,4 +1,4 @@
-import {checkbox, list, password, relationship, select, text, timestamp} from "@picker-cc/core";
+import {checkbox, list, password, relationship, select, text, timestamp} from "@pickerjs/core";
 import {trackingFields} from "./utils";
 
 

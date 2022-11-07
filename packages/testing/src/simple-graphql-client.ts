@@ -7,8 +7,8 @@ import fetch, { RequestInit, Response } from 'node-fetch';
 import { stringify } from 'querystring';
 
 import { QueryParams } from './types';
-import {PickerConfig} from "@picker-cc/core";
-import {SUPER_ADMIN_USER_IDENTIFIER, SUPER_ADMIN_USER_PASSWORD} from "@picker-cc/common/lib/shared-constants";
+import {PickerConfig} from "@pickerjs/core";
+import {SUPER_ADMIN_USER_IDENTIFIER, SUPER_ADMIN_USER_PASSWORD} from "@pickerjs/common/lib/shared-constants";
 import { createUploadPostData } from './utils/create-upload-post-data';
 
 const LOGIN = gql`

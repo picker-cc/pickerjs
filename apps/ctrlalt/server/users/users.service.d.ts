@@ -1,6 +1,6 @@
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ConfigService } from "@picker-cc/core";
+import { ConfigService } from "@pickerjs/core";
 export declare class UsersService {
     private readonly configService;
     constructor(configService: ConfigService);

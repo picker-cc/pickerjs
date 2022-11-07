@@ -1,7 +1,7 @@
 // import { PickerMongoEntity } from '../../entity/base/mongo-base.entity';
-import { Type } from '@picker-cc/common/lib/shared-types';
+import { Type } from '@pickerjs/common/lib/shared-types';
 // import {Tag} from "../../entity/tag/tag.entity";
-import {LogicalOperator} from "@picker-cc/common/lib/generated-types";
+import {LogicalOperator} from "@pickerjs/common/lib/generated-types";
 
 /**
  * @description

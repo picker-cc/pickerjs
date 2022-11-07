@@ -1,5 +1,5 @@
 import {CACHE_MANAGER, MiddlewareConsumer, NestModule, OnModuleInit} from "@nestjs/common";
-import {Logger, PickerPlugin, PluginCommonModule, Type} from "@picker-cc/core";
+import {Logger, PickerPlugin, PluginCommonModule, Type} from "@pickerjs/core";
 import {WeChatModule} from "./wechat.module";
 import {WeChatModuleOptions} from "../types";
 import {WechatController} from "./wechat.controller";

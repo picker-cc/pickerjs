@@ -1,4 +1,4 @@
-import { LanguageCode } from '@picker-cc/common/lib/generated-types';
+import { LanguageCode } from '@pickerjs/common/lib/generated-types';
 
 import { CrudPermissionDefinition, PermissionDefinition, PermissionMetadata } from './permission-definition';
 

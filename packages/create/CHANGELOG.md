@@ -1,2 +1,2 @@
-# @picker-cc/create
+# @pickerjs/create
 

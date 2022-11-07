@@ -1,5 +1,5 @@
-import { LanguageCode } from '@picker-cc/common/lib/generated-types';
-import { CustomFieldsObject, ID } from '@picker-cc/common/lib/shared-types';
+import { LanguageCode } from '@pickerjs/common/lib/generated-types';
+import { CustomFieldsObject, ID } from '@pickerjs/common/lib/shared-types';
 
 // import { PickerMongoEntity } from '../../entity/base/mongo-base.entity';
 // import { TranslatableRelationsKeys } from '../../service/helpers/utils/translate-entity';

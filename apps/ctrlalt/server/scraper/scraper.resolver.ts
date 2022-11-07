@@ -1,6 +1,6 @@
 import {Args, Query, Resolver} from "@nestjs/graphql";
 import {ScraperService} from "./scraper.service";
-import {Ctx, RequestContext} from "@picker-cc/core";
+import {Ctx, RequestContext} from "@pickerjs/core";
 import {Metadata} from "metascraper";
 import got from "got";
 

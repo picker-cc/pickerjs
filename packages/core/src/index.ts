@@ -12,14 +12,14 @@ export * from './picker-context/index'
 export * from './service/index';
 export * from './i18n/index';
 export * from './worker/index';
-export * from '@picker-cc/common/lib/shared-types';
+export * from '@pickerjs/common/lib/shared-types';
 
 export {
     Permission,
     LanguageCode,
     AssetType,
     AdjustmentType,
-} from '@picker-cc/common/lib/generated-types';
+} from '@pickerjs/common/lib/generated-types';
 
 export * from './schema/index'
 export * from './schema/types'

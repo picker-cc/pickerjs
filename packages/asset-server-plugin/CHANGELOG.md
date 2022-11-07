@@ -1,1 +1,1 @@
-# @picker-cc/asset-server-plugin
+# @pickerjs/asset-server-plugin

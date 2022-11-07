@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAuth = void 0;
 const schema_1 = require("./schema");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 function createAuth({ listKey, secretField, initFirstItem, identityField, magicAuthLink, passwordResetLink, sessionData = 'id', }) {
     const gqlNames = {
         sendItemVerifyCode: `send${listKey}VerifyCode`,

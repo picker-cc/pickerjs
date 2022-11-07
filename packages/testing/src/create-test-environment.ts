@@ -1,6 +1,6 @@
 import { SimpleGraphQLClient } from './simple-graphql-client';
 import { TestServer } from './test-server';
-import {PickerConfig} from "@picker-cc/core";
+import {PickerConfig} from "@pickerjs/core";
 
 /**
  * @description
@@ -28,7 +28,7 @@ export interface TestEnvironment {
  *
  * @example
  * ```TypeScript
- * import { createTestEnvironment, testConfig } from '\@picker-cc/testing';
+ * import { createTestEnvironment, testConfig } from '\@pickerjs/testing';
  *
  * describe('some feature to test', () => {
  *

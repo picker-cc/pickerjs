@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Administrator = void 0;
 const utils_1 = require("./utils");
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 exports.Administrator = (0, core_1.list)({
     fields: {
         name: (0, core_1.text)({

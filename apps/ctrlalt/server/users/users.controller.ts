@@ -10,7 +10,7 @@ import {
 import {UsersService} from './users.service';
 import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
-import {Ctx, RequestContext, EventBus} from "@picker-cc/core";
+import {Ctx, RequestContext, EventBus} from "@pickerjs/core";
 
 import {
     WeChat,
@@ -22,8 +22,8 @@ import {
     HttpKit,
     ApiConfig,
 } from 'tnwx';
-import {SmsEvent} from "@picker-cc/ali-sms-plugin";
-import {generateCode} from "@picker-cc/common/lib/generate-public-id";
+import {SmsEvent} from "@pickerjs/ali-sms-plugin";
+import {generateCode} from "@pickerjs/common/lib/generate-public-id";
 @Controller('/v1/api/users')
 export class UsersController {
     constructor(

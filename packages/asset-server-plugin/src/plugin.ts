@@ -3,8 +3,8 @@ import {
     PluginCommonModule,
     registerPluginStartupMessage,
     Type,
-} from '@picker-cc/core';
-import { AssetStorageStrategy, Logger, RuntimePickerConfig } from '@picker-cc/core';
+} from '@pickerjs/core';
+import { AssetStorageStrategy, Logger, RuntimePickerConfig } from '@pickerjs/core';
 import {
     MiddlewareConsumer,
     NestModule,

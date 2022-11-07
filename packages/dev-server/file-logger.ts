@@ -1,4 +1,4 @@
-import { PickerLogger } from '@picker-cc/core';
+import { PickerLogger } from '@pickerjs/core';
 import fs from 'fs';
 
 // 一个简单的自定义日志记录器，它将所有日志写入到一个文件中。

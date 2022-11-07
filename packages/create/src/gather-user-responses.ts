@@ -1,4 +1,4 @@
-import {SUPER_ADMIN_USER_IDENTIFIER, SUPER_ADMIN_USER_PASSWORD} from '@picker-cc/common/lib/shared-constants';
+import {SUPER_ADMIN_USER_IDENTIFIER, SUPER_ADMIN_USER_PASSWORD} from '@pickerjs/common/lib/shared-constants';
 import fs from 'fs-extra';
 import Handlebars from 'handlebars';
 import path from 'path';

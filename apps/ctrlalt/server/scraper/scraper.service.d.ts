@@ -1,5 +1,5 @@
 import { Metadata } from "metascraper";
-import { Picker, ProcessContext } from "@picker-cc/core";
+import { Picker, ProcessContext } from "@pickerjs/core";
 export declare class ScraperService {
     private processContext;
     private picker;

@@ -1,5 +1,5 @@
 import {SecretFieldImpl} from '../types';
-import {PickerDbAPI} from "@picker-cc/core";
+import {PickerDbAPI} from "@pickerjs/core";
 
 export async function validateSecret(
     secretFieldImpl: SecretFieldImpl,

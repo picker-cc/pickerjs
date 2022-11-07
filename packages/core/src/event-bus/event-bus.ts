@@ -3,7 +3,7 @@ import {Observable, Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
 
 import {PickerEvent} from './picker-event';
-import {Type} from "@picker-cc/common/lib/shared-types";
+import {Type} from "@pickerjs/common/lib/shared-types";
 
 export type EventHandler<T extends PickerEvent> = (event: T) => void;
 export type UnsubscribeFn = () => void;

@@ -1,4 +1,4 @@
-import { PickerConfig } from '@picker-cc/core';
-declare const withAuthConfig: import("@picker-cc/core").SchemaConfig<import("@picker-cc/core").BasePickerTypeInfo>;
+import { PickerConfig } from '@pickerjs/core';
+declare const withAuthConfig: import("@pickerjs/core").SchemaConfig<import("@pickerjs/core").BasePickerTypeInfo>;
 export default withAuthConfig;
 export declare const pickerConfig: PickerConfig;

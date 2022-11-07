@@ -2,13 +2,13 @@ import { Module, Provider, Type as NestType } from '@nestjs/common';
 import {MODULE_METADATA} from "@nestjs/common/constants";
 import {ModuleMetadata} from "@nestjs/common/interfaces";
 import {APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE} from "@nestjs/core";
-import {Type} from "@picker-cc/common/lib/shared-types";
+import {Type} from "@pickerjs/common/lib/shared-types";
 import {DocumentNode} from "graphql";
 
 import {RuntimePickerConfig} from "../config";
 
 import {PLUGIN_METADATA} from "./plugin-metadata";
-import {pick} from "@picker-cc/common/lib/pick";
+import {pick} from "@pickerjs/common/lib/pick";
 
 /**
  * @description
@@ -89,7 +89,7 @@ export type PluginConfigurationFn = (
  * @example
  * typescript
  * import { Controller, Get } from '\@nestjs/common';
- * import { Ctx, PluginCommonModule, ProductService, RequestContext, PickerPlugin } from '\@picker-cc/core';
+ * import { Ctx, PluginCommonModule, ProductService, RequestContext, PickerPlugin } from '\@pickerjs/core';
  *
  * \@Controller('products')
  * export class ProductsController {

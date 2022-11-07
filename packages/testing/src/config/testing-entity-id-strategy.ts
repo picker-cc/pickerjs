@@ -1,7 +1,7 @@
 /**
  * 测试实体 id 策略，所有 id 前缀为常量字符串。这是用在 e2e 测试以确保参数中的所有 ID 属性的正确解码。
  */
-import {EntityIdStrategy} from "@picker-cc/core";
+import {EntityIdStrategy} from "@pickerjs/core";
 
 export class TestingEntityIdStrategy implements EntityIdStrategy<'increment'> {
     readonly primaryKeyType = 'increment';

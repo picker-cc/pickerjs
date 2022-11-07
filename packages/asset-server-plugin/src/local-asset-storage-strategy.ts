@@ -1,4 +1,4 @@
-import { AssetStorageStrategy } from '@picker-cc/core';
+import { AssetStorageStrategy } from '@pickerjs/core';
 import { createHash } from 'crypto';
 import { Request } from 'express';
 import { ReadStream } from 'fs';

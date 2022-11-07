@@ -106,7 +106,7 @@ async function getApplicationRef(): Promise<INestApplication | undefined> {
     // on this initial run.
     (config.dbConnectionOptions as any).synchronize = true;
 
-    const { bootstrap } = require('@picker-cc/core');
+    const { bootstrap } = require('@pickerjs/core');
     console.log('Picker Server 启动引导...');
     const app = await bootstrap(config);
     return app;

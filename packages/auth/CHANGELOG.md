@@ -1,1 +1,1 @@
-# @picker-cc/auth
+# @pickerjs/auth

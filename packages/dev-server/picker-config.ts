@@ -1,5 +1,5 @@
-import {config as typeInfoConfig, createAuth, DefaultLogger, LogLevel, PickerConfig, statelessSessions} from '@picker-cc/core';
-import {ADMIN_API_PATH, API_PORT} from "@picker-cc/common/lib/shared-constants";
+import {config as typeInfoConfig, createAuth, DefaultLogger, LogLevel, PickerConfig, statelessSessions} from '@pickerjs/core';
+import {ADMIN_API_PATH, API_PORT} from "@pickerjs/common/lib/shared-constants";
 
 import {User} from "./schemas/User";
 

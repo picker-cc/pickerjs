@@ -133,7 +133,7 @@ export const multiselect =
                             await config.hooks?.validateInput?.(args);
                         },
                     },
-                    views: '@picker-cc/core/fields/types/multiselect/views',
+                    views: '@pickerjs/core/fields/types/multiselect/views',
                     getAdminMeta: () => ({
                         options: transformedConfig.options,
                         type: config.type ?? 'string',

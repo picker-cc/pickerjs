@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 const utils_1 = require("./utils");
 exports.User = (0, core_1.list)({
     access: {

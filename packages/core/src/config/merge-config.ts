@@ -1,5 +1,5 @@
-import { isClassInstance, isObject } from '@picker-cc/common/lib/shared-utils';
-import { simpleDeepClone } from '@picker-cc/common/lib/simple-deep-clone';
+import { isClassInstance, isObject } from '@pickerjs/common/lib/shared-utils';
+import { simpleDeepClone } from '@pickerjs/common/lib/simple-deep-clone';
 
 import { PartialPickerConfig, PickerConfig } from './picker-config';
 

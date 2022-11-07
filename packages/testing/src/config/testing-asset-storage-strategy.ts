@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { Readable, Stream, Writable } from 'stream';
 
 import { getTestImageBuffer } from './testing-asset-preview-strategy';
-import {AssetStorageStrategy} from "@picker-cc/core";
+import {AssetStorageStrategy} from "@pickerjs/core";
 
 /**
  * 一种模拟存储策略，它实际上不在任何地方持久化资产。

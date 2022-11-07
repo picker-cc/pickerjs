@@ -1,10 +1,10 @@
-import {ID, JsonCompatible} from '@picker-cc/common/lib/shared-types';
-import { isObject } from '@picker-cc/common/lib/shared-utils';
+import {ID, JsonCompatible} from '@pickerjs/common/lib/shared-types';
+import { isObject } from '@pickerjs/common/lib/shared-utils';
 import { Request } from 'express';
 
 import {CachedSession} from "../../config/session-cache/session-cache-strategy";
 import {TFunction} from "i18next";
-import {LanguageCode} from "@picker-cc/common/lib/generated-types";
+import {LanguageCode} from "@pickerjs/common/lib/generated-types";
 import {CreateContext, PickerContext} from "../../schema/types";
 
 export type SerializedRequestContext = {

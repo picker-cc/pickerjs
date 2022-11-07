@@ -1,11 +1,11 @@
-import {config,  DefaultLogger, LogLevel, PickerConfig,createAuth as createBaseAuth , statelessSessions} from '@picker-cc/core';
-import {ADMIN_API_PATH, API_PORT} from "@picker-cc/common/lib/shared-constants";
+import {config,  DefaultLogger, LogLevel, PickerConfig,createAuth as createBaseAuth , statelessSessions} from '@pickerjs/core';
+import {ADMIN_API_PATH, API_PORT} from "@pickerjs/common/lib/shared-constants";
 
 import {User} from "../schemas/User";
 import {Post} from "../schemas/Post"
 import {CaixieAppPlugin} from "./plugin";
-import {WechatPlugin} from "@picker-cc/wechat-plugin";
-import {AliSmsPlugin} from "@picker-cc/ali-sms-plugin";
+import {WechatPlugin} from "@pickerjs/wechat-plugin";
+import {AliSmsPlugin} from "@pickerjs/ali-sms-plugin";
 import {createAuth} from "./auth";
 const sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
 const sessionMaxAge = 60 * 60 * 24 * 30; // 30 days

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBaseAuthSchema = void 0;
-const core_1 = require("@picker-cc/core");
-const ali_sms_plugin_1 = require("@picker-cc/ali-sms-plugin");
-const generate_public_id_1 = require("@picker-cc/common/lib/generate-public-id");
+const core_1 = require("@pickerjs/core");
+const ali_sms_plugin_1 = require("@pickerjs/ali-sms-plugin");
+const generate_public_id_1 = require("@pickerjs/common/lib/generate-public-id");
 function getBaseAuthSchema({ listKey, identityField, secretField, gqlNames, base, }) {
     const ItemAuthenticationWithPasswordSuccess = core_1.graphql.object()({
         name: gqlNames.ItemAuthenticationWithVerifyCodeSuccess,

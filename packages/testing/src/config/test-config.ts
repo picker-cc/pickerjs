@@ -1,5 +1,5 @@
-import {DefaultAssetNamingStrategy, defaultConfig, mergeConfig, NoopLogger, PickerConfig} from "@picker-cc/core";
-import {ADMIN_API_PATH} from "@picker-cc/common/lib/shared-constants";
+import {DefaultAssetNamingStrategy, defaultConfig, mergeConfig, NoopLogger, PickerConfig} from "@pickerjs/core";
+import {ADMIN_API_PATH} from "@pickerjs/common/lib/shared-constants";
 import { TestingAssetPreviewStrategy } from './testing-asset-preview-strategy';
 import { TestingAssetStorageStrategy } from './testing-asset-storage-strategy';
 import { TestingEntityIdStrategy } from './testing-entity-id-strategy';

@@ -1,4 +1,4 @@
-import { PickerLogger } from '@picker-cc/core';
+import { PickerLogger } from '@pickerjs/core';
 export declare class SimpleFileLogger implements PickerLogger {
     private logfile;
     constructor(logfileLocation: string);

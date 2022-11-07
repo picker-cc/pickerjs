@@ -1,7 +1,7 @@
 import url from 'url';
 import {AuthConfig, AuthGqlNames} from "./types";
 import {getSchemaExtension} from "./schema";
-import {BaseListTypeInfo, password, SchemaConfig, SessionStrategy, timestamp} from "@picker-cc/core";
+import {BaseListTypeInfo, password, SchemaConfig, SessionStrategy, timestamp} from "@pickerjs/core";
 
 /**
  * createAuth function

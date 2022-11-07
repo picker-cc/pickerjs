@@ -153,12 +153,12 @@ const nodeAPIJS = (
     config: SchemaConfig
 ) => `import SchemaConfig from '../../picker-cc';
 import { PrismaClient } from '.prisma/client';
-import { createQueryAPI } from '@picker-cc/core/___internal-do-not-use-will-break-in-patch/node-api';
+import { createQueryAPI } from '@pickerjs/core/___internal-do-not-use-will-break-in-patch/node-api';
 
 export const query = createQueryAPI(SchemaConfig, PrismaClient);
 `;
 
-const nodeAPIDTS = `import { PickerListsAPI } from '@picker-cc/core/types';
+const nodeAPIDTS = `import { PickerListsAPI } from '@pickerjs/core/types';
 import { Context } from './types';
 
 export const query: Context['query'];`;

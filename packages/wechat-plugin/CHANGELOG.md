@@ -1,2 +1,2 @@
-# @picker-cc/wechat-plugin
+# @pickerjs/wechat-plugin
 

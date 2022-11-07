@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Apps = void 0;
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 exports.Apps = (0, core_1.list)({
     ui: {},
     fields: {

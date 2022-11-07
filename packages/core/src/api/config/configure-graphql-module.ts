@@ -19,7 +19,7 @@ import {createSessionContext} from "../../schema/session";
 import {EventBus, EventBusModule} from "../../event-bus";
 import {AssetInterceptorPlugin} from "../middleware/asset-interceptor-plugin";
 import {getPluginAPIExtensions} from "../../plugin/plugin-metadata";
-import {notNullOrUndefined} from "@picker-cc/common/lib/shared-utils";
+import {notNullOrUndefined} from "@pickerjs/common/lib/shared-utils";
 import {ContextIdFactory, ModuleRef} from "@nestjs/core";
 import {Injector} from "../../common";
 import {askQuestionWithEditor} from "@changesets/cli/dist/declarations/src/utils/cli-utilities";

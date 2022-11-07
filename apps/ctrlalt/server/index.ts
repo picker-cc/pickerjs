@@ -1,4 +1,4 @@
-import {bootstrap} from "@picker-cc/core";
+import {bootstrap} from "@pickerjs/core";
 
 import { pickerConfig } from './picker-cc'
 bootstrap(pickerConfig)

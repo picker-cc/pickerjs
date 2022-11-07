@@ -64,7 +64,7 @@ export const checkbox =
                 output: graphql.field({
                     type: config.graphql?.read?.isNonNull ? graphql.nonNull(graphql.Boolean) : graphql.Boolean,
                 }),
-                views: '@picker-cc/core/fields/types/checkbox/views',
+                views: '@pickerjs/core/fields/types/checkbox/views',
                 getAdminMeta: () => ({ defaultValue }),
             });
         };

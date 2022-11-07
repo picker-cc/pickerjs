@@ -30,7 +30,7 @@ checkNodeVersion(REQUIRED_NODE_VERSION);
 let projectName: string | undefined;
 
 // 设置环境变量，可以根据需求修改 core 或 plugins
-const createEnvVar: import('@picker-cc/common/lib/shared-constants').CREATING_PICKER_APP =
+const createEnvVar: import('@pickerjs/common/lib/shared-constants').CREATING_PICKER_APP =
     'CREATING_PICKER_APP';
 process.env[createEnvVar] = 'true';
 
@@ -68,7 +68,7 @@ async function createApp(
         process.exit(1);
     }
 
-    console.log(`欢迎使用 @picker-cc/create v${packageJson.version}!`);
+    console.log(`欢迎使用 @pickerjs/create v${packageJson.version}!`);
     console.log();
     console.log(`让我们开始配置一个新的 Picker 项目:`);
     console.log();
@@ -197,7 +197,7 @@ async function createApp(
                         require(path.join(root, 'node_modules/ts-node')).register();
                     }
                     const { bootstrap, DefaultLogger, LogLevel } = await import(
-                        path.join(root, 'node_modules/@picker-cc/core/dist/index')
+                        path.join(root, 'node_modules/@pickerjs/core/dist/index')
                     );
                     const { config } = await import(ctx.configFile);
                     // const assetsDir = path.join(__dirname, '../assets');

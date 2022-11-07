@@ -3,7 +3,7 @@ import { AuthGqlNames, AuthTokenTypeConfig, SecretFieldImpl } from '../types';
 import { createAuthToken } from '../lib/createAuthToken';
 import { validateAuthToken } from '../lib/validateAuthToken';
 import { getAuthTokenErrorMessage } from '../lib/getErrorMessage';
-import {BaseItem, graphql} from "@picker-cc/core";
+import {BaseItem, graphql} from "@pickerjs/core";
 
 const errorCodes = ['FAILURE', 'TOKEN_EXPIRED', 'TOKEN_REDEEMED'] as const;
 

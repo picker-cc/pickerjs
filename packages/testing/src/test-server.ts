@@ -6,11 +6,11 @@ import { INestApplication } from '@nestjs/common';
  *
  * @docCategory testing
  */
-import {DefaultLogger, Logger, PickerConfig} from "@picker-cc/core";
+import {DefaultLogger, Logger, PickerConfig} from "@pickerjs/core";
 import {TestServerOptions} from "./types";
 import { getInitializerFor } from './initializers/initializers';
 import {NestFactory} from "@nestjs/core";
-import {preBootstrapConfig} from "@picker-cc/core/dist/bootstrap";
+import {preBootstrapConfig} from "@pickerjs/core/dist/bootstrap";
 import {populateForTesting} from "./data-population/populate-for-testing";
 
 export class TestServer {
@@ -101,7 +101,7 @@ export class TestServer {
     private async bootstrapForTesting(userConfig: Partial<PickerConfig>): Promise<INestApplication> {
         const config = await preBootstrapConfig(userConfig);
         Logger.useLogger(config.logger);
-        const appModule = await import('@picker-cc/core/dist/app.module');
+        const appModule = await import('@pickerjs/core/dist/app.module');
         try {
             DefaultLogger.hideNestBoostrapLogs();
             const app = await NestFactory.create(appModule.AppModule, {

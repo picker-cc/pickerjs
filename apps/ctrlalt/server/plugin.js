@@ -16,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CaixieAppPlugin = void 0;
 const express_1 = __importDefault(require("express"));
 const graphql_tag_1 = __importDefault(require("graphql-tag"));
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 const env_1 = require("./utils/env");
 const resolve_path_1 = require("./utils/resolve-path");
 const get_vite_server_1 = require("./get-vite-server");

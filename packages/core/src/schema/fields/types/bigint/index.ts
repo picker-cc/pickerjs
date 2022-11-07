@@ -167,7 +167,7 @@ export const bigInt =
       output: graphql.field({
         type: config.graphql?.read?.isNonNull ? graphql.nonNull(graphql.BigInt) : graphql.BigInt,
       }),
-      views: '@picker-cc/core/fields/types/bigInt/views',
+      views: '@pickerjs/core/fields/types/bigInt/views',
       getAdminMeta() {
         return {
           validation: {

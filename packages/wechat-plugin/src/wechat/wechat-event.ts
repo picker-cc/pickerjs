@@ -1,4 +1,4 @@
-import {PickerEvent, RequestContext} from "@picker-cc/core";
+import {PickerEvent, RequestContext} from "@pickerjs/core";
 
 export class WechatEvent extends PickerEvent {
     constructor(

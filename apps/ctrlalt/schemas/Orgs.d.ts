@@ -1,1 +1,1 @@
-export declare const Apps: import("@picker-cc/core").ListConfig<import("@picker-cc/core").BaseListTypeInfo, any>;
+export declare const Apps: import("@pickerjs/core").ListConfig<import("@pickerjs/core").BaseListTypeInfo, any>;

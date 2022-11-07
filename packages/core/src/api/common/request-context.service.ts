@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {LanguageCode, Permission} from '@picker-cc/common/lib/generated-types';
+import {LanguageCode, Permission} from '@pickerjs/common/lib/generated-types';
 import {Injectable} from '@nestjs/common';
 import {Request} from 'express';
 import {GraphQLResolveInfo} from 'graphql';
@@ -7,7 +7,7 @@ import {GraphQLResolveInfo} from 'graphql';
 // import {ApiType, getApiType} from './get-api-type';
 import {RequestContext} from './request-context';
 import {CachedSession, CachedSessionUser} from "../../config/session-cache/session-cache-strategy";
-import {ID} from "@picker-cc/common/lib/shared-types";
+import {ID} from "@pickerjs/common/lib/shared-types";
 import ms from "ms";
 import {CreateContext, PickerContext} from "../../schema/types";
 

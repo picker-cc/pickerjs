@@ -8,7 +8,7 @@ import {
     PickerPlugin,
     PluginCommonModule, ProcessContext,
     Type,
-} from "@picker-cc/core";
+} from "@pickerjs/core";
 import {isProduction} from './utils/env';
 import {resolveClientPath, resolveDistPath} from "./utils/resolve-path";
 import {getViteServer} from "./get-vite-server";

@@ -1,1 +1,1 @@
-export declare const Administrator: import("@picker-cc/core").ListConfig<import("@picker-cc/core").BaseListTypeInfo, any>;
+export declare const Administrator: import("@pickerjs/core").ListConfig<import("@pickerjs/core").BaseListTypeInfo, any>;

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.trackingFields = exports.dbConfig = void 0;
-const core_1 = require("@picker-cc/core");
+const core_1 = require("@pickerjs/core");
 exports.dbConfig = {
     provider: 'sqlite',
     url: process.env.DATABASE_URL || 'file:./dev.db',

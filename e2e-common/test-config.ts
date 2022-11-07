@@ -2,15 +2,15 @@ import {
     registerInitializer,
     MongoInitializer,
     testConfig as defaultTestConfig,
-} from '@picker-cc/testing'
+} from '@pickerjs/testing'
 import { Options } from '@mikro-orm/core';
 import fs from 'fs-extra';
 import path from 'path';
 
 import { getPackageDir } from './get-package-dir';
 import {MongoHighlighter} from "@mikro-orm/mongo-highlighter";
-import {mergeConfig} from "@picker-cc/core";
-// import {registerInitializer} from "@picker-cc/testing/lib/initializers/initalizers";
+import {mergeConfig} from "@pickerjs/core";
+// import {registerInitializer} from "@pickerjs/testing/lib/initializers/initalizers";
 
 declare global {
     namespace NodeJS {

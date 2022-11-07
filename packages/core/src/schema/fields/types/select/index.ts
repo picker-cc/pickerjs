@@ -119,7 +119,7 @@ export const select =
                         },
                     },
                     views: null,
-                    // views: '@picker-cc/core/fields/types/select/views',
+                    // views: '@pickerjs/core/fields/types/select/views',
                     getAdminMeta: () => ({
                         options,
                         type: config.type ?? 'string',

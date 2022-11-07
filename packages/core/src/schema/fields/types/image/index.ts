@@ -157,6 +157,6 @@ export const image =
                         };
                     },
                 }),
-                views: '@picker-cc/core/fields/types/image/views',
+                views: '@pickerjs/core/fields/types/image/views',
             });
         };

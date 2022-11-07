@@ -121,11 +121,11 @@ importers:
       '@nestjs/microservices': ^9.1.2
       '@nestjs/platform-express': ^9.1.2
       '@nestjs/testing': ^9.1.2
-      '@picker-cc/ali-sms-plugin': workspace:*
-      '@picker-cc/asset-server-plugin': ^6.0.0
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
-      '@picker-cc/wechat-plugin': workspace:*
+      '@pickerjs/ali-sms-plugin': workspace:*
+      '@pickerjs/asset-server-plugin': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
+      '@pickerjs/wechat-plugin': workspace:*
       '@prisma/client': ^4.3.1
       '@types/express': ^4.17.14
       '@types/jsdom': ^20.0.0
@@ -199,11 +199,11 @@ importers:
       '@nestjs/microservices': 9.1.6_evbcgdq6pex2zexkfgc2lmyrxu
       '@nestjs/platform-express': 9.1.6_6whalgrsvisgjemghedgkfq7dm
       '@nestjs/testing': 9.1.2_6maungnwqo7ix2staqqydub5p4
-      '@picker-cc/ali-sms-plugin': link:../../packages/ali-sms-plugin
-      '@picker-cc/asset-server-plugin': 6.0.0_6gc6obcawnp52bp7gggit3czna
-      '@picker-cc/common': link:../../packages/common
-      '@picker-cc/core': link:../../packages/core
-      '@picker-cc/wechat-plugin': link:../../packages/wechat-plugin
+      '@pickerjs/ali-sms-plugin': link:../../packages/ali-sms-plugin
+      '@pickerjs/asset-server-plugin': link:../../packages/asset-server-plugin
+      '@pickerjs/common': link:../../packages/common
+      '@pickerjs/core': link:../../packages/core
+      '@pickerjs/wechat-plugin': link:../../packages/wechat-plugin
       '@prisma/client': 4.5.0_prisma@4.5.0
       '@types/node': 18.8.3
       '@unocss/reset': 0.45.29
@@ -276,8 +276,8 @@ importers:
       '@nestjs/common': ^9.1.2
       '@nestjs/config': ^2.2.0
       '@nestjs/core': ^9.1.2
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
       rxjs: ^7.5.6
@@ -285,11 +285,11 @@ importers:
     dependencies:
       '@alicloud/pop-core': 1.7.12
       '@nestjs/config': 2.2.0_uuxozj22b7txoqlrlgrj6jirny
-      '@picker-cc/common': link:../common
+      '@pickerjs/common': link:../common
     devDependencies:
       '@nestjs/common': 9.1.2_j5hagqx4mwzscud4kyjdvubauy
       '@nestjs/core': 9.1.2_uuxozj22b7txoqlrlgrj6jirny
-      '@picker-cc/core': link:../core
+      '@pickerjs/core': link:../core
       reflect-metadata: 0.1.13
       rimraf: 3.0.2
       rxjs: 7.5.6
@@ -301,8 +301,8 @@ importers:
       '@nestjs/core': ^9.1.2
       '@nestjs/graphql': ^10.1.2
       '@nestjs/platform-express': ^9.1.2
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
       '@types/express': ^4.17.13
       '@types/fs-extra': ^9.0.13
       '@types/node-fetch': ^2.6.1
@@ -330,8 +330,8 @@ importers:
       '@nestjs/common': 9.1.2_j5hagqx4mwzscud4kyjdvubauy
       '@nestjs/core': 9.1.2_foclggtudvr6cnfc5hz7ukfode
       '@nestjs/platform-express': 9.1.2_umdjpi6fqr4wvw73r3mhthbyle
-      '@picker-cc/common': link:../common
-      '@picker-cc/core': link:../core
+      '@pickerjs/common': link:../common
+      '@pickerjs/core': link:../core
       '@types/express': 4.17.14
       '@types/fs-extra': 9.0.13
       '@types/node-fetch': 2.6.2
@@ -348,7 +348,7 @@ importers:
 
   packages/auth:
     specifiers:
-      '@picker-cc/core': workspace:*
+      '@pickerjs/core': workspace:*
       cross-fetch: ^3.1.5
       fast-deep-equal: ^3.1.3
       graphql: ^16.6.0
@@ -357,7 +357,7 @@ importers:
       fast-deep-equal: 3.1.3
       graphql: 16.6.0
     devDependencies:
-      '@picker-cc/core': link:../core
+      '@pickerjs/core': link:../core
 
   packages/common:
     specifiers:
@@ -384,7 +384,7 @@ importers:
       '@nestjs/graphql': ^10.1.5
       '@nestjs/microservices': ^9.1.6
       '@nestjs/platform-express': ^9.1.6
-      '@picker-cc/common': workspace:*
+      '@pickerjs/common': workspace:*
       '@prisma/client': 4.5.0
       '@prisma/engines': ^4.5.0
       '@prisma/generator-helper': ^4.5.0
@@ -481,7 +481,7 @@ importers:
       '@nestjs/graphql': 10.1.5_n5juxzj5oehey4gjh3qq6elhjm
       '@nestjs/microservices': 9.1.6_abdwileke2hqrs3f5gykhzlvd4
       '@nestjs/platform-express': 9.1.6_6whalgrsvisgjemghedgkfq7dm
-      '@picker-cc/common': link:../common
+      '@pickerjs/common': link:../common
       '@prisma/client': 4.5.0_prisma@4.5.0
       '@prisma/engines': 4.5.0
       '@prisma/generator-helper': 4.5.0
@@ -569,8 +569,8 @@ importers:
 
   packages/create:
     specifiers:
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
       '@prisma/client': ^4.4.0
       '@types/cross-spawn': ^6.0.2
       '@types/detect-port': ^1.3.0
@@ -595,7 +595,7 @@ importers:
       ts-node: ^10.2.1
       typescript: 4.3.5
     dependencies:
-      '@picker-cc/common': link:../common
+      '@pickerjs/common': link:../common
       '@prisma/client': 4.4.0_prisma@4.4.0
       chalk: 4.1.2
       commander: 7.2.0
@@ -610,7 +610,7 @@ importers:
       semver: 7.3.7
       tcp-port-used: 1.0.2
     devDependencies:
-      '@picker-cc/core': link:../core
+      '@pickerjs/core': link:../core
       '@types/cross-spawn': 6.0.2
       '@types/detect-port': 1.3.2
       '@types/fs-extra': 9.0.13
@@ -627,9 +627,9 @@ importers:
       '@mikro-orm/core': ^5.1.3
       '@mikro-orm/mongo-highlighter': ^1.0.0
       '@mikro-orm/mongodb': ^5.1.3
-      '@picker-cc/asset-server-plugin': workspace:*
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
+      '@pickerjs/asset-server-plugin': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
       '@prisma/client': ^4.3.1
       '@types/node': ^18.7.18
       '@vitejs/plugin-vue': ^3.1.0
@@ -649,9 +649,9 @@ importers:
       '@mikro-orm/core': 5.4.2_@mikro-orm+mongodb@5.4.2
       '@mikro-orm/mongo-highlighter': 1.0.0
       '@mikro-orm/mongodb': 5.4.2_@mikro-orm+core@5.4.2
-      '@picker-cc/asset-server-plugin': link:../asset-server-plugin
-      '@picker-cc/common': link:../common
-      '@picker-cc/core': link:../core
+      '@pickerjs/asset-server-plugin': link:../asset-server-plugin
+      '@pickerjs/common': link:../common
+      '@pickerjs/core': link:../core
       '@prisma/client': 4.3.1_prisma@4.3.1
       '@types/node': 18.7.18
       '@vitejs/plugin-vue': 3.1.0_vite@3.1.3+vue@3.2.39
@@ -673,8 +673,8 @@ importers:
       '@mikro-orm/core': ^5.1.3
       '@nestjs/common': ^9.1.2
       '@nestjs/core': ^9.1.2
-      '@picker-cc/common': workspace:*
-      '@picker-cc/core': workspace:*
+      '@pickerjs/common': workspace:*
+      '@pickerjs/core': workspace:*
       '@types/node-fetch': ^2.6.1
       faker: ^6.6.6
       form-data: ^4.0.0
@@ -700,8 +700,8 @@ importers:
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
     devDependencies:
-      '@picker-cc/common': link:../common
-      '@picker-cc/core': link:../core
+      '@pickerjs/common': link:../common
+      '@pickerjs/core': link:../core
       rimraf: 3.0.2
       typescript: 4.8.3
 
@@ -711,7 +711,7 @@ importers:
       '@nestjs/core': ^9.1.2
       '@nestjs/platform-express': ^9.1.2
       '@nestjs/testing': ^9.1.2
-      '@picker-cc/core': workspace:*
+      '@pickerjs/core': workspace:*
       '@types/cache-manager': ^4.0.2
       '@types/cache-manager-redis-store': ^2.0.1
       '@types/express': ^4.17.14
@@ -745,7 +745,7 @@ importers:
       '@nestjs/core': 9.1.2_foclggtudvr6cnfc5hz7ukfode
       '@nestjs/platform-express': 9.1.2_umdjpi6fqr4wvw73r3mhthbyle
       '@nestjs/testing': 9.1.2_j2ls57gnkuuvs6xhnfklmsn2o4
-      '@picker-cc/core': link:../core
+      '@pickerjs/core': link:../core
       '@types/cache-manager': 4.0.2
       '@types/cache-manager-redis-store': 2.0.1
       '@types/express': 4.17.14
@@ -4298,28 +4298,6 @@ packages:
       tslib: mirrors.tencent.com/tslib/2.4.0
       webcrypto-core: 1.7.5
     dev: true
-
-  /@picker-cc/asset-server-plugin/6.0.0_6gc6obcawnp52bp7gggit3czna:
-    resolution: {integrity: sha512-TgW6lZDKEsdmPt2cNEqSFt/nsO29xoTsQ66Vu7sc9ln+Gnhu2m8FoXDAvRG4bNBK7s5pPUWM/cAM5UdG9vTT3w==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-    dependencies:
-      '@nestjs/graphql': 10.1.5_6gc6obcawnp52bp7gggit3czna
-      file-type: 16.5.3
-      fs-extra: 10.1.0
-      image-size: 1.0.2
-      sharp: 0.30.7
-    transitivePeerDependencies:
-      - '@apollo/subgraph'
-      - '@nestjs/common'
-      - '@nestjs/core'
-      - bufferutil
-      - class-transformer
-      - class-validator
-      - graphql
-      - reflect-metadata
-      - ts-morph
-      - utf-8-validate
-    dev: false
 
   /@pnpm/network.ca-file/1.0.1:
     resolution: {integrity: sha512-gkINruT2KUhZLTaiHxwCOh1O4NVnFT0wLjWFBHmTz9vpKag/C/noIMJXBxFe4F0mYpUVX2puLwAieLYFg2NvoA==}

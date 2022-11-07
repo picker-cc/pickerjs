@@ -1,5 +1,5 @@
 {
-  "name": "@picker-cc/testing",
+  "name": "@pickerjs/testing",
   "version": "0.1.2-beta.0",
   "description": "End-to-end testing tools for Picker projects",
   "keywords": [
@@ -47,8 +47,8 @@
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
-    "@picker-cc/common": "workspace:*",
-    "@picker-cc/core": "workspace:*",
+    "@pickerjs/common": "workspace:*",
+    "@pickerjs/core": "workspace:*",
     "rimraf": "^3.0.2",
     "typescript": "4.8.3"
   }

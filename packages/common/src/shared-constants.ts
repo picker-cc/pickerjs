@@ -15,7 +15,7 @@ export const CUSTOMER_ROLE_DESCRIPTION = 'Customer';
 export const ROOT_COLLECTION_NAME = '__root_collection__';
 export const DEFAULT_AUTH_TOKEN_HEADER_KEY = 'picker-auth-token';
 
-// 当 @picker-cc/create 脚本运行时设置的环境变量。
+// 当 @pickerjs/create 脚本运行时设置的环境变量。
 // 可用于默认的行为，以适应初始创建任务
 export type CREATING_PICKER_APP = 'CREATING_PICKER_APP';
 export const CREATING_PICKER_APP: CREATING_PICKER_APP = 'CREATING_PICKER_APP';

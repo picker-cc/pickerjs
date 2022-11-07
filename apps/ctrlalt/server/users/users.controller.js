@@ -17,9 +17,9 @@ const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
-const core_1 = require("@picker-cc/core");
-const ali_sms_plugin_1 = require("@picker-cc/ali-sms-plugin");
-const generate_public_id_1 = require("@picker-cc/common/lib/generate-public-id");
+const core_1 = require("@pickerjs/core");
+const ali_sms_plugin_1 = require("@pickerjs/ali-sms-plugin");
+const generate_public_id_1 = require("@pickerjs/common/lib/generate-public-id");
 let UsersController = class UsersController {
     constructor(usersService, eventBus) {
         this.usersService = usersService;

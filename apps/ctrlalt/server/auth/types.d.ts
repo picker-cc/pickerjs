@@ -1,4 +1,4 @@
-import { BaseListTypeInfo, PickerContext } from "@picker-cc/core";
+import { BaseListTypeInfo, PickerContext } from "@pickerjs/core";
 export declare type AuthGqlNames = {
     CreateInitialInput: string;
     createInitialItem: string;

@@ -1,2 +1,2 @@
-# @picker-cc/testing
+# @pickerjs/testing
 

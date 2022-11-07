@@ -1,4 +1,4 @@
-import { Permission } from '@picker-cc/common/lib/generated-types';
+import { Permission } from '@pickerjs/common/lib/generated-types';
 
 /**
  * @description

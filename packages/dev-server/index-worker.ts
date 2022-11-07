@@ -1,4 +1,4 @@
-import { bootstrapWorker } from '@picker-cc/core';
+import { bootstrapWorker } from '@pickerjs/core';
 
 import { pickerConfig } from './picker-cc';
 

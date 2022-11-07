@@ -133,7 +133,7 @@ export const calendarDay =
                         return value;
                     },
                 }),
-                views: '@picker-cc/core/fields/types/calendarDay/views',
+                views: '@pickerjs/core/fields/types/calendarDay/views',
                 getAdminMeta(): CalendarDayFieldMeta {
                     return {
                         defaultValue: defaultValue ?? null,

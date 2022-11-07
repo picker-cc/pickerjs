@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ConfigService, ProcessContext, Type } from "@picker-cc/core";
+import { ConfigService, ProcessContext, Type } from "@pickerjs/core";
 export interface PluginOptions {
     route: string;
     port: number;
