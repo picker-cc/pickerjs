@@ -1,6 +1,6 @@
 {
   "name": "pickercc",
-  "version": "0.1.9",
+  "version": "0.1.2-beta.0",
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
