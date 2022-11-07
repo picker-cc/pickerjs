@@ -1,0 +1,390 @@
+# 该文件由 Picker 自动生成，请勿手动修改。当您需要修改 Picker 配置时，请修改 Picker config。
+
+type User {
+  id: ID!
+  name: String
+  identifier: String
+  detail: String
+  avatar: String
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  verified: Boolean
+  enabled: Boolean
+  lastLogin: DateTime
+  verifyCode: String
+  verifyCodeCreatedAt: DateTime
+  password: PasswordState
+  isAdmin: Boolean
+  print: String
+  posts(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
+}
+
+scalar DateTime
+
+type PasswordState {
+  isSet: Boolean!
+}
+
+input UserWhereUniqueInput {
+  id: ID
+  identifier: String
+}
+
+input UserWhereInput {
+  AND: [UserWhereInput!]
+  OR: [UserWhereInput!]
+  NOT: [UserWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  identifier: StringFilter
+  detail: StringFilter
+  avatar: StringFilter
+  deletedAt: DateTimeNullableFilter
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+  verified: BooleanFilter
+  enabled: BooleanFilter
+  lastLogin: DateTimeNullableFilter
+  verifyCode: StringFilter
+  verifyCodeCreatedAt: DateTimeNullableFilter
+  password: PasswordFilter
+  isAdmin: BooleanFilter
+  print: StringFilter
+  posts: PostManyRelationFilter
+}
+
+input IDFilter {
+  equals: ID
+  in: [ID!]
+  notIn: [ID!]
+  lt: ID
+  lte: ID
+  gt: ID
+  gte: ID
+  not: IDFilter
+}
+
+input StringFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringFilter
+}
+
+input NestedStringFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringFilter
+}
+
+input DateTimeNullableFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeNullableFilter
+}
+
+input DateTimeFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
+input PasswordFilter {
+  isSet: Boolean!
+}
+
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
+input UserOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  identifier: OrderDirection
+  detail: OrderDirection
+  avatar: OrderDirection
+  deletedAt: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+  verified: OrderDirection
+  enabled: OrderDirection
+  lastLogin: OrderDirection
+  verifyCode: OrderDirection
+  verifyCodeCreatedAt: OrderDirection
+  isAdmin: OrderDirection
+  print: OrderDirection
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+input UserUpdateInput {
+  name: String
+  identifier: String
+  detail: String
+  avatar: String
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  verified: Boolean
+  enabled: Boolean
+  lastLogin: DateTime
+  verifyCode: String
+  verifyCodeCreatedAt: DateTime
+  password: String
+  isAdmin: Boolean
+  print: String
+  posts: PostRelateToManyForUpdateInput
+}
+
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
+input UserUpdateArgs {
+  where: UserWhereUniqueInput!
+  data: UserUpdateInput!
+}
+
+input UserCreateInput {
+  name: String
+  identifier: String
+  detail: String
+  avatar: String
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+  verified: Boolean
+  enabled: Boolean
+  lastLogin: DateTime
+  verifyCode: String
+  verifyCodeCreatedAt: DateTime
+  password: String
+  isAdmin: Boolean
+  print: String
+  posts: PostRelateToManyForCreateInput
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
+type Post {
+  id: ID!
+  title: String
+  slug: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: User
+}
+
+enum PostStatusType {
+  draft
+  published
+}
+
+input PostWhereUniqueInput {
+  id: ID
+  slug: String
+}
+
+input PostWhereInput {
+  AND: [PostWhereInput!]
+  OR: [PostWhereInput!]
+  NOT: [PostWhereInput!]
+  id: IDFilter
+  title: StringFilter
+  slug: StringFilter
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+  status: PostStatusTypeNullableFilter
+  content: StringFilter
+  publishDate: DateTimeNullableFilter
+  user: UserWhereInput
+}
+
+input PostStatusTypeNullableFilter {
+  equals: PostStatusType
+  in: [PostStatusType!]
+  notIn: [PostStatusType!]
+  not: PostStatusTypeNullableFilter
+}
+
+input PostOrderByInput {
+  id: OrderDirection
+  title: OrderDirection
+  slug: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+  status: OrderDirection
+  content: OrderDirection
+  publishDate: OrderDirection
+}
+
+input PostUpdateInput {
+  title: String
+  slug: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForUpdateInput
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input PostUpdateArgs {
+  where: PostWhereUniqueInput!
+  data: PostUpdateInput!
+}
+
+input PostCreateInput {
+  title: String
+  slug: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForCreateInput
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+  createUser(data: UserCreateInput!): User
+  createUsers(data: [UserCreateInput!]!): [User]
+  updateUser(where: UserWhereUniqueInput!, data: UserUpdateInput!): User
+  updateUsers(data: [UserUpdateArgs!]!): [User]
+  deleteUser(where: UserWhereUniqueInput!): User
+  deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createPost(data: PostCreateInput!): Post
+  createPosts(data: [PostCreateInput!]!): [Post]
+  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
+  updatePosts(data: [PostUpdateArgs!]!): [Post]
+  deletePost(where: PostWhereUniqueInput!): Post
+  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  endSession: Boolean!
+  sendUserVerifyCode(identifier: String!): sendUserVerifyCodeResult
+  authenticateUserWithVerifyCode(
+    identifier: String!
+    password: String!
+  ): UserAuthenticationWithVerifyCodeResult
+  createInitialUser(
+    data: CreateInitialUserInput!
+  ): UserAuthenticationWithVerifyCodeSuccess!
+}
+
+union sendUserVerifyCodeResult =
+    UserSendVerifyCodeSuccess
+  | UserSendVerifyCodeFailure
+
+type UserSendVerifyCodeSuccess {
+  message: String!
+}
+
+type UserSendVerifyCodeFailure {
+  message: String!
+}
+
+union UserAuthenticationWithVerifyCodeResult =
+    UserAuthenticationWithVerifyCodeSuccess
+  | UserAuthenticationWithVerifyCodeFailure
+
+type UserAuthenticationWithVerifyCodeSuccess {
+  sessionToken: String!
+  item: User!
+}
+
+type UserAuthenticationWithVerifyCodeFailure {
+  message: String!
+}
+
+input CreateInitialUserInput {
+  name: String
+  identifier: String
+  password: String
+}
+
+type Query {
+  users(
+    where: UserWhereInput! = {}
+    orderBy: [UserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [User!]
+  user(where: UserWhereUniqueInput!): User
+  usersCount(where: UserWhereInput! = {}): Int
+  posts(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  post(where: PostWhereUniqueInput!): Post
+  postsCount(where: PostWhereInput! = {}): Int
+  authenticatedItem: AuthenticatedItem
+}
+
+union AuthenticatedItem = User

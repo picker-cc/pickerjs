@@ -1,0 +1,194 @@
+import {AdminMetaRootVal} from "../admin-meta";
+import {
+    filters,
+    BaseModelTypeInfo,
+    CommonFieldConfig,
+    graphql,
+    BaseItem,
+    fieldType,
+    FieldData,
+    FieldTypeFunc,
+    ListGraphQLTypes,
+    orderDirectionEnum
+} from "../../../types"
+
+// This is the default display mode for Relationships
+type SelectDisplayConfig = {
+    ui?: {
+        // Sets the relationship to display as a Select field
+        displayMode?: 'select';
+        /**
+         * The path of the field to use from the related list for item labels in the select.
+         * Defaults to the labelField configured on the related list.
+         */
+        labelField?: string;
+    };
+};
+
+type CardsDisplayConfig = {
+    ui?: {
+        // Sets the relationship to display as a list of Cards
+        displayMode: 'cards';
+        /* The set of fields to render in the default Card component **/
+        cardFields: readonly string[];
+        /** Causes the default Card component to render as a link to navigate to the related item */
+        linkToItem?: boolean;
+        /** Determines whether removing a related item in the UI will delete or unlink it */
+        removeMode?: 'disconnect' | 'none'; // | 'delete';
+        /** Configures inline create mode for cards (alternative to opening the create modal) */
+        inlineCreate?: { fields: readonly string[] };
+        /** Configures inline edit mode for cards */
+        inlineEdit?: { fields: readonly string[] };
+        /** Configures whether a select to add existing items should be shown or not */
+        inlineConnect?: boolean;
+    };
+};
+
+type CountDisplayConfig = {
+    many: true;
+    ui?: {
+        // Sets the relationship to display as a count
+        displayMode: 'count';
+    };
+};
+
+type OneDbConfig = {
+    many?: false;
+    db?: {
+        foreignKey?:
+            | true
+            | {
+            map: string;
+        };
+    };
+};
+
+type ManyDbConfig = {
+    many: true;
+    db?: {
+        relationName?: string;
+    };
+};
+
+export type RelationshipFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> =
+    CommonFieldConfig<ModelTypeInfo> & {
+    many?: boolean;
+    ref: string;
+    ui?: {
+        hideCreate?: boolean;
+    };
+} & (OneDbConfig | ManyDbConfig) &
+    (SelectDisplayConfig | CardsDisplayConfig | CountDisplayConfig);
+
+export const relationship =
+    <ModelTypeInfo extends BaseModelTypeInfo>({
+                                                  ref,
+                                                  ...config
+                                              }: RelationshipFieldConfig<ModelTypeInfo>): FieldTypeFunc<ModelTypeInfo> =>
+        meta => {
+            const { many = false } = config;
+            const [foreignListKey, foreignFieldKey] = ref.split('.');
+            const commonConfig = {
+                ...config,
+                views: '',
+                getAdminMeta: (
+                    adminMetaRoot: AdminMetaRootVal
+                ) => {
+                    return ''
+                },
+            };
+            if (!meta.lists[foreignListKey]) {
+                throw new Error(
+                    `Unable to resolve related list '${foreignListKey}' from ${meta.modelKey}.${meta.fieldKey}`
+                );
+            }
+            const listTypes = meta.lists[foreignListKey].types;
+            if (config.many) {
+                return fieldType({
+                    kind: 'relation',
+                    mode: 'many',
+                    list: foreignListKey,
+                    field: foreignFieldKey,
+                    relationName: config.db?.relationName,
+                })({
+                    ...commonConfig,
+                    input: {
+                        where: {
+                            arg: graphql.arg({ type: listTypes.relateTo.many.where }),
+                            resolve(value, context, resolve) {
+                                return resolve(value);
+                            },
+                        },
+                        create: listTypes.relateTo.many.create && {
+                            arg: graphql.arg({ type: listTypes.relateTo.many.create }),
+                            async resolve(value, context, resolve) {
+                                return resolve(value);
+                            },
+                        },
+                        update: listTypes.relateTo.many.update && {
+                            arg: graphql.arg({ type: listTypes.relateTo.many.update }),
+                            async resolve(value, context, resolve) {
+                                return resolve(value);
+                            },
+                        },
+                    },
+                    output: graphql.field({
+                        args: listTypes.findManyArgs,
+                        type: graphql.list(graphql.nonNull(listTypes.output)),
+                        resolve({ value }, args) {
+                            return value.findMany(args);
+                        },
+                    }),
+                    extraOutputFields: {
+                        [`${meta.fieldKey}Count`]: graphql.field({
+                            type: graphql.Int,
+                            args: {
+                                where: graphql.arg({ type: graphql.nonNull(listTypes.where), defaultValue: {} }),
+                            },
+                            resolve({ value }, args) {
+                                return value.count({
+                                    where: args.where,
+                                });
+                            },
+                        }),
+                    },
+                });
+            }
+            return fieldType({
+                kind: 'relation',
+                mode: 'one',
+                list: foreignListKey,
+                field: foreignFieldKey,
+                // @ts-ignore
+                foreignKey: config.db?.foreignKey,
+            })({
+                ...commonConfig,
+                input: {
+                    where: {
+                        arg: graphql.arg({ type: listTypes.where }),
+                        resolve(value, context, resolve) {
+                            return resolve(value);
+                        },
+                    },
+                    create: listTypes.relateTo.one.create && {
+                        arg: graphql.arg({ type: listTypes.relateTo.one.create }),
+                        async resolve(value, context, resolve) {
+                            return resolve(value);
+                        },
+                    },
+
+                    update: listTypes.relateTo.one.update && {
+                        arg: graphql.arg({ type: listTypes.relateTo.one.update }),
+                        async resolve(value, context, resolve) {
+                            return resolve(value);
+                        },
+                    },
+                },
+                output: graphql.field({
+                    type: listTypes.output,
+                    resolve({ value }) {
+                        return value();
+                    },
+                }),
+            });
+        };

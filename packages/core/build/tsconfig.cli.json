@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../cli"
+  },
+  "files": [
+    "../src/cli/picker-cli.ts",
+//    "../src/cli/index.ts",
+    "../src/schema/types/schema/schema-api-with-context.js",
+    "../typings.d.ts"
+  ]
+}

@@ -1,0 +1,7 @@
+node_modules
+dist
+static/assets
+static/email/test-emails
+.picker/admin
+picker.db
+*.log

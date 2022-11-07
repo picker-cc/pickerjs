@@ -1,0 +1,9 @@
+{{#if isTs }}import { bootstrapWorker } from '@picker-cc/core';{{else}}const { bootstrapWorker } = require('@picker-cc/core');{{/if}}
+{{#if isTs }}import { config } from './picker-config';{{else}}const { config } = require('./picker-config');{{/if}}
+
+bootstrapWorker(config)
+.then(worker => worker.startJobQueue())
+.catch(err => {
+    // tslint:disable-next-line:no-console
+    console.log(err);
+});

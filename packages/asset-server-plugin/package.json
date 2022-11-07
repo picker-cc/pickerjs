@@ -1,0 +1,47 @@
+{
+  "name": "@picker-cc/asset-server-plugin",
+  "version": "6.0.0",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "rimraf lib && tsc -p ./tsconfig.build.json && node build.js",
+    "lint": "tslint --fix --project ./",
+    "test": "jest --config ./jest.config.js",
+    "e2e": "jest --config ../../e2e-common/jest-config.js --runInBand --package=asset-server-plugin"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@nestjs/graphql": "^10.1.2",
+    "file-type": "16.5.3",
+    "fs-extra": "^10.1.0",
+    "image-size": "^1.0.1",
+    "sharp": "^0.30.4"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^9.1.2",
+    "@nestjs/core": "^9.1.2",
+    "@nestjs/platform-express": "^9.1.2",
+    "@picker-cc/common": "workspace:^6.0.0",
+    "@picker-cc/core": "workspace:^6.0.0",
+    "@types/express": "^4.17.13",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node-fetch": "^2.6.1",
+    "@types/sharp": "^0.30.2",
+    "ali-oss": "^6.17.1",
+    "aws-sdk": "^2.1131.0",
+    "express": "^4.17.3",
+    "limax": "^3.0.0",
+    "node-fetch": "^3.2.3",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.5.5",
+    "typescript": "4.8.3"
+  }
+}

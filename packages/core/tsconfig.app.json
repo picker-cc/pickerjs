@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/core",
+    "lib": [
+      "es2015.promise"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    "../../node_modules/.pnpm/typescript@4.6.3/node_modules/typescript/lib/lib.es5.d.ts",
+    "../../node_modules/.pnpm/typescript@4.6.3/node_modules/typescript/lib/lib.es6.d.ts",
+    "../../node_modules/.pnpm/typescript@4.6.3/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
+    "../../node_modules/.pnpm/typescript@4.6.3/node_modules/typescript/lib/lib.es2017.d.ts",
+    "../../node_modules/.pnpm/typescript@4.6.3/node_modules/typescript/lib/lib.esnext.full.d.ts"
+  ],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

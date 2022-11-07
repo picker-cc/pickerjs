@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  redis:
+    image: bitnami/redis:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - 6379
+    volumes:
+      - redis-volume:/bitnami/redis/data
+    networks:
+      - db-tier
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+#      - mongodb
+    ports:
+      - 5001
+    volumes:
+      - /app/node_modules
+      - /data/release-assets:/app/dist/apps/jy-release-server/assets
+    networks:
+      - db-tier
+      - traefik
+    command:
+      - sh
+      - -c
+      - |
+          yarn start
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.jy-server-release.middlewares=https-redirect@file"
+      - "traefik.http.routers.jy-server-release.entrypoints=http"
+      - "traefik.http.routers.jy-server-release.rule=Host(`test-api.jiyang-health.com`)"
+      - "traefik.http.routers.jy-server-releaseWeb.middlewares=https-redirect@file"
+      - "traefik.http.routers.jy-server-releaseWeb.entrypoints=https"
+      - "traefik.http.routers.jy-server-releaseWeb.tls=true"
+      - "traefik.http.routers.jy-server-releaseWeb.rule=Host(`test-api.jiyang-health.com`)"
+      - "traefik.http.services.jy-server-releaseBackend.loadbalancer.server.scheme=http"
+      - "traefik.http.services.jy-server-releaseBackend.loadbalancer.server.port=5001"
+#      - "traefik.http.middlewares.jy-api-compress.compress=true"
+volumes:
+  redis-volume:
+networks:
+  db-tier:
+  traefik:
+    external: true

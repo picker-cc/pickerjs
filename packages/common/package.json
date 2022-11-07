@@ -1,0 +1,28 @@
+{
+  "name": "@picker-cc/common",
+  "version": "6.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json -w",
+    "build": "rimraf lib && tsc -p ./tsconfig.build.json",
+    "lint": "tslint --fix --project ./",
+    "test": "jest --config ./jest.config.js",
+    "ci": "yarn build"
+  },
+  "homepage": "https://www.picker.cc/",
+  "funding": "https://github.com/picker-cc/picker-cc",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "4.8.3"
+  },
+  "dependencies": {
+    "nanoid": "^3.3.3"
+  }
+}

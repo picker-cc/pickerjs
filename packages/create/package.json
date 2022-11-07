@@ -1,0 +1,53 @@
+{
+  "name": "@picker-cc/create",
+  "version": "6.0.0",
+  "license": "MIT",
+  "bin": {
+    "create": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "lib/**/*",
+    "assets/**/*"
+  ],
+  "scripts": {
+    "copy-assets": "rimraf assets && ts-node ./build.ts",
+    "build": "pnpm copy-assets && rimraf lib && tsc -p ./tsconfig.build.json",
+    "watch": "pnpm copy-assets && rimraf lib && tsc -p ./tsconfig.build.json -w",
+    "lint": "tslint --fix --project ./"
+  },
+  "homepage": "https://www.picker.cc/",
+  "funding": "https://github.com/sponsors/baisheng",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@picker-cc/core": "workspace:^6.0.0",
+    "@types/cross-spawn": "^6.0.2",
+    "@types/detect-port": "^1.3.0",
+    "@types/fs-extra": "^9.0.1",
+    "@types/listr": "^0.14.2",
+    "@types/node": "^18.8.3",
+    "@types/prompts": "^2.0.14",
+    "@types/semver": "^6.2.2",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.2.1",
+    "typescript": "4.3.5"
+  },
+  "dependencies": {
+    "@picker-cc/common": "workspace:^6.0.0",
+    "@prisma/client": "^4.4.0",
+    "chalk": "^4.1.0",
+    "commander": "^7.1.0",
+    "cross-spawn": "^7.0.3",
+    "detect-port": "^1.3.0",
+    "fs-extra": "^10.0.0",
+    "handlebars": "^4.7.6",
+    "listr": "^0.14.3",
+    "prisma": "^4.4.0",
+    "prompts": "^2.4.2",
+    "rxjs": "^6.6.3",
+    "semver": "^7.3.2",
+    "tcp-port-used": "^1.0.1"
+  }
+}

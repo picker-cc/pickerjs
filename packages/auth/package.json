@@ -1,0 +1,29 @@
+{
+  "name": "@picker-cc/auth",
+  "version": "6.0.0",
+  "description": "",
+  "main": "dist/picker-cc-auth.cjs.js",
+  "module": "dist/picker-cc-auth.esm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cross-fetch": "^3.1.5",
+    "fast-deep-equal": "^3.1.3",
+    "graphql": "^16.6.0"
+  },
+  "preconstruct": {
+    "entrypoints": [
+      "index.ts"
+    ]
+  },
+  "devDependencies": {
+    "@picker-cc/core": "workspace:^6.0.0"
+  },
+  "peerDependencies": {
+    "@picker-cc/core": "workspace:^6.0.0"
+  }
+}

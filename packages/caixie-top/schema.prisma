@@ -1,0 +1,47 @@
+// 该文件由 Picker 自动生成，请勿手动修改。当您需要修改 Picker 配置时，请修改 Picker config。
+
+datasource sqlite {
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider          = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "node_modules/.prisma/client"
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String    @default("")
+  identifier          String    @unique @default("")
+  detail              String    @default("")
+  avatar              String    @default("")
+  deletedAt           DateTime? @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  verified            Boolean   @default(false)
+  enabled             Boolean   @default(false)
+  lastLogin           DateTime? @default(now())
+  verifyCode          String    @default("")
+  verifyCodeCreatedAt DateTime?
+  password            String?
+  isAdmin             Boolean   @default(false)
+  print               String    @default("")
+  posts               Post[]    @relation("Post_user")
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String    @default("")
+  slug        String    @unique @default("")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  status      String?
+  content     String    @default("")
+  publishDate DateTime?
+  user        User?     @relation("Post_user", fields: [userId], references: [id])
+  userId      String?   @map("user")
+
+  @@index([userId])
+}

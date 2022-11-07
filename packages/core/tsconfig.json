@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+
+    "declaration": true,
+    "removeComments": true,
+    "strictPropertyInitialization": false,
+    "sourceMap": true,
+    "noImplicitAny": true
+    //    "strict": false,
+//    "noImplicitThis": false
+  },
+}

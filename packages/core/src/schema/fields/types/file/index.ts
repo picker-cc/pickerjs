@@ -1,0 +1,122 @@
+import {
+    graphql,
+    BaseModelTypeInfo,
+    CommonFieldConfig,
+    FileMetadata,
+    PickerContext,
+    fieldType,
+    FieldTypeFunc
+} from "../../../types";
+
+export type FileFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = {
+    storage: string;
+} & CommonFieldConfig<ModelTypeInfo>;
+
+const FileFieldInput = graphql.inputObject({
+    name: 'FileFieldInput',
+    fields: {
+        upload: graphql.arg({type: graphql.nonNull(graphql.Upload)}),
+    },
+});
+
+const inputArg = graphql.arg({type: FileFieldInput});
+
+const FileFieldOutput = graphql.object<FileMetadata & { storage: string }>()({
+    name: 'FileFieldOutput',
+    fields: {
+        filename: graphql.field({type: graphql.nonNull(graphql.String)}),
+        filesize: graphql.field({type: graphql.nonNull(graphql.Int)}),
+        url: graphql.field({
+            type: graphql.nonNull(graphql.String),
+            resolve(data, args, context) {
+                return context.files(data.storage).getUrl(data.filename);
+            },
+        }),
+    },
+});
+
+async function inputResolver(
+    storage: string,
+    data: graphql.InferValueFromArg<typeof inputArg>,
+    context: PickerContext
+) {
+    if (data === null || data === undefined) {
+        return {filename: data, filesize: data};
+    }
+    const upload = await data.upload;
+    return context.files(storage).getDataFromStream(upload.createReadStream(), upload.filename);
+}
+
+export const file =
+    <ModelTypeInfo extends BaseModelTypeInfo>(
+        config: FileFieldConfig<ModelTypeInfo>
+    ): FieldTypeFunc<ModelTypeInfo> =>
+        meta => {
+            const storage = meta.getStorage(config.storage);
+
+            if (!storage) {
+                throw new Error(
+                    `${meta.modelKey}.${meta.fieldKey} has storage set to ${config.storage}, but no storage configuration was found for that key`
+                );
+            }
+
+            if ('isIndexed' in config) {
+                throw Error("isIndexed: 'unique' is not a supported option for field type file");
+            }
+
+            // @ts-ignore
+            return fieldType({
+                kind: 'multi',
+                fields: {
+                    filesize: {kind: 'scalar', scalar: 'Int', mode: 'optional'},
+                    filename: {kind: 'scalar', scalar: 'String', mode: 'optional'},
+                },
+            })({
+                ...config,
+                hooks: storage.preserve
+                    ? config.hooks
+                    : {
+                        ...config.hooks,
+                        async beforeOperation(args) {
+                            await config.hooks?.beforeOperation?.(args);
+                            if (args.operation === 'update' || args.operation === 'delete') {
+                                const filenameKey = `${meta.fieldKey}_filename`;
+                                const filename = args.item[filenameKey];
+
+                                // This will occur on an update where a file already existed but has been
+                                // changed, or on a delete, where there is no longer an item
+                                if (
+                                    (args.operation === 'delete' ||
+                                        typeof args.resolvedData[meta.fieldKey].filename === 'string' ||
+                                        args.resolvedData[meta.fieldKey].filename === null) &&
+                                    typeof filename === 'string'
+                                ) {
+                                    await args.context.files(config.storage).deleteAtSource(filename);
+                                }
+                            }
+                        },
+                    },
+                input: {
+                    create: {
+                        arg: inputArg,
+                        // @ts-ignore
+                        resolve: (data, context) => inputResolver(config.storage, data, context),
+                    },
+                    update: {
+                        arg: inputArg,
+                        // @ts-ignore
+                        resolve: (data, context) => inputResolver(config.storage, data, context),
+                    },
+                },
+                output: graphql.field({
+                    type: FileFieldOutput,
+                    resolve({value: {filesize, filename}}) {
+                        if (filesize === null || filename === null) {
+                            return null;
+                        }
+                        return {filename, filesize, storage: config.storage};
+                    },
+                }),
+                views: '@picker-cc/core/fields/types/file/views',
+            });
+        };

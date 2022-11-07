@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noLib": false,
+    "skipLibCheck": true,
+    "lib": ["es2020", "esnext", "esnext.asynciterable", "dom", "es5"],
+    "moduleResolution": "node",
+    "incremental": true,
+    "declaration": true,
+    //    "noImplicitAny": false,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "strictNullChecks": false,
+    "jsx": "preserve",
+    "target": "es2020",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "sourceMap": false,
+    "newLine": "LF",
+    "resolveJsonModule": true
+  }
+}

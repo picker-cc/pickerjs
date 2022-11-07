@@ -1,0 +1,419 @@
+{
+  "data": {
+    "customers": {
+      "items": [
+        {
+          "id": "627e4ff571dcbc001d03d39c",
+          "displayName": "王益锋",
+          "defaultPhone": "17851181776",
+          "code": "382490787924",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-13T12:32:53.525Z",
+          "updatedAt": "2022-05-13T13:33:30.317Z",
+          "lastLogin": null,
+          "phone": "17851181776",
+          "name": "王益锋",
+          "sex": 1,
+          "age": 24,
+          "birthday": "1999-04-12T00:00:00.000Z",
+          "height": 178,
+          "weight": 62,
+          "active": "SEDENTARY",
+          "pa": 1.2,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-13T12:32:53.529Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627e55b771dcbc001d03d3a8",
+              "code": "YT21001",
+              "date": "2022-05-10T12:57:25.172Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627e4b0471dcbc001d03d392",
+          "displayName": "heha何一",
+          "defaultPhone": "18026360685",
+          "code": "794031560882",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-13T12:11:48.205Z",
+          "updatedAt": "2022-05-13T12:31:26.663Z",
+          "lastLogin": null,
+          "phone": "18026360685",
+          "name": "heha何一",
+          "sex": 2,
+          "age": 21,
+          "birthday": "2001-11-01T00:00:00.000Z",
+          "height": 164,
+          "weight": 49,
+          "active": "LIGHTLY_ACTIVE",
+          "pa": 1.375,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-13T12:11:48.209Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627e4b1371dcbc001d03d393",
+              "code": "YT21001",
+              "date": "2022-05-10T12:12:00.564Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627db97d71dcbc001d03cfde",
+          "displayName": "李彦",
+          "defaultPhone": "13888029660",
+          "code": "863357099087",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-13T01:50:53.179Z",
+          "updatedAt": "2022-05-13T02:05:07.740Z",
+          "lastLogin": null,
+          "phone": "13888029660",
+          "name": "李彦",
+          "sex": 2,
+          "age": 46,
+          "birthday": "1977-03-01T00:00:00.000Z",
+          "height": 158,
+          "weight": 53,
+          "active": "SEDENTARY",
+          "pa": 1.2,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-13T01:50:53.184Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627dba0071dcbc001d03cfe4",
+              "code": "YT21001",
+              "date": "2022-05-09T01:52:57.462Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627cba8871dcbc001d03cf5f",
+          "displayName": "马瑶",
+          "defaultPhone": "15014952800",
+          "code": "179345788380",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-12T07:43:04.493Z",
+          "updatedAt": "2022-05-13T01:53:44.463Z",
+          "lastLogin": null,
+          "phone": "15014952800",
+          "name": "目标进5",
+          "sex": 2,
+          "age": 21,
+          "birthday": "2001-10-13T00:00:00.000Z",
+          "height": 162,
+          "weight": 54,
+          "active": "MODERATELY_ACTIVE",
+          "pa": 1.55,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-12T07:43:04.497Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627cbdab71dcbc001d03cf71",
+              "code": "YT21001",
+              "date": "2022-05-09T07:56:01.180Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627a33e771dcbc001d03ce38",
+          "displayName": "米娜",
+          "defaultPhone": "13641979622",
+          "code": "403598389625",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-10T09:44:07.723Z",
+          "updatedAt": "2022-05-13T08:06:07.055Z",
+          "lastLogin": null,
+          "phone": "13641979622",
+          "name": "米娜",
+          "sex": 2,
+          "age": 28,
+          "birthday": "1995-01-01T00:00:00.000Z",
+          "height": 154,
+          "weight": 53.3,
+          "active": "MODERATELY_ACTIVE",
+          "pa": 1.55,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T09:44:07.728Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627a34ad71dcbc001d03ce3b",
+              "code": "YT21001",
+              "date": "2022-05-09T09:47:23.239Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627a33d771dcbc001d03ce37",
+          "displayName": "李小明",
+          "defaultPhone": "17873455126",
+          "code": "028281467172",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-10T09:43:51.973Z",
+          "updatedAt": "2022-05-10T11:39:58.614Z",
+          "lastLogin": null,
+          "phone": "17873455126",
+          "name": "李小明",
+          "sex": 2,
+          "age": 24,
+          "birthday": "1998-07-21T00:00:00.000Z",
+          "height": 160,
+          "weight": 42,
+          "active": "SEDENTARY",
+          "pa": 1.2,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T09:43:51.978Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "627a349a71dcbc001d03ce3a",
+              "code": "YT21001",
+              "date": "2022-05-09T09:47:03.625Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "627a33c771dcbc001d03ce35",
+          "displayName": "刘缘缘",
+          "defaultPhone": "19376337832",
+          "code": "117315601090",
+          "verified": false,
+          "enabled": true,
+          "createdAt": "2022-05-10T09:43:35.540Z",
+          "updatedAt": "2022-05-10T09:43:35.540Z",
+          "lastLogin": null,
+          "phone": "19376337832",
+          "name": "刘缘缘",
+          "sex": null,
+          "age": null,
+          "birthday": null,
+          "height": null,
+          "weight": null,
+          "active": "LIGHTLY_ACTIVE",
+          "pa": null,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T09:43:35.545Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": null,
+          "note": null
+        },
+        {
+          "id": "6279df9171dcbc001d03cdcc",
+          "displayName": "李启佳",
+          "defaultPhone": "16676724921",
+          "code": "280999046795",
+          "verified": false,
+          "enabled": true,
+          "createdAt": "2022-05-10T03:44:17.125Z",
+          "updatedAt": "2022-05-10T03:52:46.925Z",
+          "lastLogin": null,
+          "phone": "16676724921",
+          "name": "李启佳",
+          "sex": null,
+          "age": null,
+          "birthday": null,
+          "height": null,
+          "weight": null,
+          "active": "LIGHTLY_ACTIVE",
+          "pa": null,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T03:44:17.129Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "6279e18e71dcbc001d03cde6",
+              "code": "YT21001",
+              "date": "2022-05-09T03:52:43.343Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "6279df8371dcbc001d03cdcb",
+          "displayName": "刘瑞雪",
+          "defaultPhone": "13727068632",
+          "code": "479176493301",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-10T03:44:03.160Z",
+          "updatedAt": "2022-05-11T05:16:38.502Z",
+          "lastLogin": null,
+          "phone": "13727068632",
+          "name": "刘瑞雪",
+          "sex": 2,
+          "age": 21,
+          "birthday": "2002-02-09T00:00:00.000Z",
+          "height": 157,
+          "weight": 57,
+          "active": "MODERATELY_ACTIVE",
+          "pa": 1.55,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T03:44:03.164Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "6279e18571dcbc001d03cde5",
+              "code": "YT21001",
+              "date": "2022-05-09T03:52:34.654Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        },
+        {
+          "id": "6279df7471dcbc001d03cdca",
+          "displayName": "lxl",
+          "defaultPhone": "18019009152",
+          "code": "754217761579",
+          "verified": true,
+          "enabled": true,
+          "createdAt": "2022-05-10T03:43:48.473Z",
+          "updatedAt": "2022-05-10T12:44:01.178Z",
+          "lastLogin": null,
+          "phone": "18019009152",
+          "name": "lxl",
+          "sex": 2,
+          "age": 21,
+          "birthday": "2001-08-27T00:00:00.000Z",
+          "height": 160,
+          "weight": 56,
+          "active": "LIGHTLY_ACTIVE",
+          "pa": 1.375,
+          "target": "WEIGHT_CONTROL",
+          "company": null,
+          "state": "TRIAL",
+          "stateHistory": [
+            {
+              "state": "TRIAL",
+              "date": "2022-05-10T03:43:48.477Z",
+              "operator": "60991bf7c0e01355ab7038ac"
+            }
+          ],
+          "orderHistory": [
+            {
+              "type": "SERVICE_PACKAGE",
+              "orderId": "6279e17371dcbc001d03cde3",
+              "code": "YT21001",
+              "date": "2022-05-09T03:52:16.122Z",
+              "name": "5天易瘦评估",
+              "operator": "608b63419e69f9741e2ad60a",
+              "note": "NORMAL"
+            }
+          ],
+          "note": null
+        }
+      ],
+      "totalItems": 195
+    }
+  }
+}

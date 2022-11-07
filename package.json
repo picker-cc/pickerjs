@@ -1,0 +1,108 @@
+{
+  "name": "picker-cc",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "watch:all": "pnpm watch --parallel",
+    "watch:core-common": "pnpm run --filter @picker-cc/common --filter @picker-cc/core watch --parallel",
+    "format": "prettier --write --html-whitespace-sensitivity ignore",
+    "bootstrap": "pnpm recursive install",
+    "docs:generate-typescript-docs": "ts-node scripts/docs/generate-typescript-docs.ts",
+    "xdocs:generate-graphql-docs": "ts-node scripts/docs/generate-graphql-docs.ts --api=cms && ts-node scripts/docs/generate-graphql-docs.ts --api=admin",
+    "docs:generate-graphql-docs": "ts-node scripts/docs/generate-graphql-docs.ts --api=admin",
+    "docs:update-build-info": "ts-node scripts/docs/update-build-info.ts",
+    "docs:build": "pnpm docs:generate-graphql-docs && pnpm docs:generate-typescript-docs && pnpm docs:update-build-info",
+    "codegen": "tsc -p scripts/codegen/plugins && ts-node scripts/codegen/generate-graphql-types.ts",
+    "version": "pnpm check-imports && pnpm build && pnpm generate-changelog && git add CHANGELOG.md",
+    "dev-server:start": "cd packages/dev-server && pnpm run start",
+    "test": "pnpm run test --stream --no-bail",
+    "e2e": "pnpm run e2e --stream --no-bail",
+    "build": "pnpm --filter=@picker-cc/* run build",
+    "clean": "rimraf 'packages/*/{lib, node_modules}' && rimraf node_modules",
+    "check-imports": "ts-node scripts/check-imports.ts",
+    "generate-changelog": "ts-node scripts/changelogs/generate-changelog.ts",
+    "update-pkg": "ncu --deep -u",
+    "update-version": "bumpp package.json packages/*/package.json",
+    "release": "standard-version",
+    "commit": "caixie git-commit",
+    "lint": "eslint . --fix"
+  },
+  "dependencies": {
+    "@graphql-codegen/plugin-helpers": "^2.4.2",
+    "@graphql-codegen/visitor-plugin-common": "^2.7.4",
+    "@types/request": "^2.48.8",
+    "axios": "^0.26.1",
+    "cross-env": "^7.0.3",
+    "graphql-tag": "^2.12.6"
+  },
+  "devDependencies": {
+    "@caixiejs/cli": "^0.1.0",
+    "@changesets/cli": "^2.25.0",
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@graphql-codegen/add": "^3.1.1",
+    "@graphql-codegen/cli": "2.6.2",
+    "@graphql-codegen/fragment-matcher": "^3.2.1",
+    "@graphql-codegen/introspection": "2.1.1",
+    "@graphql-codegen/typescript": "2.4.8",
+    "@graphql-codegen/typescript-document-nodes": "2.2.8",
+    "@graphql-codegen/typescript-mongodb": "2.3.6",
+    "@graphql-codegen/typescript-resolvers": "2.6.1",
+    "@graphql-tools/schema": "^8.3.10",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27.4.1",
+    "@types/klaw-sync": "^6.0.1",
+    "@types/node": "^17.0.27",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "bumpp": "^8.2.1",
+    "concurrently": "^7.1.0",
+    "conventional-changelog-core": "^4.2.4",
+    "eslint": "^8.14.0",
+    "eslint-config-caixiejs": "^0.1.1",
+    "eslint-config-caixiejs-vue": "^0.1.1",
+    "find": "^0.3.0",
+    "fs-extra": "^10.1.0",
+    "got": "^12.0.4",
+    "graphql": "^16.6.0",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "klaw-sync": "^6.0.0",
+    "lint-staged": "^12.4.0",
+    "node-fetch": "^3.2.3",
+    "pnpm": "^7.14.2",
+    "prettier": "^2.6.2",
+    "prisma": "^3.14.0",
+    "rimraf": "^3.0.2",
+    "standard-version": "^9.5.0",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.9.1",
+    "turbo": "^1.2.9",
+    "typescript": "4.8.3"
+  },
+  "resolutions": {
+    "npm-packlist": "1.1.12"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "subject-case": [
+        2,
+        "always",
+        [
+          "sentence-case"
+        ]
+      ]
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
+      "post-commit": "git update-index --again",
+      "pre-commit": "lint-staged",
+      "pre-push": "pnpm check-imports"
+    }
+  }
+}

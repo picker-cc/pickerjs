@@ -1,0 +1,51 @@
+{{#if isTs }}
+/*
+这里定义 picker 的启动配置
+*/
+
+import {config as typeInfoConfig, DefaultLogger, LogLevel, PickerConfig, PickerContext} from '@picker-cc/core';
+import {APP_API_PATH, API_PORT} from "@picker-cc/common/lib/shared-constants";
+
+// 在 schema 文件中我们定义应用的列表结构
+import {lists} from './schema';
+
+// Picker 权限谁的独立配置
+import {withAuth, session} from './auth';
+
+export const schemaConfig = withAuth(
+    // 使用 config 函数的目的是帮助 typescript 引入你找到可用的选项
+    typeInfoConfig({
+        // 数据库设置提供配置，当前使用 sqlite 来获得最快的启动体验
+        db: {
+            provider: 'sqlite',
+            url: 'file:./picker.db',
+            // useMigrations: true
+        },
+        // 这个配置允许我们设置 Admin UI 的特性（暂未实现，仅配置）
+        ui: {
+            // 检查是否有会话数据，能否有权限看到 Admin UI
+            isAccessAllowed: (context: PickerContext) => !!context.session?.data,
+        },
+        models: lists,
+        session,
+    })
+);
+
+export const config: PickerConfig = {
+    shouldDropDatabase: true,
+    schemaConfig: schemaConfig,
+    apiOptions: {
+        port: API_PORT,
+        appApiPath: APP_API_PATH,
+        appApiPlayground: {
+            settings: {
+                'request.credentials': 'include',
+            } as any,
+        },
+        appApiDebug: true,
+        // cors: true,
+    },
+    logger: new DefaultLogger({ level: LogLevel.Info}),
+    plugins: []
+}
+{{/if}}

@@ -1,0 +1,47 @@
+/*
+这里是我们在 Picker 中设置了一个基本的认证配置。
+
+`createAuth` 是开箱即用的 email/password 登录实现。
+`statelessSessions` 是会话逻辑的基本实现。
+*/
+
+import { createAuth } from '@picker-cc/core';
+
+import { statelessSessions } from '@picker-cc/core';
+
+let sessionSecret = process.env.SESSION_SECRET;
+
+// 这是一个最佳实践！在开发过程中不提供 session secret 是可以的，但在生产中应该始终包含
+if (!sessionSecret) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'SESSION_SECRET 环境变更必须在生产中设置。'
+    );
+  } else {
+    sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
+  }
+}
+
+// 这里定义 auth 与 schema 关联
+// 在这里我们想要使用 `User` 列表做为权限的应用，并使用 email/password 登录
+const { withAuth } = createAuth({
+  listKey: 'User',
+  identityField: 'email',
+  sessionData: 'name',
+  secretField: 'password',
+  initFirstItem: {
+    // 如果数据库中没有任何数据条目，picker 会要求你创建一个新用户，并填写这些字段数据
+    fields: ['name', 'email', 'password'],
+  },
+});
+
+// 定义用户的session登录时间，当重新登录时会被刷新
+let sessionMaxAge = 60 * 60 * 24 * 30; // 30 days
+
+// 这里定义会话的工作方式
+const session = statelessSessions({
+  maxAge: sessionMaxAge,
+  secret: sessionSecret!,
+});
+
+export { withAuth, session };

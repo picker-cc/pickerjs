@@ -1,0 +1,28 @@
+{
+  "error": {
+    "cannot-delete-role": "The role '{ roleCode }' cannot be deleted",
+    "cannot-locate-customer-for-user": "Cannot locate a Customer for the user",
+    "cannot-modify-role": "The role '{ roleCode }' cannot be modified",
+    "cannot-create-sales-for-active-order": "Cannot create a Sale for an Order which is still active",
+    "cannot-move-collection-into-self": "Cannot move a Collection into itself",
+    "cannot-transition-payment-from-to": "Cannot transition Payment from \"{ fromState }\" to \"{ toState }\"",
+    "cannot-transition-refund-from-to": "Cannot transition Refund from \"{ fromState }\" to \"{ toState }\"",
+    "cannot-transition-fulfillment-from-to": "Cannot transition Fulfillment from \"{ fromState }\" to \"{ toState }\"",
+    "forbidden": "您目前没有执行此操作的授权",
+    "unauthorized": "The credentials did not match. Please check and try again"
+  },
+  "errorResult": {
+    "EMAIL_ADDRESS_CONFLICT_ERROR": "The email address is not available.",
+    "VERIFICATION_TOKEN_EXPIRED_ERROR": "Verification token has expired. Use refreshCustomerVerification to send a new token.",
+    "VERIFICATION_TOKEN_INVALID_ERROR": "Verification token not recognized",
+    "INVALID_CREDENTIALS_ERROR": "提供的凭据无效",
+    "NAME_CONFLICT_ERROR": "名字已存在",
+    "SLUG_CONFLICT_ERROR": "唯一标识已存在"
+  },
+  "message": {
+    "asset-to-be-deleted-is-featured": "The selected {assetCount, plural, one {Asset is} other {Assets are}} featured by {products, plural, =0 {} one {1 Product} other {# Products}} {variants, plural, =0 {} one { 1 ProductVariant} other { # ProductVariants}} {collections, plural, =0 {} one { 1 Collection} other { # Collections}}",
+    "facet-used": "The selected Facet includes FacetValues which are assigned to {products, plural, =0 {} one {1 Product} other {# Products}}{both, select, both { , } single {}}{variants, plural, =0 {} one {1 ProductVariant} other {# ProductVariants}}",
+    "facet-value-force-deleted": "The selected FacetValue was removed from {products, plural, =0 {} one {1 Product} other {# Products}}{both, select, both { , } single {}}{variants, plural, =0 {} one {1 ProductVariant} other {# ProductVariants}} and deleted",
+    "facet-value-used": "The selected FacetValue is assigned to {products, plural, =0 {} one {1 Product} other {# Products}}{both, select, both { , } single {}}{variants, plural, =0 {} one {1 ProductVariant} other {# ProductVariants}}"
+  }
+}

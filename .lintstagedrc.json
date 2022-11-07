@@ -1,0 +1,6 @@
+{
+  "packages/**/*.ts": [
+    "yarn lint",
+    "yarn format"
+  ]
+}

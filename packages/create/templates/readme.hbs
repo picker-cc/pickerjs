@@ -1,0 +1,40 @@
+# {{ name }}
+
+这个项目是由 [`@picker-cc/create`](https://github.com/picker-cc/picker-cc/tree/master/packages/create) 生成的
+
+## 目录结构
+
+* `/src` 包含您的 Picker 服务器的源代码。所有的自定义代码和插件都应该放在这里。
+* `/static` 包含表态（非代码）文件，如一些资产文件（如上传的图片）。
+
+## 开发
+
+```
+pnpm start
+# 或
+npm run start
+```
+
+将会从 `src` 目录启动 Picker 服务器和 [worker](https://www.picker.cc/docs/developer-guide/picker-worker) 进程
+
+{{#if isTs}}## 构建
+
+```
+pnpm build
+# 或
+npm run build
+```
+
+将编译 TypeScript 源代码到 `/dist` 目录。{{/if}}
+
+## 数据迁移
+
+[数据迁移](https://www.picker.cc/docs/developer-guide/migrations/) 允许对数据库 schema 进行安全更新。
+
+下面的 npm 脚本可以用来生成迁移：
+
+```
+pnpm migration:generate [name]
+# 或
+npm run migration:generate [name]
+```
