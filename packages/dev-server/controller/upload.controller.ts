@@ -2,14 +2,14 @@ import { Readable } from 'stream';
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { Ctx, AssetService, RequestContext } from '@pickerjs/core';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { imageFileFilter } from '../plugin';
+import { imageFileFilter } from '@pickerjs/asset-server-plugin';
 // const multerOptions = {
 // }
 /**
  * 上传文件使用的 REST API
  */
-@Controller()
-export class AssetsController {
+@Controller('dev')
+export class UploadController {
   // eslint-disable-next-line no-useless-constructor
   constructor(private assetService: AssetService) {}
 
@@ -25,10 +25,12 @@ export class AssetsController {
     stream.push(file.buffer);
     stream.push(null);
 
-    return this.assetService.createFromBuffer(ctx, {
+    const assets = await this.assetService.createFromBuffer(ctx, {
       filename: file.originalname,
       mimetype: file.mimetype,
       stream
     });
+    // console.log(assets)
+    return assets;
   }
 }

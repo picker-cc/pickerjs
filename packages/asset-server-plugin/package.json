@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^9.1.2",
     "@pickerjs/common": "workspace:*",
     "@pickerjs/core": "workspace:*",
+    "@types/ali-oss": "^6.16.6",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.13",
     "@types/node-fetch": "^2.6.1",

@@ -4,6 +4,7 @@ module.exports = {
     'import/core-modules': ['uno.css', '~icons/*', 'virtual:svg-icons-register']
   },
   rules: {
+    '@typescript-eslint/consistent-type-imports': 'off',
     'import/order': [
       'error',
       {

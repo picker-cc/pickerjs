@@ -1,79 +1,101 @@
-import {config as typeInfoConfig, createAuth, DefaultLogger, LogLevel, PickerConfig, statelessSessions} from '@pickerjs/core';
-import {ADMIN_API_PATH, API_PORT} from "@pickerjs/common/lib/shared-constants";
-
-import {User} from "./schemas/User";
+import path from 'path';
+import {
+  PickerConfig,
+  config as typeInfoConfig,
+  createAuth,
+  DefaultLogger,
+  LogLevel,
+  statelessSessions,
+  DefaultAssetNamingStrategy
+} from '@pickerjs/core';
+import { ADMIN_API_PATH, API_PORT } from '@pickerjs/common/lib/shared-constants';
+import { AssetServerPlugin, configureAliOSSAssetStorage } from '@pickerjs/asset-server-plugin';
+import { User } from './schemas/User';
+import { DevAppPlugin } from './plugin';
 
 const sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
 const sessionMaxAge = 60 * 60 * 24 * 30; // 30 days
 const sessionConfig = {
-    maxAge: sessionMaxAge,
-    secret: sessionSecret,
+  maxAge: sessionMaxAge,
+  secret: sessionSecret
 };
 
 const schemaConfig = typeInfoConfig({
-    db: {
-        provider: 'sqlite',
-        url: 'file:./dev.db',
-    },
-    models: {
-        User
-    },
-    session: statelessSessions(sessionConfig),
-    experimental: {
-        generateNodeAPI: true
-    }
-})
-const {withAuth} = createAuth({
-    listKey: 'User',
-    identityField: 'identifier',
-    secretField: 'password',
-    initFirstItem: {
-        fields: ['name', 'identifier', 'password']
-    },
-    // sessionData: `
-    // `
-})
-const withAuthSchemaConfig = withAuth(schemaConfig)
+  db: {
+    provider: 'sqlite',
+    url: 'file:./dev.db'
+  },
+  models: {
+    User
+  },
+  session: statelessSessions(sessionConfig),
+  experimental: {
+    generateNodeAPI: true
+  }
+});
+const { withAuth } = createAuth({
+  listKey: 'User',
+  identityField: 'identifier',
+  secretField: 'password',
+  initFirstItem: {
+    fields: ['name', 'identifier', 'password']
+  }
+  // sessionData: `
+  // `
+});
+const withAuthSchemaConfig = withAuth(schemaConfig);
 /**
  * 配置开发期间使用的设置
  */
 export const config: PickerConfig = {
-    // graphqlSchema: customSchema,
-    // context: schemaContext,
-    shouldDropDatabase: true,
-    schemaConfig: withAuthSchemaConfig,
-    context: null,
-    apiOptions: {
-        port: API_PORT,
-        appApiPath: ADMIN_API_PATH,
-        appApiPlayground: {
-            settings: {
-                'request.credentials': 'include',
-            } as any,
-        },
-        appApiDebug: true,
-        // cors: true,
+  // graphqlSchema: customSchema,
+  // context: schemaContext,
+  shouldDropDatabase: true,
+  schemaConfig: withAuthSchemaConfig,
+  context: null,
+  apiOptions: {
+    port: API_PORT,
+    appApiPath: ADMIN_API_PATH,
+    appApiPlayground: {
+      settings: {
+        'request.credentials': 'include'
+      } as any
     },
-    logger: new DefaultLogger({ level: LogLevel.Info}),
-    plugins: [
-        // AssetServerPlugin.init({
-        //     route: 'assets',
-        //     assetUploadDir: path.join(__dirname, 'assets')
-        // }),
-        // AdminUiPlugin.init({
-        //     route: 'admin',
-        //     port: 5001
-        // })
-        // CaixieAppPlugin.init({
-        //     route: 'admin',
-        //     port: 5001
-        // })
-        // AdminUiPlugin.init({
-        //     route: 'admin',
-        //     port: 5001,
-        // })
-    ],
-
+    appApiDebug: true
+    // cors: true,
+  },
+  logger: new DefaultLogger({ level: LogLevel.Info }),
+  plugins: [
+    AssetServerPlugin.init({
+      route: 'assets',
+      assetUploadDir: path.join(__dirname, 'assets'),
+      // namingStrategy: new DefaultAssetNamingStrategy(),
+      storageStrategyFactory: configureAliOSSAssetStorage({
+        bucket: 'caixie-favorite',
+        accessKeyId: 'LTAI5t6hCnZiCx2U3hMorHtL',
+        accessKeySecret: 'mRx3jSCNma1vhRcqOeDoKrujPAFk10',
+        region: 'oss-cn-hangzhou',
+        endpoint: 'oss-cn-hangzhou.aliyuncs.com'
+      })
+    }),
+    DevAppPlugin.init({ route: '', port: 0 })
+    // AssetServerPlugin.init({
+    //   route: 'assets',
+    //   assetUploadDir: path.join(__dirname, 'assets')
+    // })
+    // AdminUiPlugin.init({
+    //     route: 'admin',
+    //     port: 5001
+    // })
+    // CaixieAppPlugin.init({
+    //     route: 'admin',
+    //     port: 5001
+    // })
+    // AdminUiPlugin.init({
+    //     route: 'admin',
+    //     port: 5001,
+    // })
+  ]
 };
 /*
 function getDbConfig(): Options {
@@ -124,4 +146,3 @@ function getDbConfig(): Options {
     }
 }
 */
-

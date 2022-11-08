@@ -7,8 +7,8 @@ import {EventBusModule} from "../event-bus";
 const workerControllers: any = [];
 
 const services = [
-    AssetService,
     ConfigService,
+    AssetService,
 ];
 
 // const helpers = [

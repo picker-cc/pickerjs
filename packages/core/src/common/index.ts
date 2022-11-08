@@ -11,3 +11,4 @@ export * from './types/common-types';
 export * from './types/injectable-strategy';
 // export * from './types/locale-types';
 export * from './utils';
+export * from './constants';

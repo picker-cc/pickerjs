@@ -1,10 +1,10 @@
-import { AssetStorageStrategy } from '@pickerjs/core';
 import { createHash } from 'crypto';
-import { Request } from 'express';
-import { ReadStream } from 'fs';
-import fs from 'fs-extra';
+import type { ReadStream } from 'fs';
 import path from 'path';
-import { Stream } from 'stream';
+import type { Stream } from 'stream';
+import fs from 'fs-extra';
+import type { Request } from 'express';
+import type { AssetStorageStrategy } from '@pickerjs/core';
 
 /**
  * @description
@@ -13,62 +13,62 @@ import { Stream } from 'stream';
  * @docsCategory AssetServerPlugin
  */
 export class LocalAssetStorageStrategy implements AssetStorageStrategy {
-    toAbsoluteUrl: ((request: Request, identifier: string) => string) | undefined;
+  toAbsoluteUrl: ((request: Request, identifier: string) => string) | undefined;
 
-    constructor(
-        private readonly uploadPath: string,
-        private readonly toAbsoluteUrlFn?: (request: Request, identifier: string) => string,
-    ) {
-        fs.ensureDirSync(this.uploadPath);
-        if (toAbsoluteUrlFn) {
-            this.toAbsoluteUrl = toAbsoluteUrlFn;
-        }
+  constructor(
+    private readonly uploadPath: string,
+    private readonly toAbsoluteUrlFn?: (request: Request, identifier: string) => string
+  ) {
+    fs.ensureDirSync(this.uploadPath);
+    if (toAbsoluteUrlFn) {
+      this.toAbsoluteUrl = toAbsoluteUrlFn;
     }
+  }
 
-    async writeFileFromStream(fileName: string, data: ReadStream): Promise<string> {
-        const filePath = path.join(this.uploadPath, fileName);
-        await fs.ensureDir(path.dirname(filePath));
-        const writeStream = fs.createWriteStream(filePath, 'binary');
-        return new Promise<string>((resolve, reject) => {
-            data.pipe(writeStream);
-            writeStream.on('close', () => resolve(this.filePathToIdentifier(filePath)));
-            writeStream.on('error', reject);
-        });
-    }
+  async writeFileFromStream(fileName: string, data: ReadStream): Promise<string> {
+    const filePath = path.join(this.uploadPath, fileName);
+    await fs.ensureDir(path.dirname(filePath));
+    const writeStream = fs.createWriteStream(filePath, 'binary');
+    return new Promise<string>((resolve, reject) => {
+      data.pipe(writeStream);
+      writeStream.on('close', () => resolve(this.filePathToIdentifier(filePath)));
+      writeStream.on('error', reject);
+    });
+  }
 
-    async writeFileFromBuffer(fileName: string, data: Buffer): Promise<string> {
-        const filePath = path.join(this.uploadPath, fileName);
-        await fs.ensureDir(path.dirname(filePath));
-        await fs.writeFile(filePath, data, 'binary');
-        return this.filePathToIdentifier(filePath);
-    }
+  async writeFileFromBuffer(fileName: string, data: Buffer): Promise<string> {
+    const filePath = path.join(this.uploadPath, fileName);
+    await fs.ensureDir(path.dirname(filePath));
+    await fs.writeFile(filePath, data, 'binary');
+    return this.filePathToIdentifier(filePath);
+  }
 
-    fileExists(fileName: string): Promise<boolean> {
-        return new Promise(resolve => {
-            fs.access(this.identifierToFilePath(fileName), fs.constants.F_OK, err => {
-                resolve(!err);
-            });
-        });
-    }
+  fileExists(fileName: string): Promise<boolean> {
+    return new Promise(resolve => {
+      fs.access(this.identifierToFilePath(fileName), fs.constants.F_OK, err => {
+        resolve(!err);
+      });
+    });
+  }
 
-    readFileToBuffer(identifier: string): Promise<Buffer> {
-        return fs.readFile(this.identifierToFilePath(identifier));
-    }
+  readFileToBuffer(identifier: string): Promise<Buffer> {
+    return fs.readFile(this.identifierToFilePath(identifier));
+  }
 
-    readFileToStream(identifier: string): Promise<Stream> {
-        const readStream = fs.createReadStream(this.identifierToFilePath(identifier), 'binary');
-        return Promise.resolve(readStream);
-    }
+  readFileToStream(identifier: string): Promise<Stream> {
+    const readStream = fs.createReadStream(this.identifierToFilePath(identifier), 'binary');
+    return Promise.resolve(readStream);
+  }
 
-    private filePathToIdentifier(filePath: string): string {
-        const filePathDirname = path.dirname(filePath);
-        const deltaDirname = filePathDirname.replace(this.uploadPath, '');
-        const identifier = path.join(deltaDirname, path.basename(filePath));
-        return identifier.replace(/^[\\/]+/, '');
-    }
+  private filePathToIdentifier(filePath: string): string {
+    const filePathDirname = path.dirname(filePath);
+    const deltaDirname = filePathDirname.replace(this.uploadPath, '');
+    const identifier = path.join(deltaDirname, path.basename(filePath));
+    return identifier.replace(/^[\\/]+/, '');
+  }
 
-    private identifierToFilePath(identifier: string): string {
-        const identifierToFile = path.join(this.uploadPath, identifier);
-        return identifierToFile;
-    }
+  private identifierToFilePath(identifier: string): string {
+    const identifierToFile = path.join(this.uploadPath, identifier);
+    return identifierToFile;
+  }
 }
