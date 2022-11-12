@@ -9,8 +9,7 @@ echo "Publishing to NPM @ https://registry.npmjs.org/"
 #cd ../apps/jy-server && npm publish -reg $NPM
 
 #cd ../packages/asset-server-plugin && pnpm publish --access public $NPM &&\
-cd ../packages/core && pnpm publish --access public $NPM &&\
-cd ../create && pnpm  publish --access public $NPM &&\
+cd ../packages/create && pnpm publish --access public $NPM &&\
 cd ../auth && pnpm  publish --access public $NPM &&\
 cd ../ali-sms-plugin && pnpm publish --access public $NPM && \
 cd ../wechat-plugin && pnpm  publish --access public $NPM
