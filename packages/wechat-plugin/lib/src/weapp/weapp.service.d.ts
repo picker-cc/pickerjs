@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { Request, Response } from 'express';
 import { DefaultRequestResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
 import { WeChatModuleOptions } from '../types';
