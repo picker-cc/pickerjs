@@ -1,29 +1,12 @@
-"use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MiniProgramService = void 0;
-const common_1 = require("@nestjs/common");
-const axios_1 = __importDefault(require("axios"));
-const utils_1 = require("../utils");
-class MiniProgramService {
-    constructor(options) {
-        this.options = options;
-        this.logger = new common_1.Logger(MiniProgramService.name);
-    }
+import type { Request, Response } from 'express';
+import { DefaultRequestResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
+import { WeChatModuleOptions } from '../types';
+import { CreateActivityId, CreateQRCode, GenerateNFCScheme, GenerateScheme, GenerateShortLink, GenerateUrlLink, GetUnlimitedQRCode, MessageTemplate, PubTemplateTitleList, QRCode, SendMessage, SendUniformMessage, UpdatableMsg } from './weapp.params';
+import { AccessTokenResult, ActivityIdResult, MessageTemplateListResult, PubTemplateKeyWords, PubTemplateTitleListResult, RidInfo, SchemeInfo, SchemeQuota, UrlLinkResult } from './weapp.result';
+export declare class WeAppService {
+    private options;
+    private readonly logger;
+    constructor(options: WeChatModuleOptions);
     /**
      * 获取接口调用凭据
      *
@@ -33,15 +16,7 @@ class MiniProgramService {
      * @param secret
      * @returns
      */
-    getAccessToken(appId, secret) {
-        if (!appId || !secret) {
-            appId = this.options?.appId;
-            secret = this.options?.secret;
-        }
-        const url = 'https://api.weixin.qq.com/cgi-bin/token';
-        // eslint-disable-next-line camelcase
-        return axios_1.default.get(url, { params: { grant_type: 'client_credential', appid: appId, secret } });
-    }
+    getAccessToken(appId?: string, secret?: string): Promise<import("axios").AxiosResponse<AccessTokenResult, any>>;
     /**
      * 查询rid信息
      * @param {string} rid
@@ -49,12 +24,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/openApi/get_rid_info.html
      */
-    getRid(rid, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/openapi/rid/get?access_token=${accessToken}`;
-        return axios_1.default.post(url, {
-            rid,
-        });
-    }
+    getRid(rid: string, accessToken: string): Promise<import("axios").AxiosResponse<RidInfo, any>>;
     /**
      * 获取插件用户openpid
      *
@@ -65,12 +35,9 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/basic-info/getPluginOpenPId.html
      */
-    getPluginOpenPId(code, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/getpluginopenpid?access_token=${accessToken}`;
-        return axios_1.default.post(url, {
-            code,
-        });
-    }
+    getPluginOpenPId(code: string, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        openpid: string;
+    }, any>>;
     /**
      * 登录
      * @param code 临时登录凭证
@@ -79,19 +46,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
      */
-    async code2Session(code, appId, secret) {
-        if (!appId || !secret) {
-            appId = this.options?.appId;
-            secret = this.options?.secret;
-        }
-        if (!appId || !secret) {
-            throw new Error(`${MiniProgramService.name}': No appId or secret.`);
-        }
-        else {
-            const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appId}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
-            return (await axios_1.default.get(url)).data;
-        }
-    }
+    code2Session(code: string, appId?: string, secret?: string): Promise<SessionResult>;
     /**
      * 获取手机号
      * @param {string} accessToken 小程序调用token，第三方可通过使用authorizer_access_token代商家进行调用
@@ -100,10 +55,7 @@ class MiniProgramService {
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/phone-number/getPhoneNumber.html
      * @link https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/getPhoneNumber.html
      */
-    getPhoneNumber(code, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=${accessToken}`;
-        return axios_1.default.post(url, { code });
-    }
+    getPhoneNumber(code: string, accessToken: string): Promise<import("axios").AxiosResponse<PhoneNumberResult, any>>;
     /**
      *
      * 获取小程序码
@@ -117,10 +69,10 @@ class MiniProgramService {
      *
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/getQRCode.html
      */
-    getQRCode(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/getwxacode?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    getQRCode(params: QRCode, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        contentType: string;
+        buffer: Buffer;
+    }, any>>;
     /**
      *
      * 获取不限制的小程序码
@@ -130,10 +82,9 @@ class MiniProgramService {
      * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/qr-code/wxacode.getUnlimited.html
      * @deprecated 统一方法名，请使用 #getUnlimitedQRCode
      */
-    getUnlimited(accessToken, params) {
-        const url = `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    getUnlimited(accessToken: string, params: ParamCreateQRCode): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        buffer: Buffer;
+    }, any>>;
     /**
      * 获取不限制的小程序码
      *
@@ -153,10 +104,9 @@ class MiniProgramService {
      * @param accessToken
      * @returns
      */
-    getUnlimitedQRCode(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    getUnlimitedQRCode(params: GetUnlimitedQRCode, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        buffer: Buffer;
+    }, any>>;
     /**
      * 获取小程序二维码
      *
@@ -170,10 +120,10 @@ class MiniProgramService {
      *
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/createQRCode.html
      */
-    createQRCode(params, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=n=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    createQRCode(params: CreateQRCode, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        contentType: string;
+        buffer: Buffer;
+    }, any>>;
     /**
      * 查询 scheme 码
      *
@@ -184,10 +134,10 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/queryScheme.html
      */
-    queryScheme(scheme, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/queryscheme?access_token=${accessToken}`;
-        return axios_1.default.post(url, { scheme });
-    }
+    queryScheme(scheme: string, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        scheme_info: SchemeInfo;
+        scheme_quota: SchemeQuota;
+    }, any>>;
     /**
      * 获取 scheme 码
      *
@@ -209,10 +159,9 @@ class MiniProgramService {
      *
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateScheme.html
      */
-    generateScheme(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/generatescheme?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    generateScheme(params: GenerateScheme, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        openlink: string;
+    }, any>>;
     /**
      * 获取 NFC 的小程序 scheme
      *
@@ -220,10 +169,9 @@ class MiniProgramService {
      *
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateNFCScheme.html
      */
-    generateNFCScheme(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/generatenfcscheme?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    generateNFCScheme(params: GenerateNFCScheme, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        openlink: string;
+    }, any>>;
     /**
      * 获取 URL Link
      *
@@ -245,10 +193,9 @@ class MiniProgramService {
      *
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/generateUrlLink.html
      */
-    generateUrlLink(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/generate_urllink?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    generateUrlLink(params: GenerateUrlLink, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        url_link: string;
+    }, any>>;
     /**
      * 查询 URL Link
      *
@@ -259,11 +206,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/queryUrlLink.html
      */
-    queryUrlLink(urlLink, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/query_urllink?access_token=${accessToken}`;
-        // eslint-disable-next-line camelcase
-        return axios_1.default.post(url, { url_link: urlLink });
-    }
+    queryUrlLink(urlLink: string, accessToken: string): Promise<import("axios").AxiosResponse<UrlLinkResult, any>>;
     /**
      * 获取 Short Link
      *
@@ -282,10 +225,9 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/short-link/generateShortLink.html
      */
-    generateShortLink(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxa/genwxashortlink?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    generateShortLink(params: GenerateShortLink, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        link: string;
+    }, any>>;
     /**
      * 下发统一消息
      *
@@ -296,10 +238,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/uniform-message/sendUniformMessage.html
      */
-    sendUniformMessage(params, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    sendUniformMessage(params: SendUniformMessage, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult, any>>;
     /**
      * 创建activity_id
      *
@@ -310,10 +249,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/updatable-message/createActivityId.html
      */
-    createActivityId(params, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/activityid/create?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    createActivityId(params: CreateActivityId, accessToken: string): Promise<import("axios").AxiosResponse<ActivityIdResult, any>>;
     /**
      * 修改动态消息
      *
@@ -324,10 +260,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/updatable-message/setUpdatableMsg.html
      */
-    setUpdatableMsg(params, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/updatablemsg/send?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    setUpdatableMsg(params: UpdatableMsg, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult, any>>;
     /**
      * 删除模板
      *
@@ -338,10 +271,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/deleteMessageTemplate.html
      */
-    deleteMessageTemplate(priTmplId, accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate?access_token=${accessToken}`;
-        return axios_1.default.post(url, { priTmplId });
-    }
+    deleteMessageTemplate(priTmplId: string, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult, any>>;
     /**
      * 获取类目
      *
@@ -351,10 +281,12 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getCategory.html
      */
-    getCategory(accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getcategory?access_token=${accessToken}`;
-        return axios_1.default.get(url);
-    }
+    getCategory(accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        data: {
+            id: number;
+            name: string;
+        }[];
+    }, any>>;
     /**
      * 获取关键词列表
      *
@@ -365,10 +297,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getPubTemplateKeyWordsById.html
      */
-    getPubTemplateKeyWordsById(tid, accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords?access_token=${accessToken}&tid=${tid}`;
-        return axios_1.default.get(url);
-    }
+    getPubTemplateKeyWordsById(tid: number, accessToken: string): Promise<import("axios").AxiosResponse<PubTemplateKeyWords, any>>;
     /**
      * 获取所属类目下的公共模板
      *
@@ -379,10 +308,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getPubTemplateTitleList.html
      */
-    getPubTemplateTitleList(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles?access_token=${accessToken}&ids=${params.ids}&start=${params.start}&limit=${params.limit}`;
-        return axios_1.default.get(url);
-    }
+    getPubTemplateTitleList(params: PubTemplateTitleList, accessToken: string): Promise<import("axios").AxiosResponse<PubTemplateTitleListResult, any>>;
     /**
      * 获取个人模板列表
      *
@@ -392,10 +318,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getMessageTemplateList.html
      */
-    getMessageTemplateList(accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token=${accessToken}`;
-        return axios_1.default.get(url);
-    }
+    getMessageTemplateList(accessToken: string): Promise<import("axios").AxiosResponse<MessageTemplateListResult, any>>;
     /**
      * 发送订阅消息
      *
@@ -405,10 +328,7 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/sendMessage.html
      */
-    sendMessage(params, accessToken) {
-        const url = `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    sendMessage(params: SendMessage, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult, any>>;
     /**
      * 添加模板
      *
@@ -419,10 +339,9 @@ class MiniProgramService {
      * @returns
      * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/addMessageTemplate.html
      */
-    addMessageTemplate(params, accessToken) {
-        const url = `https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate?access_token=${accessToken}`;
-        return axios_1.default.post(url, params);
-    }
+    addMessageTemplate(params: MessageTemplate, accessToken: string): Promise<import("axios").AxiosResponse<DefaultRequestResult & {
+        priTmplId: string;
+    }, any>>;
     /**
      * 小程序消息推送配置时，推送处理方法
      * @param req Express.Request
@@ -431,34 +350,5 @@ class MiniProgramService {
      * @returns string | false 验证通过时，返回echostr，验证不通过时，返回false
      * @link https://developers.weixin.qq.com/miniprogram/dev/framework/server-ability/message-push.html
      */
-    verifyMessagePush(req, res, token) {
-        token = token || this.options?.token;
-        this.logger.debug(`verifyMessagePush() token = ${token}`);
-        this.logger.debug(`verifyMessagePush() query = ${JSON.stringify(req.query)}`);
-        const signature = (req.query && req.query.signature) || '';
-        const timestamp = (req.query && req.query.timestamp) || '';
-        const nonce = (req.query && req.query.nonce) || '';
-        const echostr = (req.query && req.query.echostr) || '';
-        const my = utils_1.MessageCrypto.sha1(token || '', timestamp, nonce);
-        if (my === signature) {
-            if (res && typeof res.send === 'function') {
-                res.send(echostr);
-            }
-            return echostr;
-        }
-        else {
-            if (res && typeof res.send === 'function') {
-                res.send('fail');
-            }
-            return false;
-        }
-    }
+    verifyMessagePush(req: Request, res: Response, token?: string): any;
 }
-__decorate([
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, String]),
-    __metadata("design:returntype", Object)
-], MiniProgramService.prototype, "verifyMessagePush", null);
-exports.MiniProgramService = MiniProgramService;

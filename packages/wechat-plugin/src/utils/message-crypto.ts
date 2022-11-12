@@ -5,31 +5,30 @@ import { XMLParser } from 'fast-xml-parser';
  * 消息签名加解密类
  */
 export class MessageCrypto {
-
   private static NONCESTR_MAX = 32;
 
-  public static sha1 (...args: string[]): string {
+  public static sha1(...args: string[]): string {
     return crypto.createHash('sha1').update(args.sort().join('')).digest('hex');
   }
 
-  public static md5 (text: string): string {
+  public static md5(text: string): string {
     return crypto.createHash('md5').update(text).digest('hex');
   }
 
-  public static getAESKey (encodingAESKey: string): Buffer {
-    return Buffer.from(encodingAESKey + '=', 'base64');
+  public static getAESKey(encodingAESKey: string): Buffer {
+    return Buffer.from(`${encodingAESKey}=`, 'base64');
   }
 
-  public static getAESKeyIV (aesKey: Buffer): Buffer {
+  public static getAESKeyIV(aesKey: Buffer): Buffer {
     return aesKey.slice(0, 16);
   }
 
   /**
    * AES算法pkcs7 padding Encoder
-   * @param {Buffer} buff 
-   * @returns 
+   * @param {Buffer} buff
+   * @returns
    */
-  public static PKCS7Encoder (buff: Buffer) {
+  public static PKCS7Encoder(buff: Buffer) {
     const blockSize = 32;
     const strSize = buff.length;
     const amountToPad = blockSize - (strSize % blockSize);
@@ -41,9 +40,9 @@ export class MessageCrypto {
   /**
    * AES算法pkcs7 padding Decoder
    * @param {Buffer} buff 需要解码的Buffer
-   * @returns 
+   * @returns
    */
-  public static PKCS7Decoder (buff: Buffer) {
+  public static PKCS7Decoder(buff: Buffer) {
     let pad = buff[buff.length - 1];
     if (pad < 1 || pad > 32) {
       pad = 0;
@@ -53,15 +52,17 @@ export class MessageCrypto {
 
   /**
    * 对给定的密文进行AES解密
-   * @param {Buffer} aesKey 
-   * @param {Buffer} iv 
-   * @param {String} str 
-   * @returns 
+   * @param {Buffer} aesKey
+   * @param {Buffer} iv
+   * @param {String} str
+   * @returns
    */
-  public static decrypt (aesKey: Buffer, iv: Buffer, str: string) {
+  public static decrypt(aesKey: Buffer, iv: Buffer, str: string) {
     const aesCipher = crypto.createDecipheriv('aes-256-cbc', aesKey, iv);
     aesCipher.setAutoPadding(false);
-    const decipheredBuff = MessageCrypto.PKCS7Decoder(Buffer.concat([aesCipher.update(str, 'base64'), aesCipher.final()]));
+    const decipheredBuff = MessageCrypto.PKCS7Decoder(
+      Buffer.concat([aesCipher.update(str, 'base64'), aesCipher.final()])
+    );
     const data = decipheredBuff.slice(16);
     const msgLen = data.slice(0, 4).readUInt32BE(0);
     return data.slice(4, msgLen + 4).toString();
@@ -69,13 +70,14 @@ export class MessageCrypto {
 
   /**
    * 对给定的消息进行AES加密
-   * @param {Buffer} aesKey 
-   * @param {Buffer} iv 
+   * @param {Buffer} aesKey
+   * @param {Buffer} iv
    * @param {String} msg 需要加密的明文
    * @param {String} appId 需要对比的appId，如果第三方回调时默认是suiteId，也可自行传入作为匹配处理
-   * @returns 
+   * @returns
    */
-  public static encrypt (aesKey: Buffer, iv: Buffer, msg: string, appId: string) {
+  // eslint-disable-next-line max-params
+  public static encrypt(aesKey: Buffer, iv: Buffer, msg: string, appId: string) {
     const buf = Buffer.from(msg);
     const random16 = crypto.randomBytes(16);
     const msgLen = Buffer.alloc(4);
@@ -90,13 +92,13 @@ export class MessageCrypto {
   /**
    * 生成随机字符串
    * @param {number} length 长度，默认16
-   * @returns 
+   * @returns
    */
-  public static createNonceStr (length = 16): string {
-    length = length > MessageCrypto.NONCESTR_MAX ? MessageCrypto.NONCESTR_MAX : length;
+  public static createNonceStr(length = 16): string {
+    const newLength = length > MessageCrypto.NONCESTR_MAX ? MessageCrypto.NONCESTR_MAX : length;
     let str = '';
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < newLength; i += 1) {
       str += chars[Math.floor(Math.random() * chars.length)];
     }
     return str;
@@ -114,7 +116,15 @@ export class MessageCrypto {
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
    */
-  public static encryptMessage (appId: string, token: string, encodingAESKey: string, message: string, timestamp: string, nonce: string): string {
+  // eslint-disable-next-line max-params
+  public static encryptMessage(
+    appId: string,
+    token: string,
+    encodingAESKey: string,
+    message: string,
+    timestamp: string,
+    nonce: string
+  ): string {
     const aesKey = MessageCrypto.getAESKey(encodingAESKey);
     const iv = MessageCrypto.getAESKeyIV(aesKey);
     const encrypt = MessageCrypto.encrypt(aesKey, iv, message, appId);
@@ -124,9 +134,9 @@ export class MessageCrypto {
   }
 
   /**
-   * 
+   *
    * 消息解密
-   * 
+   *
    * @param signature 签名
    * @param timestamp 时间戳
    * @param nonce 随机字符串
@@ -136,7 +146,7 @@ export class MessageCrypto {
    * @see MessageCrypto#encryptMessage
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
-   * 
+   *
    */
 
   /**
@@ -147,12 +157,20 @@ export class MessageCrypto {
    * @param {string} timestamp 消息时间戳
    * @param {string} nonce 消息随机字符串
    * @param {string} encryptXml 消息密文
-   * @returns 
+   * @returns
    * @throws
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
    */
-  public static decryptMessage (token: string, encodingAESKey: string, signature: string, timestamp: string, nonce: string, encryptXml: string) {
+  // eslint-disable-next-line max-params
+  public static decryptMessage(
+    token: string,
+    encodingAESKey: string,
+    signature: string,
+    timestamp: string,
+    nonce: string,
+    encryptXml: string
+  ) {
     const aesKey = MessageCrypto.getAESKey(encodingAESKey || '');
     const iv = MessageCrypto.getAESKeyIV(aesKey);
     const parser = new XMLParser();
@@ -163,5 +181,4 @@ export class MessageCrypto {
     }
     return MessageCrypto.decrypt(aesKey, iv, encryptMessage);
   }
-
 }

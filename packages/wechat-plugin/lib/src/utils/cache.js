@@ -7,7 +7,7 @@ class MapCache {
         this.map = new Map();
     }
     get(key) {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             resolve(this.map.get(key));
         });
     }
@@ -17,8 +17,6 @@ class MapCache {
     remove(key) {
         return this.map.delete(key);
     }
-    close() {
-        return;
-    }
+    close() { }
 }
 exports.MapCache = MapCache;

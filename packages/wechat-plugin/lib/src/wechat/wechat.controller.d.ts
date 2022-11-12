@@ -1,4 +1,4 @@
-import { WeChatService } from "./wechat.service";
+import { WeChatService } from './wechat.service';
 export declare class WechatController {
     private readonly wechatService;
     constructor(wechatService: WeChatService);

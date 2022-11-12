@@ -1,7 +1,7 @@
-import { MiniProgramService } from '../miniprogram/miniprogram.service';
+import { WeAppService } from '../weapp/weapp.service';
 import { ICache } from '../types/utils';
 import { WePayService } from '../wepay/wepay.service';
-import { DefaultRequestResult, FollowerResult, TemplateMessage, TicketResult, UserAccessTokenResult, UserInfoResult } from "../interfaces";
+import { DefaultRequestResult, FollowerResult, TemplateMessage, TicketResult, UserAccessTokenResult, UserInfoResult } from '../interfaces';
 import { AccountAccessTokenResult, SignatureResult, WeChatModuleOptions } from '../types';
 export declare class WeChatService {
     private options;
@@ -31,7 +31,7 @@ export declare class WeChatService {
      * @type {MiniProgramService}
      * @memberof WeChatService
      */
-    mp: MiniProgramService;
+    mp: WeAppService;
     /**
      * WePay Service Namespace
      * @type {WePayService}

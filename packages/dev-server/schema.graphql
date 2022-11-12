@@ -11,6 +11,14 @@ type User {
   enabled: Boolean
   lastLogin: DateTime
   password: PasswordState
+  wechat: WechatUser
+  posts(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
   isAdmin: Boolean
 }
 
@@ -39,6 +47,8 @@ input UserWhereInput {
   enabled: BooleanFilter
   lastLogin: DateTimeNullableFilter
   password: PasswordFilter
+  wechat: WechatUserWhereInput
+  posts: PostManyRelationFilter
   isAdmin: BooleanFilter
 }
 
@@ -112,6 +122,12 @@ input PasswordFilter {
   isSet: Boolean!
 }
 
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -140,7 +156,22 @@ input UserUpdateInput {
   enabled: Boolean
   lastLogin: DateTime
   password: String
+  wechat: WechatUserRelateToOneForUpdateInput
+  posts: PostRelateToManyForUpdateInput
   isAdmin: Boolean
+}
+
+input WechatUserRelateToOneForUpdateInput {
+  create: WechatUserCreateInput
+  connect: WechatUserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -158,7 +189,250 @@ input UserCreateInput {
   enabled: Boolean
   lastLogin: DateTime
   password: String
+  wechat: WechatUserRelateToOneForCreateInput
+  posts: PostRelateToManyForCreateInput
   isAdmin: Boolean
+}
+
+input WechatUserRelateToOneForCreateInput {
+  create: WechatUserCreateInput
+  connect: WechatUserWhereUniqueInput
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
+type WechatUser {
+  id: ID!
+  appId: String
+  subscribed: Boolean
+  openId: String
+  unionId: String
+  phone: String
+  nickName: String
+  gender: Int
+  language: String
+  city: String
+  province: String
+  country: String
+  avatarUrl: String
+  user: User
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input WechatUserWhereUniqueInput {
+  id: ID
+  openId: String
+  unionId: String
+  phone: String
+}
+
+input WechatUserWhereInput {
+  AND: [WechatUserWhereInput!]
+  OR: [WechatUserWhereInput!]
+  NOT: [WechatUserWhereInput!]
+  id: IDFilter
+  appId: StringFilter
+  subscribed: BooleanFilter
+  openId: StringFilter
+  unionId: StringFilter
+  phone: StringFilter
+  nickName: StringFilter
+  gender: IntNullableFilter
+  language: StringFilter
+  city: StringFilter
+  province: StringFilter
+  country: StringFilter
+  avatarUrl: StringFilter
+  user: UserWhereInput
+  deletedAt: DateTimeNullableFilter
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input WechatUserOrderByInput {
+  id: OrderDirection
+  appId: OrderDirection
+  subscribed: OrderDirection
+  openId: OrderDirection
+  unionId: OrderDirection
+  phone: OrderDirection
+  nickName: OrderDirection
+  gender: OrderDirection
+  language: OrderDirection
+  city: OrderDirection
+  province: OrderDirection
+  country: OrderDirection
+  avatarUrl: OrderDirection
+  deletedAt: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input WechatUserUpdateInput {
+  appId: String
+  subscribed: Boolean
+  openId: String
+  unionId: String
+  phone: String
+  nickName: String
+  gender: Int
+  language: String
+  city: String
+  province: String
+  country: String
+  avatarUrl: String
+  user: UserRelateToOneForUpdateInput
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input WechatUserUpdateArgs {
+  where: WechatUserWhereUniqueInput!
+  data: WechatUserUpdateInput!
+}
+
+input WechatUserCreateInput {
+  appId: String
+  subscribed: Boolean
+  openId: String
+  unionId: String
+  phone: String
+  nickName: String
+  gender: Int
+  language: String
+  city: String
+  province: String
+  country: String
+  avatarUrl: String
+  user: UserRelateToOneForCreateInput
+  deletedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+type Post {
+  id: ID!
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: User
+  type: PostTypeType
+  parent(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  parentCount(where: PostWhereInput! = {}): Int
+  config: JSON
+}
+
+enum PostStatusType {
+  published
+  draft
+}
+
+enum PostTypeType {
+  favorite
+  memory
+  story
+}
+
+input PostWhereUniqueInput {
+  id: ID
+}
+
+input PostWhereInput {
+  AND: [PostWhereInput!]
+  OR: [PostWhereInput!]
+  NOT: [PostWhereInput!]
+  id: IDFilter
+  title: StringFilter
+  status: PostStatusTypeNullableFilter
+  content: StringFilter
+  publishDate: DateTimeNullableFilter
+  user: UserWhereInput
+  type: PostTypeTypeNullableFilter
+  parent: PostManyRelationFilter
+}
+
+input PostStatusTypeNullableFilter {
+  equals: PostStatusType
+  in: [PostStatusType!]
+  notIn: [PostStatusType!]
+  not: PostStatusTypeNullableFilter
+}
+
+input PostTypeTypeNullableFilter {
+  equals: PostTypeType
+  in: [PostTypeType!]
+  notIn: [PostTypeType!]
+  not: PostTypeTypeNullableFilter
+}
+
+input PostOrderByInput {
+  id: OrderDirection
+  title: OrderDirection
+  status: OrderDirection
+  content: OrderDirection
+  publishDate: OrderDirection
+  type: OrderDirection
+}
+
+input PostUpdateInput {
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForUpdateInput
+  type: PostTypeType
+  parent: PostRelateToManyForUpdateInput
+  config: JSON
+}
+
+input PostUpdateArgs {
+  where: PostWhereUniqueInput!
+  data: PostUpdateInput!
+}
+
+input PostCreateInput {
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForCreateInput
+  type: PostTypeType
+  parent: PostRelateToManyForCreateInput
+  config: JSON
 }
 
 """
@@ -173,6 +447,21 @@ type Mutation {
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createWechatUser(data: WechatUserCreateInput!): WechatUser
+  createWechatUsers(data: [WechatUserCreateInput!]!): [WechatUser]
+  updateWechatUser(
+    where: WechatUserWhereUniqueInput!
+    data: WechatUserUpdateInput!
+  ): WechatUser
+  updateWechatUsers(data: [WechatUserUpdateArgs!]!): [WechatUser]
+  deleteWechatUser(where: WechatUserWhereUniqueInput!): WechatUser
+  deleteWechatUsers(where: [WechatUserWhereUniqueInput!]!): [WechatUser]
+  createPost(data: PostCreateInput!): Post
+  createPosts(data: [PostCreateInput!]!): [Post]
+  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
+  updatePosts(data: [PostUpdateArgs!]!): [Post]
+  deletePost(where: PostWhereUniqueInput!): Post
+  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
   endSession: Boolean!
   authenticateUserWithPassword(
     identifier: String!
@@ -211,6 +500,22 @@ type Query {
   ): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
+  wechatUsers(
+    where: WechatUserWhereInput! = {}
+    orderBy: [WechatUserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [WechatUser!]
+  wechatUser(where: WechatUserWhereUniqueInput!): WechatUser
+  wechatUsersCount(where: WechatUserWhereInput! = {}): Int
+  posts(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  post(where: PostWhereUniqueInput!): Post
+  postsCount(where: PostWhereInput! = {}): Int
   authenticatedItem: AuthenticatedItem
 }
 

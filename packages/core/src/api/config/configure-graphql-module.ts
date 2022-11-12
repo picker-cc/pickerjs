@@ -1,4 +1,3 @@
-import path from 'path';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { DynamicModule } from '@nestjs/common';
 import type { GraphQLSchema, ValidationContext } from 'graphql';
@@ -17,6 +16,7 @@ import { createSessionContext } from '../../schema/session';
 import { EventBus, EventBusModule } from '../../event-bus';
 import { getPluginAPIExtensions } from '../../plugin/plugin-metadata';
 import { ConfigModule, ConfigService } from '../../config';
+import { REQUEST_CONTEXT_KEY, RequestContextService } from '../common/request-context.service';
 
 // import {}
 export interface GraphQLApiOptions {
@@ -36,7 +36,7 @@ export function configureGraphQLModule(getOptions: (configService: ConfigService
     useFactory: (
       configService: ConfigService,
       eventBus: EventBus,
-      // requestContextService: RequestContextService,
+      requestContextService: RequestContextService,
       i18nService: I18nService,
       // idCodecService: IdCodecService,
       typesLoader: GraphQLTypesLoader
@@ -46,7 +46,7 @@ export function configureGraphQLModule(getOptions: (configService: ConfigService
         configService,
         eventBus,
         i18nService,
-        // requestContextService,
+        requestContextService,
         // idCodecService,
         typesLoader,
         // customFieldRelationResolverService,
@@ -66,11 +66,13 @@ export function configureGraphQLModule(getOptions: (configService: ConfigService
   });
 }
 
+// eslint-disable-next-line max-params
 async function createGraphQLOptions(
   configService: ConfigService,
   eventBus: EventBus,
   i18nService: I18nService,
-  // requestContextService: RequestContextService,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  requestContextService: RequestContextService,
   // idCodecService: IdCodecService,
   typesLoader: GraphQLTypesLoader,
   options: GraphQLApiOptions
@@ -99,37 +101,8 @@ async function createGraphQLOptions(
     // req: IncomingMessage;
     // res: ServerResponse;
     context: async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
-      // console.log(configService.injector)
-      // console.log(configService)
-      // console.log(pluginExports)
-      // pluginExports.map(service => {
-      //     console.log(service)
-      // })
-      // const exports: any = getPluginExports()
-      // console.log(exports)
-      // const pluginServices = exports.map((services: any) => {
-      //     return services.map(async (item: any) => {
-      //         if (item.name === 'ScraperService') {
-      //             // console.log(item.name)
-      //             // await injector.resolve(item)
-      //             // console.log(injector.get(item))
-      //             configService.injector.get(item).print()
-      //             // console.log(injector.resolve(item))
-      //         }
-      //         return item
-      //         // console.log(injector.resolve(item))
-      //     })
-      // })
-      // console.log(pluginServices)
-      // const getService = () => {}
-
-      // console.log('xx-x-x--x')
-      // console.log(configService.injector)
-      // console.log(injecttorx )
-      // const injectorx = configService.injector
-      //             configService.injector.get(item).print()
-      // const configSrv = injectorx.get(ConfigService)
-      // console.log(configSrv)
+      // if (req.context)
+      //  console.log(configService.context({}).session)
       const context = configService.context({
         eventBus,
         injector: configService.injector,
@@ -139,7 +112,11 @@ async function createGraphQLOptions(
           : undefined,
         req
       });
-
+      // const requestContext = await requestContextService.fromRequest(req, info, permissions, session, picker);
+      (req as any)[REQUEST_CONTEXT_KEY] = {
+        req,
+        picker: context
+      };
       return context;
       // return configService.context
     },

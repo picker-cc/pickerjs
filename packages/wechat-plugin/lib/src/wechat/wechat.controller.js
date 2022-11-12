@@ -32,23 +32,23 @@ let WechatController = class WechatController {
         // ME
         // okJLfvhlXBDQtsjd1UelmVrKPR0g
         const openids = [
-            "okJLfvhKzbHIN9cflD0Mxzi-1lcE",
-            "okJLfvsizoouZdnRelQdY1lupgxk",
-            "okJLfvhiP8RQfmZM10Z-Ou99kMwo",
-            "okJLfvuI2rHgkNI1d1I4QtT7Ahmc",
-            "okJLfvv6GNYmiqaoVGiKq7a9ywrQ",
-            "okJLfvl2ckC7h6TwPEGawYRaGJz8",
-            "okJLfvg-0NJ0xzPq1VX-eD9uRxVo",
-            "okJLfvqe3m80utduxD0-cewup4sQ",
-            "okJLfvioccoJn5wJovUubNURJ194",
-            "okJLfvtME5cgkPDXpbAbfvf_8-Sk",
-            "okJLfvs2NQSr17ZZaxoxWK_yNA6E",
-            "okJLfvopOg_IUqlFlmJk_EVWvVkQ",
-            "okJLfvqxS5evsJW1my66QSf2RaQo",
-            "okJLfvsfhscijmRJGPWeQnXXlyg0",
-            "okJLfvhlXBDQtsjd1UelmVrKPR0g",
-            "okJLfvjV_tVhIetM8abCNBxS2TjQ",
-            "okJLfvi-thVSz2Qeu09G_67yt5gM"
+            'okJLfvhKzbHIN9cflD0Mxzi-1lcE',
+            'okJLfvsizoouZdnRelQdY1lupgxk',
+            'okJLfvhiP8RQfmZM10Z-Ou99kMwo',
+            'okJLfvuI2rHgkNI1d1I4QtT7Ahmc',
+            'okJLfvv6GNYmiqaoVGiKq7a9ywrQ',
+            'okJLfvl2ckC7h6TwPEGawYRaGJz8',
+            'okJLfvg-0NJ0xzPq1VX-eD9uRxVo',
+            'okJLfvqe3m80utduxD0-cewup4sQ',
+            'okJLfvioccoJn5wJovUubNURJ194',
+            'okJLfvtME5cgkPDXpbAbfvf_8-Sk',
+            'okJLfvs2NQSr17ZZaxoxWK_yNA6E',
+            'okJLfvopOg_IUqlFlmJk_EVWvVkQ',
+            'okJLfvqxS5evsJW1my66QSf2RaQo',
+            'okJLfvsfhscijmRJGPWeQnXXlyg0',
+            'okJLfvhlXBDQtsjd1UelmVrKPR0g',
+            'okJLfvjV_tVhIetM8abCNBxS2TjQ',
+            'okJLfvi-thVSz2Qeu09G_67yt5gM'
         ];
         // for(let openId of openids) {
         //     const userInfo = await this.wechatService.getUserInfo(openId)

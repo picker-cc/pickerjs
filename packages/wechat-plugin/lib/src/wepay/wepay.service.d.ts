@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { MiniProgramPaymentParameters, RefundParameters, RefundResult, RequireOnlyOne, Trade, TransactionOrder } from '../types';
 import type { Request, Response } from 'express';
+import { MiniProgramPaymentParameters, RefundParameters, RefundResult, RequireOnlyOne, Trade, TransactionOrder } from '../types';
 export declare class WePayService {
     API_ROOT: string;
     private readonly logger;

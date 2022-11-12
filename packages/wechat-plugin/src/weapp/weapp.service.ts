@@ -1,7 +1,9 @@
 import { Logger, Req, Res } from '@nestjs/common';
 import axios from 'axios';
-
+import type { Request, Response } from 'express';
 import { DefaultRequestResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
+import { WeChatModuleOptions } from '../types';
+import { MessageCrypto } from '../utils';
 import {
   CreateActivityId,
   CreateQRCode,
@@ -15,8 +17,8 @@ import {
   QRCode,
   SendMessage,
   SendUniformMessage,
-  UpdatableMsg,
-} from './miniprogram.params';
+  UpdatableMsg
+} from './weapp.params';
 import {
   AccessTokenResult,
   ActivityIdResult,
@@ -26,17 +28,13 @@ import {
   RidInfo,
   SchemeInfo,
   SchemeQuota,
-  UrlLinkResult,
-} from './miniprogram.result';
-import { WeChatModuleOptions } from '../types';
-import { MessageCrypto } from '../utils';
+  UrlLinkResult
+} from './weapp.result';
 
-import type { Request, Response } from 'express';
-export class MiniProgramService {
+export class WeAppService {
+  private readonly logger = new Logger(WeAppService.name);
 
-  private readonly logger = new Logger(MiniProgramService.name);
-
-  constructor (private options: WeChatModuleOptions) {}
+  constructor(private options: WeChatModuleOptions) {}
 
   /**
    * 获取接口调用凭据
@@ -47,14 +45,18 @@ export class MiniProgramService {
    * @param secret
    * @returns
    */
-  public getAccessToken (appId?: string, secret?: string) {
+  public getAccessToken(appId?: string, secret?: string) {
+    let newAppId = appId;
+    let newSecret = secret;
     if (!appId || !secret) {
-      appId = this.options?.appId;
-      secret = this.options?.secret;
+      newAppId = this.options?.appId;
+      newSecret = this.options?.secret;
     }
     const url = 'https://api.weixin.qq.com/cgi-bin/token';
     // eslint-disable-next-line camelcase
-    return axios.get<AccessTokenResult>(url, { params: { grant_type: 'client_credential', appid: appId, secret } });
+    return axios.get<AccessTokenResult>(url, {
+      params: { grant_type: 'client_credential', appid: newAppId, newSecret }
+    });
   }
 
   /**
@@ -64,10 +66,10 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/openApi/get_rid_info.html
    */
-  public getRid (rid: string, accessToken: string) {
+  public getRid(rid: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/openapi/rid/get?access_token=${accessToken}`;
     return axios.post<RidInfo>(url, {
-      rid,
+      rid
     });
   }
 
@@ -81,10 +83,10 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/basic-info/getPluginOpenPId.html
    */
-  public getPluginOpenPId (code: string, accessToken: string) {
+  public getPluginOpenPId(code: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/getpluginopenpid?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { openpid: string }>(url, {
-      code,
+      code
     });
   }
 
@@ -96,16 +98,18 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
    */
-  public async code2Session (code: string, appId?: string, secret?: string): Promise<SessionResult> {
+  public async code2Session(code: string, appId?: string, secret?: string): Promise<SessionResult> {
+    let newAppId = appId;
+    let newSecret = secret;
     if (!appId || !secret) {
-      appId = this.options?.appId;
-      secret = this.options?.secret;
+      newAppId = this.options?.appId;
+      newSecret = this.options?.secret;
     }
 
-    if (!appId || !secret) {
-      throw new Error(`${MiniProgramService.name}': No appId or secret.`);
+    if (!newAppId || !newSecret) {
+      throw new Error(`${WeAppService.name}': No appId or secret.`);
     } else {
-      const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appId}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
+      const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${newAppId}&secret=${newSecret}&js_code=${code}&grant_type=authorization_code`;
       return (await axios.get<SessionResult>(url)).data;
     }
   }
@@ -118,7 +122,7 @@ export class MiniProgramService {
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/user-info/phone-number/getPhoneNumber.html
    * @link https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/getPhoneNumber.html
    */
-  public getPhoneNumber (code: string, accessToken: string) {
+  public getPhoneNumber(code: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=${accessToken}`;
     return axios.post<PhoneNumberResult>(url, { code });
   }
@@ -136,9 +140,9 @@ export class MiniProgramService {
    *
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/getQRCode.html
    */
-  public getQRCode (params: QRCode, accessToken: string) {
+  public getQRCode(params: QRCode, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/getwxacode?access_token=${accessToken}`;
-    return axios.post<DefaultRequestResult & { contentType: string, buffer: Buffer }>(url, params);
+    return axios.post<DefaultRequestResult & { contentType: string; buffer: Buffer }>(url, params);
   }
 
   /**
@@ -150,7 +154,7 @@ export class MiniProgramService {
    * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/qr-code/wxacode.getUnlimited.html
    * @deprecated 统一方法名，请使用 #getUnlimitedQRCode
    */
-  public getUnlimited (accessToken: string, params: ParamCreateQRCode) {
+  public getUnlimited(accessToken: string, params: ParamCreateQRCode) {
     const url = `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { buffer: Buffer }>(url, params);
   }
@@ -174,7 +178,7 @@ export class MiniProgramService {
    * @param accessToken
    * @returns
    */
-  public getUnlimitedQRCode (params: GetUnlimitedQRCode, accessToken: string) {
+  public getUnlimitedQRCode(params: GetUnlimitedQRCode, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { buffer: Buffer }>(url, params);
   }
@@ -192,9 +196,9 @@ export class MiniProgramService {
    *
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/createQRCode.html
    */
-  public createQRCode (params: CreateQRCode, accessToken: string) {
+  public createQRCode(params: CreateQRCode, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=n=${accessToken}`;
-    return axios.post<DefaultRequestResult & { contentType: string, buffer: Buffer }>(url, params);
+    return axios.post<DefaultRequestResult & { contentType: string; buffer: Buffer }>(url, params);
   }
 
   /**
@@ -207,9 +211,9 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/queryScheme.html
    */
-  public queryScheme (scheme: string, accessToken: string) {
+  public queryScheme(scheme: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/queryscheme?access_token=${accessToken}`;
-    return axios.post<DefaultRequestResult & { scheme_info: SchemeInfo, scheme_quota: SchemeQuota }>(url, { scheme });
+    return axios.post<DefaultRequestResult & { scheme_info: SchemeInfo; scheme_quota: SchemeQuota }>(url, { scheme });
   }
 
   /**
@@ -233,7 +237,7 @@ export class MiniProgramService {
    *
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateScheme.html
    */
-  public generateScheme (params: GenerateScheme, accessToken: string) {
+  public generateScheme(params: GenerateScheme, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/generatescheme?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { openlink: string }>(url, params);
   }
@@ -245,7 +249,7 @@ export class MiniProgramService {
    *
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateNFCScheme.html
    */
-  public generateNFCScheme (params: GenerateNFCScheme, accessToken: string) {
+  public generateNFCScheme(params: GenerateNFCScheme, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/generatenfcscheme?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { openlink: string }>(url, params);
   }
@@ -271,7 +275,7 @@ export class MiniProgramService {
    *
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/generateUrlLink.html
    */
-  public generateUrlLink (params: GenerateUrlLink, accessToken: string) {
+  public generateUrlLink(params: GenerateUrlLink, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/generate_urllink?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { url_link: string }>(url, params);
   }
@@ -286,7 +290,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/queryUrlLink.html
    */
-  public queryUrlLink (urlLink: string, accessToken: string) {
+  public queryUrlLink(urlLink: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/query_urllink?access_token=${accessToken}`;
     // eslint-disable-next-line camelcase
     return axios.post<UrlLinkResult>(url, { url_link: urlLink });
@@ -310,7 +314,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/short-link/generateShortLink.html
    */
-  public generateShortLink (params: GenerateShortLink, accessToken: string) {
+  public generateShortLink(params: GenerateShortLink, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxa/genwxashortlink?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { link: string }>(url, params);
   }
@@ -325,7 +329,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/uniform-message/sendUniformMessage.html
    */
-  public sendUniformMessage (params: SendUniformMessage, accessToken: string) {
+  public sendUniformMessage(params: SendUniformMessage, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult>(url, params);
   }
@@ -340,7 +344,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/updatable-message/createActivityId.html
    */
-  public createActivityId (params: CreateActivityId, accessToken: string) {
+  public createActivityId(params: CreateActivityId, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/activityid/create?access_token=${accessToken}`;
     return axios.post<ActivityIdResult>(url, params);
   }
@@ -355,7 +359,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/updatable-message/setUpdatableMsg.html
    */
-  public setUpdatableMsg (params: UpdatableMsg, accessToken: string) {
+  public setUpdatableMsg(params: UpdatableMsg, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/message/wxopen/updatablemsg/send?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult>(url, params);
   }
@@ -370,7 +374,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/deleteMessageTemplate.html
    */
-  public deleteMessageTemplate (priTmplId: string, accessToken: string) {
+  public deleteMessageTemplate(priTmplId: string, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult>(url, { priTmplId });
   }
@@ -384,9 +388,9 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getCategory.html
    */
-  public getCategory (accessToken: string) {
+  public getCategory(accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getcategory?access_token=${accessToken}`;
-    return axios.get<DefaultRequestResult & { data: {id: number, name: string}[] }>(url);
+    return axios.get<DefaultRequestResult & { data: { id: number; name: string }[] }>(url);
   }
 
   /**
@@ -399,7 +403,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getPubTemplateKeyWordsById.html
    */
-  public getPubTemplateKeyWordsById (tid: number, accessToken: string) {
+  public getPubTemplateKeyWordsById(tid: number, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords?access_token=${accessToken}&tid=${tid}`;
     return axios.get<PubTemplateKeyWords>(url);
   }
@@ -414,7 +418,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getPubTemplateTitleList.html
    */
-  public getPubTemplateTitleList (params: PubTemplateTitleList, accessToken: string) {
+  public getPubTemplateTitleList(params: PubTemplateTitleList, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles?access_token=${accessToken}&ids=${params.ids}&start=${params.start}&limit=${params.limit}`;
     return axios.get<PubTemplateTitleListResult>(url);
   }
@@ -428,10 +432,11 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/getMessageTemplateList.html
    */
-  public getMessageTemplateList (accessToken: string) {
+  public getMessageTemplateList(accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token=${accessToken}`;
     return axios.get<MessageTemplateListResult>(url);
   }
+
   /**
    * 发送订阅消息
    *
@@ -441,10 +446,11 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/sendMessage.html
    */
-  public sendMessage (params: SendMessage, accessToken: string) {
+  public sendMessage(params: SendMessage, accessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult>(url, params);
   }
+
   /**
    * 添加模板
    *
@@ -455,7 +461,7 @@ export class MiniProgramService {
    * @returns
    * @link https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/subscribe-message/addMessageTemplate.html
    */
-  public addMessageTemplate (params: MessageTemplate, accessToken: string) {
+  public addMessageTemplate(params: MessageTemplate, accessToken: string) {
     const url = `https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate?access_token=${accessToken}`;
     return axios.post<DefaultRequestResult & { priTmplId: string }>(url, params);
   }
@@ -468,25 +474,24 @@ export class MiniProgramService {
    * @returns string | false 验证通过时，返回echostr，验证不通过时，返回false
    * @link https://developers.weixin.qq.com/miniprogram/dev/framework/server-ability/message-push.html
    */
-  public verifyMessagePush (@Req() req: Request, @Res() res: Response, token?: string): any {
-    token = token || this.options?.token;
-    this.logger.debug(`verifyMessagePush() token = ${token}`);
+  public verifyMessagePush(@Req() req: Request, @Res() res: Response, token?: string): any {
+    const newToken = token || this.options?.token;
+    this.logger.debug(`verifyMessagePush() token = ${newToken}`);
     this.logger.debug(`verifyMessagePush() query = ${JSON.stringify(req.query)}`);
     const signature = (req.query && req.query.signature) || '';
     const timestamp = (req.query && req.query.timestamp) || '';
     const nonce = (req.query && req.query.nonce) || '';
     const echostr = (req.query && req.query.echostr) || '';
-    const my = MessageCrypto.sha1(token || '', timestamp as string, nonce as string);
+    const my = MessageCrypto.sha1(newToken || '', timestamp as string, nonce as string);
     if (my === signature) {
       if (res && typeof res.send === 'function') {
         res.send(echostr);
       }
       return echostr;
-    } else {
-      if (res && typeof res.send === 'function') {
-        res.send('fail');
-      }
-      return false;
     }
+    if (res && typeof res.send === 'function') {
+      res.send('fail');
+    }
+    return false;
   }
 }

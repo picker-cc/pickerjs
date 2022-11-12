@@ -1,4 +1,3 @@
-
 /**
  * 微信支付下单数据结构
  * WePay Transaction Order Data
@@ -53,12 +52,12 @@ export interface TransactionOrder {
     /**
      * 总金额，单位：分
      */
-    total: number
+    total: number;
     /**
      * 货币类型，如：CNY
      * 长度16
      */
-    currency: 'CNY',
+    currency: 'CNY';
   };
   /**
    * 支付者
@@ -69,7 +68,7 @@ export interface TransactionOrder {
      * 长度128
      */
     openid: string;
-  }
+  };
   detail?: {
     /**
      * 订单原价
@@ -156,7 +155,7 @@ export interface TransactionOrder {
      * 是否指定分账
      */
     profit_sharing?: boolean;
-  }
+  };
 }
 
 export interface MiniProgramPaymentParameters {
@@ -173,12 +172,11 @@ export interface MiniProgramPaymentParameters {
    * prepay_id=wx201410272009395522657a690389285100
    */
   package: string;
-  signType: 'RSA',
+  signType: 'RSA';
   /**
    * 签名，长度512
    */
   paySign: string;
-
 }
 
 export interface CallbackResource {
@@ -232,7 +230,7 @@ export enum TradeStatus {
   /**
    * 支付失败（仅付款码支付会返回）
    */
-  PAYERROR = 'PAYERROR',
+  PAYERROR = 'PAYERROR'
 }
 
 /**
@@ -262,7 +260,7 @@ export enum TradeType {
   /**
    * 刷脸支付
    */
-  FACEPAY = 'FACEPAY',
+  FACEPAY = 'FACEPAY'
 }
 
 /**
@@ -396,7 +394,7 @@ export interface TradeGood {
    */
   discount_amount: number;
   /**
-   * 商品备注信息 
+   * 商品备注信息
    */
   goods_remark?: string;
 }
@@ -618,7 +616,6 @@ export interface RefundResult {
      */
     goods_detail?: RefundGoodDetail[];
   }[];
-
 }
 
 /**
@@ -640,7 +637,7 @@ export enum RefundStatus {
   /**
    * 退款异常
    */
-  ABNORMAL = 'ABNORMAL',
+  ABNORMAL = 'ABNORMAL'
 }
 
 /**
@@ -666,7 +663,7 @@ export enum FundsAccount {
   /**
    * 基本账户（含可用余额和不可用余额）
    */
-  BASIC = 'BASIC',
+  BASIC = 'BASIC'
 }
 
 /**
@@ -678,7 +675,7 @@ export enum RefundChannel {
    */
   ORIGINAL = 'ORIGINAL',
   /**
-   * 退回到余额 
+   * 退回到余额
    */
   BALANCE = 'BALANCE',
   /**

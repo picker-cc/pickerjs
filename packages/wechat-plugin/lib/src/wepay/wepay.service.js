@@ -34,9 +34,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var WePayService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WePayService = void 0;
+const crypto = __importStar(require("crypto"));
 const common_1 = require("@nestjs/common");
 const axios_1 = __importDefault(require("axios"));
-const crypto = __importStar(require("crypto"));
 const node_forge_1 = __importDefault(require("node-forge"));
 const raw_body_1 = __importDefault(require("raw-body"));
 const utils_1 = require("../utils");
@@ -54,14 +54,17 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/wechatpay5_1.shtml
      */
+    // eslint-disable-next-line max-params
     async getPlatformCertificates(mchId, serialNo, privateKey, apiKey) {
         const certs = [];
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
         let url = '/v3/certificates';
         const signature = this.generateSignature('GET', url, timestamp, nonceStr, privateKey);
-        url = 'https://api.mch.weixin.qq.com' + url;
-        const ret = await axios_1.default.get(url, { headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature) });
+        url = `https://api.mch.weixin.qq.com${url}`;
+        const ret = await axios_1.default.get(url, {
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
+        });
         // console.log('ret.data.data =', ret.data.data);
         if (ret && ret.status === 200 && ret.data) {
             const certificates = ret.data.data;
@@ -86,9 +89,9 @@ let WePayService = WePayService_1 = class WePayService {
         const timestamp = Math.floor(Date.now() / 1000);
         let url = '/v3/pay/transactions/jsapi';
         const signature = this.generateSignature('POST', url, timestamp, nonceStr, privateKey, order);
-        url = 'https://api.mch.weixin.qq.com' + url;
+        url = `https://api.mch.weixin.qq.com${url}`;
         return axios_1.default.post(url, order, {
-            headers: this.generateHeader(order.mchid, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(order.mchid, nonceStr, timestamp, serialNo, signature)
         });
     }
     async h5() {
@@ -104,14 +107,15 @@ let WePayService = WePayService_1 = class WePayService {
      * @param privateKey
      * @returns
      */
+    // eslint-disable-next-line max-params
     async getTransactionById(id, mchId, serialNo, privateKey) {
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
         let url = `/v3/pay/transactions/id/${id}?mchid=${mchId}`;
         const signature = this.generateSignature('GET', url, timestamp, nonceStr, privateKey);
-        url = 'https://api.mch.weixin.qq.com' + url;
+        url = `https://api.mch.weixin.qq.com${url}`;
         return axios_1.default.get(url, {
-            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
         });
     }
     /**
@@ -122,14 +126,15 @@ let WePayService = WePayService_1 = class WePayService {
      * @param privateKey
      * @returns
      */
+    // eslint-disable-next-line max-params
     async getTransactionByOutTradeNo(outTradeNo, mchId, serialNo, privateKey) {
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
         let url = `/v3/pay/transactions/out-trade-no/${outTradeNo}?mchid=${mchId}`;
         const signature = this.generateSignature('GET', url, timestamp, nonceStr, privateKey);
-        url = 'https://api.mch.weixin.qq.com' + url;
+        url = `https://api.mch.weixin.qq.com${url}`;
         return axios_1.default.get(url, {
-            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
         });
     }
     /**
@@ -141,15 +146,16 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_3.shtml
      */
+    // eslint-disable-next-line max-params
     async close(outTradeNo, mchId, serialNo, privateKey) {
         const data = { mchid: mchId };
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
         let url = `/v3/pay/transactions/out-trade-no/${outTradeNo}/close`;
         const signature = this.generateSignature('POST', url, timestamp, nonceStr, privateKey, data);
-        url = 'https://api.mch.weixin.qq.com' + url;
+        url = `https://api.mch.weixin.qq.com${url}`;
         return axios_1.default.post(url, data, {
-            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
         });
     }
     /**
@@ -161,14 +167,15 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_9.shtml
      */
+    // eslint-disable-next-line max-params
     async refund(refund, mchId, serialNo, privateKey) {
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
         let url = '/v3/refund/domestic/refunds';
         const signature = this.generateSignature('POST', url, timestamp, nonceStr, privateKey, refund);
-        url = 'https://api.mch.weixin.qq.com' + url;
+        url = `https://api.mch.weixin.qq.com${url}`;
         return axios_1.default.post(url, refund, {
-            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
         });
     }
     /**
@@ -180,6 +187,7 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_10.shtml
      */
+    // eslint-disable-next-line max-params
     async getRefund(outRefundNo, mchId, serialNo, privateKey) {
         const nonceStr = (0, utils_1.createNonceStr)();
         const timestamp = Math.floor(Date.now() / 1000);
@@ -187,7 +195,7 @@ let WePayService = WePayService_1 = class WePayService {
         const signature = this.generateSignature('GET', url, timestamp, nonceStr, privateKey);
         url = this.API_ROOT + url;
         return axios_1.default.get(url, {
-            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature),
+            headers: this.generateHeader(mchId, nonceStr, timestamp, serialNo, signature)
         });
     }
     async refundedCallback() {
@@ -216,6 +224,7 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_5.shtml
      */
+    // eslint-disable-next-line max-params
     async paidCallback(publicKey, apiKey, req, res) {
         const signature = req.headers['Wechatpay-Signature'];
         const platformSerial = req.headers['Wechatpay-Serial'];
@@ -271,6 +280,7 @@ let WePayService = WePayService_1 = class WePayService {
      * @returns
      * @link https://pay.weixin.qq.com/wiki/doc/apiv3/wechatpay/wechatpay4_2.shtml
      */
+    // eslint-disable-next-line max-params
     decryptCipherText(apiKey, cipher, associatedData, nonce) {
         // algorithm: AEAD_AES_256_GCM
         const buff = Buffer.from(cipher, 'base64');
@@ -297,6 +307,7 @@ let WePayService = WePayService_1 = class WePayService {
      * @param signature
      * @returns
      */
+    // eslint-disable-next-line max-params
     verifySignature(publicKey, timestamp, nonce, body, signature) {
         const message = `${timestamp}\n${nonce}\n${typeof body === 'string' ? body : JSON.stringify(body)}\n`;
         const verify = crypto.createVerify('RSA-SHA256').update(Buffer.from(message));
@@ -320,7 +331,7 @@ let WePayService = WePayService_1 = class WePayService {
             nonceStr,
             package: `prepay_id=${prepayId}`,
             signType: 'RSA',
-            paySign,
+            paySign
         };
     }
     /**
@@ -332,9 +343,10 @@ let WePayService = WePayService_1 = class WePayService {
      * @param signature
      * @returns
      */
+    // eslint-disable-next-line max-params
     generateHeader(mchId, nonceStr, timestamp, serialNo, signature) {
         return {
-            'Authorization': `WECHATPAY2-SHA256-RSA2048 mchid="${mchId}",nonce_str="${nonceStr}",signature="${signature}",timestamp="${timestamp}",serial_no="${serialNo}"`,
+            Authorization: `WECHATPAY2-SHA256-RSA2048 mchid="${mchId}",nonce_str="${nonceStr}",signature="${signature}",timestamp="${timestamp}",serial_no="${serialNo}"`
         };
     }
     /**
@@ -347,10 +359,12 @@ let WePayService = WePayService_1 = class WePayService {
      * @param body
      * @returns
      */
+    // eslint-disable-next-line max-params
     generateSignature(method, url, timestamp, nonceStr, privateKey, body) {
         let message = `${method}\n${url}\n${timestamp}\n${nonceStr}\n\n`;
         if (method === 'POST') {
             if (!body) {
+                // eslint-disable-next-line no-param-reassign
                 body = {};
             }
             message = `${method}\n${url}\n${timestamp}\n${nonceStr}\n${typeof body === 'string' ? body : JSON.stringify(body)}\n`;

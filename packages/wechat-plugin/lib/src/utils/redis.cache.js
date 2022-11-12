@@ -17,10 +17,10 @@ class RedisCache {
         if (!key) {
             throw new Error('empty key');
         }
-        key = this.namespace + key;
+        const newKey = this.namespace + key;
         let value = {};
         try {
-            value = await this.cache.get(key);
+            value = (await this.cache.get(newKey));
             if (!value) {
                 value = {};
             }
@@ -35,18 +35,19 @@ class RedisCache {
         if (!key) {
             throw new Error('empty key');
         }
-        key = this.namespace + key;
+        const newKey = this.namespace + key;
+        let newTtl = ttl;
         if (!ttl) {
-            ttl = 0;
+            newTtl = 0;
         }
-        return this.cache.set(key, value, { ttl });
+        return this.cache.set(newKey, value, { ttl: newTtl });
     }
     remove(key) {
         if (!key)
             return false;
-        key = this.namespace + key;
+        const newKey = this.namespace + key;
         try {
-            this.cache.del(key);
+            this.cache.del(newKey);
             return true;
         }
         catch (error) {

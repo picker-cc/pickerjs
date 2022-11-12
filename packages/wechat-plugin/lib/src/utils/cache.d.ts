@@ -1,4 +1,4 @@
-import { ICache } from '../types/utils';
+import { ICache } from '../types';
 export declare class MapCache implements ICache {
     protected map: Map<string, any>;
     get<T>(key: string): Promise<T>;

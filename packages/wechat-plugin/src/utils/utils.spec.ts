@@ -1,7 +1,6 @@
 import { parseRid } from './index';
 
 describe('Test utils', () => {
-
   it('test parse rid', () => {
     const rid = '626d1edb-0ff6bf1f-3bc3f260';
     const errMsg = `invalid credential, access_token is invalid or not latest rid: ${rid}`;
@@ -11,5 +10,4 @@ describe('Test utils', () => {
     expect(parseRid({} as any)).toStrictEqual('');
     expect(parseRid('no rid to parse')).toStrictEqual('');
   });
-
 });

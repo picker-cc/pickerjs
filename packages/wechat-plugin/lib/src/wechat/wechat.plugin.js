@@ -11,12 +11,12 @@ exports.WechatPlugin = void 0;
 const core_1 = require("@pickerjs/core");
 const wechat_module_1 = require("./wechat.module");
 const wechat_controller_1 = require("./wechat.controller");
-const user_service_1 = require("./user.service");
 let WechatPlugin = WechatPlugin_1 = class WechatPlugin {
     static init(options) {
         WechatPlugin_1.options = options;
         return this;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     configure(consumer) {
         core_1.Logger.info('Creating Wechat server middleware');
     }
@@ -26,7 +26,8 @@ let WechatPlugin = WechatPlugin_1 = class WechatPlugin {
 };
 WechatPlugin = WechatPlugin_1 = __decorate([
     (0, core_1.PickerPlugin)({
-        imports: [core_1.PluginCommonModule,
+        imports: [
+            core_1.PluginCommonModule,
             wechat_module_1.WeChatModule.forRootAsync({
                 inject: [],
                 useFactory: (cache) => ({
@@ -34,21 +35,18 @@ WechatPlugin = WechatPlugin_1 = __decorate([
                     appId: WechatPlugin_1.options.appId,
                     secret: WechatPlugin_1.options.secret,
                     token: WechatPlugin_1.options.token,
-                    encodingAESKey: WechatPlugin_1.options.encodingAESKey,
+                    encodingAESKey: WechatPlugin_1.options.encodingAESKey
                     // cacheAdapter: new RedisCache(cache),
-                }),
+                })
             })
         ],
-        controllers: [
-            wechat_controller_1.WechatController
-        ],
+        controllers: [wechat_controller_1.WechatController],
         providers: [
-            user_service_1.UserService
-            // WeChatService,
-            // {
-            //     provide: WeChatService,
-            //     useValue: new WeChatService(WechatPlugin.options),
-            // }
+        // WeChatService,
+        // {
+        //     provide: WeChatService,
+        //     useValue: new WeChatService(WechatPlugin.options),
+        // }
         ],
         exports: []
     })

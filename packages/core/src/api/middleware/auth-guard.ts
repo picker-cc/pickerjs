@@ -57,12 +57,19 @@ export class AuthGuard implements CanActivate {
     const picker = await this.configService.context({
       // injector: 'haha',
       sessionContext: this.configService.schemaConfig.session
-        ? await createSessionContext(this.configService.schemaConfig.session, req, res, this.configService.context)
+        ? await createSessionContext(
+            this.configService.schemaConfig.session,
+            context.getArgs()[1].req,
+            context.getArgs()[1].res,
+            this.configService.context
+          )
         : undefined,
       req
+      // req: context.getArgs()[1].req
     });
     const requestContext = await this.requestContextService.fromRequest(req, info, permissions, session, picker);
     (req as any)[REQUEST_CONTEXT_KEY] = requestContext;
+
     // this.configService.context({
     //     sessionContext: this.configService.schemaConfig.session
     //         ? await createSessionContext(this.configService.schemaConfig.session, req, res, this.configService.context)

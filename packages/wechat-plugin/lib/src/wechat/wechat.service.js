@@ -37,11 +37,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var WeChatService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WeChatService = void 0;
-const common_1 = require("@nestjs/common");
-const axios_1 = __importDefault(require("axios"));
 const crypto_1 = require("crypto");
 const util = __importStar(require("util"));
-const miniprogram_service_1 = require("../miniprogram/miniprogram.service");
+const common_1 = require("@nestjs/common");
+const axios_1 = __importDefault(require("axios"));
+const weapp_service_1 = require("../weapp/weapp.service");
 const cache_1 = require("../utils/cache");
 const wepay_service_1 = require("../wepay/wepay.service");
 const utils_1 = require("../utils");
@@ -49,7 +49,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
     constructor(options) {
         this.options = options;
         this._cacheAdapter = new cache_1.MapCache();
-        this.mp = new miniprogram_service_1.MiniProgramService(options);
+        this.mp = new weapp_service_1.WeAppService(options);
         this.pay = new wepay_service_1.WePayService();
         if (options && options.cacheAdapter) {
             this.cacheAdapter = options.cacheAdapter;
@@ -57,10 +57,12 @@ let WeChatService = WeChatService_1 = class WeChatService {
     }
     set cacheAdapter(adapter) {
         if (adapter) {
+            // eslint-disable-next-line no-underscore-dangle
             this._cacheAdapter = adapter;
         }
     }
     get cacheAdapter() {
+        // eslint-disable-next-line no-underscore-dangle
         return this._cacheAdapter;
     }
     /**
@@ -101,7 +103,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
         const ret = res && res.data;
         if (ret.access_token) {
             // eslint-disable-next-line camelcase
-            ret.expires_in += (Math.floor(Date.now() / 1000) - 120);
+            ret.expires_in += Math.floor(Date.now() / 1000) - 120;
             if (this.cacheAdapter) {
                 this.cacheAdapter.set(`${WeChatService_1.KEY_ACCESS_TOKEN}_${appId}`, ret, 7100);
             }
@@ -178,7 +180,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
         const ret = await axios_1.default.get(url);
         if (ret.data.errcode === 0) {
             // eslint-disable-next-line camelcase
-            ret.data.expires_in += (Math.floor(Date.now() / 1000) - 120);
+            ret.data.expires_in += Math.floor(Date.now() / 1000) - 120;
             if (this.cacheAdapter) {
                 this.cacheAdapter.set(`${WeChatService_1.KEY_TICKET}_${appId}`, ret.data, 7100);
             }
@@ -197,13 +199,13 @@ let WeChatService = WeChatService_1 = class WeChatService {
         }
         const timestamp = Math.floor(Date.now() / 1000);
         const nonceStr = (0, utils_1.createNonceStr)(16);
-        const signStr = 'jsapi_ticket=' + ticket + '&noncestr=' + nonceStr + '&timestamp=' + timestamp + '&url=' + url;
+        const signStr = `jsapi_ticket=${ticket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`;
         const signature = (0, crypto_1.createHash)('sha1').update(signStr).digest('hex');
         return {
             appId,
             nonceStr,
             timestamp,
-            signature,
+            signature
         };
     }
     /**
@@ -214,7 +216,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
      * @returns
      */
     checkAccessToken(token) {
-        return token && token.expires_in > (Date.now() / 1000);
+        return token && token.expires_in > Date.now() / 1000;
     }
     /**
      *
@@ -224,7 +226,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
      * @returns
      */
     checkTicket(ticket) {
-        return ticket && ticket.expires_in > (Date.now() / 1000);
+        return ticket && ticket.expires_in > Date.now() / 1000;
     }
     chooseAppIdAndSecret(appId, secret) {
         let ret;
@@ -303,7 +305,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
         const token = await this.getToken(appId, secret);
         let url = util.format(WeChatService_1.getUserUrl, token);
         if (nextOpenid) {
-            url += '&next_openid=' + nextOpenid;
+            url += `&next_openid=${nextOpenid}`;
         }
         const ret = await axios_1.default.get(url);
         return ret.data;
@@ -313,11 +315,12 @@ let WeChatService = WeChatService_1 = class WeChatService {
      * @param openId
      * @param lang
      */
+    // eslint-disable-next-line max-params
     async getUserInfo(openId, lang, appId, secret) {
         const token = await this.getToken(appId, secret);
         let url = util.format(WeChatService_1.getUserInfoUrl, token, openId);
         if (lang) {
-            url += '&lang=' + lang;
+            url += `&lang=${lang}`;
         }
         const ret = await axios_1.default.get(url);
         return ret.data;
@@ -350,6 +353,7 @@ let WeChatService = WeChatService_1 = class WeChatService {
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
      *
      */
+    // eslint-disable-next-line max-params
     decryptMessage(signature, timestamp, nonce, encryptXml) {
         return utils_1.MessageCrypto.decryptMessage(this.config.token || '', this.config.encodingAESKey || '', signature, timestamp, nonce, encryptXml);
     }

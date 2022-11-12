@@ -1,14 +1,12 @@
-import * as env from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
-
-import { MiniProgramService } from './miniprogram.service';
+import * as env from 'dotenv';
+import { WeAppService } from './weapp.service';
 
 jest.setTimeout(60000);
 
 describe('mini program service test', () => {
-
-  let service: MiniProgramService;
+  let service: WeAppService;
   let accessToken = 'empty_token';
 
   beforeAll(() => {
@@ -20,9 +18,9 @@ describe('mini program service test', () => {
       }
     }
     env.config({ path: envPath });
-    service = new MiniProgramService({
+    service = new WeAppService({
       appId: process.env.MP_APPID || 'none',
-      secret: process.env.MP_SECRET || 'none',
+      secret: process.env.MP_SECRET || 'none'
     });
   });
 
@@ -47,12 +45,13 @@ describe('mini program service test', () => {
   });
 
   it('Should not get a qr code using incorrect access token', async () => {
-    const ret = await service.getQRCode({ path: 'pages/index/index'}, 'incorrect token');
+    const ret = await service.getQRCode({ path: 'pages/index/index' }, 'incorrect token');
     // { errcode: 40001, errmsg: 'invalid credential, access_token is invalid or not latest rid: 62fa5928-40eb004e-1e4258f4' }
     expect(ret.data.errcode).toStrictEqual(40001);
   });
 
   it('Should got one unlimited qr code', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const ret = await service.getUnlimitedQRCode({ scene: 'test-spec' }, accessToken);
   });
 
@@ -81,5 +80,4 @@ describe('mini program service test', () => {
     expect(data.data.length > 0).toBeTruthy();
     expect(data.data[0].id).toBeDefined();
   });
-
 });

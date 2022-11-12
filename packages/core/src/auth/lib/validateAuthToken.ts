@@ -1,6 +1,6 @@
 import { AuthTokenRedemptionErrorCode, SecretFieldImpl } from '../types';
+import { PickerDbAPI } from '../../schema/types';
 import { validateSecret } from './validateSecret';
-import {PickerDbAPI} from "../../schema/types";
 
 // The tokensValidForMins config is from userland so could be anything; make it sane
 function sanitiseValidForMinsConfig(input: any): number {
@@ -9,6 +9,7 @@ function sanitiseValidForMinsConfig(input: any): number {
   return parsed ? Math.max(1 / 6, Math.min(parsed, 60 * 24)) : 10;
 }
 
+// eslint-disable-next-line max-params
 export async function validateAuthToken(
   listKey: string,
   secretFieldImpl: SecretFieldImpl,
@@ -19,17 +20,9 @@ export async function validateAuthToken(
   token: string,
   dbItemAPI: PickerDbAPI<any>[string]
 ): Promise<
-  | { success: false; code: AuthTokenRedemptionErrorCode }
-  | { success: true; item: { id: any; [prop: string]: any } }
+  { success: false; code: AuthTokenRedemptionErrorCode } | { success: true; item: { id: any; [prop: string]: any } }
 > {
-  const result = await validateSecret(
-    secretFieldImpl,
-    identityField,
-    identity,
-    `${tokenType}Token`,
-    token,
-    dbItemAPI
-  );
+  const result = await validateSecret(secretFieldImpl, identityField, identity, `${tokenType}Token`, token, dbItemAPI);
   if (!result.success) {
     // Could be due to:
     // - Missing identity
@@ -49,9 +42,7 @@ export async function validateAuthToken(
 
   // Check that the token has not expired
   if (!item[fieldKeys.issuedAt] || typeof item[fieldKeys.issuedAt].getTime !== 'function') {
-    throw new Error(
-      `Error redeeming authToken: field ${listKey}.${fieldKeys.issuedAt} isn't a valid Date object.`
-    );
+    throw new Error(`Error redeeming authToken: field ${listKey}.${fieldKeys.issuedAt} isn't a valid Date object.`);
   }
   const elapsedMins = (Date.now() - item[fieldKeys.issuedAt].getTime()) / (1000 * 60);
   const validForMins = sanitiseValidForMinsConfig(tokenValidMins);

@@ -16,11 +16,13 @@ let WeChatModule = WeChatModule_1 = class WeChatModule {
         return {
             global: options.isGlobal,
             module: WeChatModule_1,
-            providers: [{
+            providers: [
+                {
                     provide: wechat_service_1.WeChatService,
-                    useValue: new wechat_service_1.WeChatService(options),
-                }],
-            exports: [wechat_service_1.WeChatService],
+                    useValue: new wechat_service_1.WeChatService(options)
+                }
+            ],
+            exports: [wechat_service_1.WeChatService]
         };
     }
     static forRootAsync(options) {
@@ -29,7 +31,7 @@ let WeChatModule = WeChatModule_1 = class WeChatModule {
             providers.push({
                 provide: wechat_constants_1.WECHAT_MODULE_OPTIONS,
                 useFactory: options.useFactory,
-                inject: options.inject || [],
+                inject: options.inject || []
             });
         }
         providers.push({
@@ -37,14 +39,14 @@ let WeChatModule = WeChatModule_1 = class WeChatModule {
             inject: [wechat_constants_1.WECHAT_MODULE_OPTIONS],
             useFactory: (opt) => {
                 return new wechat_service_1.WeChatService(opt);
-            },
+            }
         });
         return {
             global: options.isGlobal,
             module: WeChatModule_1,
             imports: options.imports,
             providers,
-            exports: [wechat_service_1.WeChatService],
+            exports: [wechat_service_1.WeChatService]
         };
     }
 };

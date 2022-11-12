@@ -2,34 +2,41 @@ import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import getRawBody from 'raw-body';
-
-import { AuthorizationResult, AuthorizerInfo, AuthorizerListResult, DefaultRequestResult, ParamRegisterWeApp, SubmitAuditItemList } from '../interfaces';
-import { ComponentModuleOptions } from '../types';
-import { ICache } from '../types/utils';
-import { MapCache, MessageCrypto } from '../utils';
-
 import type { Request, Response } from 'express';
+import {
+  AuthorizationResult,
+  AuthorizerInfo,
+  AuthorizerListResult,
+  DefaultRequestResult,
+  ParamRegisterWeApp,
+  SubmitAuditItemList
+} from '../interfaces';
+import { ComponentModuleOptions, ICache } from '../types';
+import { MapCache, MessageCrypto } from '../utils';
 
 @Injectable()
 export class ComponentService {
-
   private readonly logger = new Logger(ComponentService.name);
 
   public static KEY_TICKET = 'key_component_ticket';
+
   public static KEY_TOKEN = 'key_component_access_token';
 
   protected _cacheAdapter: ICache = new MapCache();
 
-  public set cacheAdapter (adapter: ICache) {
+  public set cacheAdapter(adapter: ICache) {
     if (adapter) {
+      // eslint-disable-next-line no-underscore-dangle
       this._cacheAdapter = adapter;
     }
   }
-  public get cacheAdapter (): ICache {
+
+  public get cacheAdapter(): ICache {
+    // eslint-disable-next-line no-underscore-dangle
     return this._cacheAdapter;
   }
 
-  constructor (private options: ComponentModuleOptions) {
+  constructor(private options: ComponentModuleOptions) {
     if (options && options.cacheAdapter) {
       this.cacheAdapter = options.cacheAdapter as ICache;
     }
@@ -46,8 +53,7 @@ export class ComponentService {
    * @returns
    * @throws
    */
-  public async pushTicket (req: Request, res?: Response): Promise<string> {
-
+  public async pushTicket(req: Request, res?: Response): Promise<string> {
     const timestamp = req.query && req.query.timestamp;
     const nonce = req.query && req.query.nonce;
     const signature = req.query && req.query.msg_signature;
@@ -57,7 +63,12 @@ export class ComponentService {
     let ticket = '';
 
     if (timestamp && nonce && signature && rawBody) {
-      const decrypt = this.decryptMessage(signature as string, timestamp as string, nonce as string, rawBody.toString());
+      const decrypt = this.decryptMessage(
+        signature as string,
+        timestamp as string,
+        nonce as string,
+        rawBody.toString()
+      );
       const parser = new XMLParser();
       const xml = parser.parse(decrypt).xml;
       const componentVerifyTicket = xml.ComponentVerifyTicket;
@@ -78,15 +89,19 @@ export class ComponentService {
    * @param res
    * @returns
    */
-  public async eventPushHandler (req: Request, res?: Response) {
-
+  public async eventPushHandler(req: Request, res?: Response) {
     const timestamp = req.query && req.query.timestamp;
     const nonce = req.query && req.query.nonce;
     const signature = req.query && req.query.msg_signature;
     const rawBody = await getRawBody(req);
 
     if (timestamp && nonce && signature && rawBody) {
-      const decrypt = this.decryptMessage(signature as string, timestamp as string, nonce as string, rawBody.toString());
+      const decrypt = this.decryptMessage(
+        signature as string,
+        timestamp as string,
+        nonce as string,
+        rawBody.toString()
+      );
       const parser = new XMLParser();
       const xml = parser.parse(decrypt).xml;
       const infoType = xml.InfoType;
@@ -108,13 +123,13 @@ export class ComponentService {
    * @throws
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/component_verify_ticket_service.html
    */
-  public async startPushTicket () {
+  public async startPushTicket() {
     const url = 'https://api.weixin.qq.com/cgi-bin/component/api_start_push_ticket';
     return axios.post<DefaultRequestResult>(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       // eslint-disable-next-line camelcase
-      component_secret: this.options.componentSecret,
+      component_secret: this.options.componentSecret
     });
   }
 
@@ -126,16 +141,16 @@ export class ComponentService {
    * @throws
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/component_access_token.html
    */
-  public async requestComponentToken () {
+  public async requestComponentToken() {
     const ticket = await this.getTicket();
     const url = 'https://api.weixin.qq.com/cgi-bin/component/api_component_token';
-    return axios.post<DefaultRequestResult & { component_access_token: string, expires_in: number }>(url, {
+    return axios.post<DefaultRequestResult & { component_access_token: string; expires_in: number }>(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       // eslint-disable-next-line camelcase
       component_appsecret: this.options.componentSecret,
       // eslint-disable-next-line camelcase
-      component_verify_ticket: ticket,
+      component_verify_ticket: ticket
     });
   }
 
@@ -146,12 +161,12 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/pre_auth_code.html
    */
-  public async createPreAuthCode () {
+  public async createPreAuthCode() {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=${token.componentAccessToken}`;
-    return axios.post<DefaultRequestResult & { pre_auth_code: string, expires_in: number }>(url, {
+    return axios.post<DefaultRequestResult & { pre_auth_code: string; expires_in: number }>(url, {
       // eslint-disable-next-line camelcase
-      component_appid: this.options.componentAppId,
+      component_appid: this.options.componentAppId
     });
   }
 
@@ -165,14 +180,14 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/authorization_info.html
    */
-  public async queryAuth (authCode: string) {
+  public async queryAuth(authCode: string) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=${token.componentAccessToken}`;
     return axios.post<DefaultRequestResult & AuthorizationResult>(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       // eslint-disable-next-line camelcase
-      authorization_code: authCode,
+      authorization_code: authCode
     });
   }
 
@@ -183,16 +198,18 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/api_authorizer_token.html
    */
-  public async requestAuthorizerToken (authorizerAppId: string, authorizerRefreshToken: string) {
+  public async requestAuthorizerToken(authorizerAppId: string, authorizerRefreshToken: string) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=${token.componentAccessToken}`;
-    return axios.post<DefaultRequestResult & { authorizer_access_token: string, expires_in: number, authorizer_refresh_token: string }>(url, {
+    return axios.post<
+      DefaultRequestResult & { authorizer_access_token: string; expires_in: number; authorizer_refresh_token: string }
+    >(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       // eslint-disable-next-line camelcase
       authorizer_appid: authorizerAppId,
       // eslint-disable-next-line camelcase
-      authorizer_refresh_token: authorizerRefreshToken,
+      authorizer_refresh_token: authorizerRefreshToken
     });
   }
 
@@ -202,14 +219,14 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/api_get_authorizer_info.html
    */
-  public async requestAuthorizerInfo (authorizerAppId: string) {
+  public async requestAuthorizerInfo(authorizerAppId: string) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=${token.componentAccessToken}`;
     return axios.post<DefaultRequestResult & AuthorizerInfo>(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       // eslint-disable-next-line camelcase
-      authorizer_appid: authorizerAppId,
+      authorizer_appid: authorizerAppId
     });
   }
 
@@ -221,7 +238,7 @@ export class ComponentService {
    * @param res
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/authorize_event.html
    */
-  public async authChangedPush<T> (req: Request, res: Response): Promise<T> {
+  public async authChangedPush<T>(req: Request, res: Response): Promise<T> {
     const timestamp = req.query && req.query.timestamp;
     const nonce = req.query && req.query.nonce;
     const signature = req.query && req.query.msg_signature;
@@ -229,7 +246,12 @@ export class ComponentService {
     let xml;
     if (timestamp && nonce && signature && rawBody) {
       try {
-        const decrypt = this.decryptMessage(signature as string, timestamp as string, nonce as string, rawBody.toString());
+        const decrypt = this.decryptMessage(
+          signature as string,
+          timestamp as string,
+          nonce as string,
+          rawBody.toString()
+        );
         const parser = new XMLParser();
         xml = parser.parse(decrypt).xml;
       } catch (error) {
@@ -251,11 +273,11 @@ export class ComponentService {
    * @returns DefaultRequestResult
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/openApi/clear_quota.html
    */
-  public async clearQuota (authorizerAppId: string, authorizerAccessToken: string) {
+  public async clearQuota(authorizerAppId: string, authorizerAccessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/clear_quota?access_token=${authorizerAccessToken}`;
     return axios.post<DefaultRequestResult>(url, {
       // eslint-disable-next-line camelcase
-      appid: authorizerAppId,
+      appid: authorizerAppId
     });
   }
 
@@ -266,23 +288,23 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/openApi/get_rid_info.html
    */
-  public async getRid (rid: string, authorizerAccessToken: string) {
+  public async getRid(rid: string, authorizerAccessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/openapi/rid/get?access_token=${authorizerAccessToken}`;
     return axios.post<DefaultRequestResult>(url, {
-      rid,
+      rid
     });
   }
 
   // ========== 授权方账号管理 ==========
 
-  public async getAuthorizerList (offset = 0, count = 100) {
+  public async getAuthorizerList(offset = 0, count = 100) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/openapi/rid/get?access_token=${token.componentAccessToken}`;
     return axios.post<DefaultRequestResult & AuthorizerListResult>(url, {
       // eslint-disable-next-line camelcase
       component_appid: this.options.componentAppId,
       offset,
-      count,
+      count
     });
   }
 
@@ -290,7 +312,7 @@ export class ComponentService {
 
   // ========== 小程序基础信息设置 ==========
 
-  public async getAccountBasicInfo (authorizerAccessToken: string) {
+  public async getAccountBasicInfo(authorizerAccessToken: string) {
     const url = `https://api.weixin.qq.com/cgi-bin/account/getaccountbasicinfo?access_token=${authorizerAccessToken}`;
     return axios.get<DefaultRequestResult>(url);
   }
@@ -301,17 +323,17 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Mini_Program_Basic_Info/setnickname.html
    */
-  public async setNickname () {
+  public async setNickname() {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/wxa/setnickname?access_token=${token.componentAccessToken}`;
-    return axios.post<DefaultRequestResult & { wording: string, audit_id: number }>(url, {
+    return axios.post<DefaultRequestResult & { wording: string; audit_id: number }>(url, {
       // eslint-disable-next-line camelcase
       nick_name: this.options.componentAppId,
       // eslint-disable-next-line camelcase
       id_card: '',
       license: '',
       // eslint-disable-next-line camelcase
-      naming_other_stuff_1: '',
+      naming_other_stuff_1: ''
     });
   }
 
@@ -329,7 +351,14 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/code/commit.html
    */
-  public async codeCommit (authorizerAccessToken: string, templateId: string, extJson: string, userVersion: string, userDesc: string) {
+  // eslint-disable-next-line max-params
+  public async codeCommit(
+    authorizerAccessToken: string,
+    templateId: string,
+    extJson: string,
+    userVersion: string,
+    userDesc: string
+  ) {
     const url = `https://api.weixin.qq.com/wxa/commit?access_token=${authorizerAccessToken}`;
     return axios.post<DefaultRequestResult>(url, {
       // eslint-disable-next-line camelcase
@@ -339,7 +368,7 @@ export class ComponentService {
       // eslint-disable-next-line camelcase
       user_version: userVersion,
       // eslint-disable-next-line camelcase
-      user_desc: userDesc,
+      user_desc: userDesc
     });
   }
 
@@ -350,11 +379,11 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/code/submit_audit.html
    */
-  public async codeSubmitAudit (authorizerAccessToken: string, itemList: SubmitAuditItemList) {
+  public async codeSubmitAudit(authorizerAccessToken: string, itemList: SubmitAuditItemList) {
     const url = `https://api.weixin.qq.com/wxa/submit_audit?access_token=${authorizerAccessToken}`;
     return axios.post<DefaultRequestResult & { auditid: number }>(url, {
       // eslint-disable-next-line camelcase
-      item_list: itemList,
+      item_list: itemList
     });
   }
 
@@ -365,11 +394,11 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/code/get_auditstatus.html
    */
-  public async codeAuditStatus (authorizerAccessToken: string, auditId: number) {
+  public async codeAuditStatus(authorizerAccessToken: string, auditId: number) {
     const url = `https://api.weixin.qq.com/wxa/get_auditstatus?access_token=${authorizerAccessToken}`;
-    return axios.post<DefaultRequestResult & { status: number, reason: string, screenshot: string }>(url, {
+    return axios.post<DefaultRequestResult & { status: number; reason: string; screenshot: string }>(url, {
       // eslint-disable-next-line camelcase
-      auditid: auditId,
+      auditid: auditId
     });
   }
 
@@ -377,10 +406,10 @@ export class ComponentService {
 
   // ========== 其他小程序业务代码 ==========
 
-  public async code2session (authorizerAppId: string, code: string) {
+  public async code2session(authorizerAppId: string, code: string) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/sns/component/jscode2session?appid=${authorizerAppId}&js_code=${code}&grant_type=authorization_code&component_appid=${this.options.componentAppId}&component_access_token=${token}`;
-    return axios.get<DefaultRequestResult & { openid: string, session_key: string, unionid: string }>(url);
+    return axios.get<DefaultRequestResult & { openid: string; session_key: string; unionid: string }>(url);
   }
 
   // ========== 其他小程序业务代码 ==========
@@ -395,7 +424,7 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Register_Mini_Programs/Fast_Registration_Interface_document.html
    */
-  public async fastRegisterWeApp (info: ParamRegisterWeApp) {
+  public async fastRegisterWeApp(info: ParamRegisterWeApp) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/fastregisterweapp?action=create&component_access_token=${token}`;
     return axios.post<DefaultRequestResult>(url, {
@@ -409,7 +438,7 @@ export class ComponentService {
       // eslint-disable-next-line camelcase
       legal_persona_name: info.legalPersonaName,
       // eslint-disable-next-line camelcase
-      component_phone: info.componentPhone,
+      component_phone: info.componentPhone
     });
   }
 
@@ -419,7 +448,9 @@ export class ComponentService {
    * @returns
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Register_Mini_Programs/Fast_Registration_Interface_document.html#二、查询创建任务状态
    */
-  public async checkFastRegisterWeApp (info: Pick<ParamRegisterWeApp, 'name' | 'legalPersonaWechat' | 'legalPersonaName'>) {
+  public async checkFastRegisterWeApp(
+    info: Pick<ParamRegisterWeApp, 'name' | 'legalPersonaWechat' | 'legalPersonaName'>
+  ) {
     const token = await this.getComponentAccessToken();
     const url = `https://api.weixin.qq.com/cgi-bin/component/fastregisterweapp?action=search&component_access_token=${token}`;
     return axios.post<DefaultRequestResult>(url, {
@@ -428,17 +459,17 @@ export class ComponentService {
       // eslint-disable-next-line camelcase
       legal_persona_wechat: info.legalPersonaWechat,
       // eslint-disable-next-line camelcase
-      legal_persona_name: info.legalPersonaName,
+      legal_persona_name: info.legalPersonaName
     });
   }
 
   // ========== 代商家注册小程序 ==========
 
-  public getTicket () {
+  public getTicket() {
     return this.cacheAdapter.get<string>(ComponentService.KEY_TICKET);
   }
 
-  public setTicket (ticket: string) {
+  public setTicket(ticket: string) {
     this.cacheAdapter.set(ComponentService.KEY_TICKET, ticket);
   }
 
@@ -453,26 +484,26 @@ export class ComponentService {
    * @returns
    * @throws
    */
-  public async getComponentAccessToken () {
-    const token = await this.cacheAdapter.get<{ componentAccessToken: string, expiresAt: number}>(ComponentService.KEY_TOKEN);
+  public async getComponentAccessToken() {
+    const token = await this.cacheAdapter.get<{ componentAccessToken: string; expiresAt: number }>(
+      ComponentService.KEY_TOKEN
+    );
     if (token && token.expiresAt >= Date.now()) {
       return token;
-    } else {
-      const ret = await this.requestComponentToken();
-      if (ret && ret.data) {
-        if (ret.data.component_access_token) {
-          const token = {
-            componentAccessToken: ret.data.component_access_token,
-            expiresAt: Date.now() + (ret.data.expires_in - 100) * 1000,
-          };
-          this.cacheAdapter.set(ComponentService.KEY_TOKEN, token, ret.data.expires_in - 100);
-          return token;
-        } else {
-          throw new Error(ret.data.errcode + ',' + ret.data.errmsg);
-        }
-      } else {
-        throw new Error('http no response data');
+    }
+    const ret = await this.requestComponentToken();
+    if (ret && ret.data) {
+      if (ret.data.component_access_token) {
+        const newToken = {
+          componentAccessToken: ret.data.component_access_token,
+          expiresAt: Date.now() + (ret.data.expires_in - 100) * 1000
+        };
+        this.cacheAdapter.set(ComponentService.KEY_TOKEN, newToken, ret.data.expires_in - 100);
+        return newToken;
       }
+      throw new Error(`${ret.data.errcode},${ret.data.errmsg}`);
+    } else {
+      throw new Error('http no response data');
     }
   }
 
@@ -487,8 +518,15 @@ export class ComponentService {
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
    */
-  public encryptMessage (message: string, timestamp: string, nonce: string): string {
-    return MessageCrypto.encryptMessage(this.options.componentAppId, this.options.componentToken || '', this.options.componentEncodingAESKey || '', message, timestamp, nonce);
+  public encryptMessage(message: string, timestamp: string, nonce: string): string {
+    return MessageCrypto.encryptMessage(
+      this.options.componentAppId,
+      this.options.componentToken || '',
+      this.options.componentEncodingAESKey || '',
+      message,
+      timestamp,
+      nonce
+    );
   }
 
   /**
@@ -505,8 +543,15 @@ export class ComponentService {
    * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
    *
    */
-  public decryptMessage (signature: string, timestamp: string, nonce: string, encryptXml: string) {
-    return MessageCrypto.decryptMessage(this.options.componentToken || '', this.options.componentEncodingAESKey || '', signature, timestamp, nonce, encryptXml);
+  // eslint-disable-next-line max-params
+  public decryptMessage(signature: string, timestamp: string, nonce: string, encryptXml: string) {
+    return MessageCrypto.decryptMessage(
+      this.options.componentToken || '',
+      this.options.componentEncodingAESKey || '',
+      signature,
+      timestamp,
+      nonce,
+      encryptXml
+    );
   }
-
 }

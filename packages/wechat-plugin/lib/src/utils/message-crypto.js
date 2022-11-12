@@ -37,7 +37,7 @@ class MessageCrypto {
         return crypto.createHash('md5').update(text).digest('hex');
     }
     static getAESKey(encodingAESKey) {
-        return Buffer.from(encodingAESKey + '=', 'base64');
+        return Buffer.from(`${encodingAESKey}=`, 'base64');
     }
     static getAESKeyIV(aesKey) {
         return aesKey.slice(0, 16);
@@ -90,6 +90,7 @@ class MessageCrypto {
      * @param {String} appId 需要对比的appId，如果第三方回调时默认是suiteId，也可自行传入作为匹配处理
      * @returns
      */
+    // eslint-disable-next-line max-params
     static encrypt(aesKey, iv, msg, appId) {
         const buf = Buffer.from(msg);
         const random16 = crypto.randomBytes(16);
@@ -106,10 +107,10 @@ class MessageCrypto {
      * @returns
      */
     static createNonceStr(length = 16) {
-        length = length > MessageCrypto.NONCESTR_MAX ? MessageCrypto.NONCESTR_MAX : length;
+        const newLength = length > MessageCrypto.NONCESTR_MAX ? MessageCrypto.NONCESTR_MAX : length;
         let str = '';
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < newLength; i += 1) {
             str += chars[Math.floor(Math.random() * chars.length)];
         }
         return str;
@@ -126,6 +127,7 @@ class MessageCrypto {
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
      */
+    // eslint-disable-next-line max-params
     static encryptMessage(appId, token, encodingAESKey, message, timestamp, nonce) {
         const aesKey = MessageCrypto.getAESKey(encodingAESKey);
         const iv = MessageCrypto.getAESKeyIV(aesKey);
@@ -162,6 +164,7 @@ class MessageCrypto {
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Technical_Plan.html
      * @link https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Message_encryption_and_decryption.html
      */
+    // eslint-disable-next-line max-params
     static decryptMessage(token, encodingAESKey, signature, timestamp, nonce, encryptXml) {
         const aesKey = MessageCrypto.getAESKey(encodingAESKey || '');
         const iv = MessageCrypto.getAESKeyIV(aesKey);

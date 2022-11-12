@@ -1,5 +1,5 @@
 import { Cache } from 'cache-manager';
-import { ICache } from '../types/utils';
+import { ICache } from '../types';
 /**
  * redis缓存适配器
  */

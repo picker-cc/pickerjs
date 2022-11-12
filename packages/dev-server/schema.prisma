@@ -12,15 +12,54 @@ generator client {
 }
 
 model User {
+  id         String      @id @default(cuid())
+  name       String      @default("")
+  identifier String      @unique @default("")
+  deletedAt  DateTime?   @default(now())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  verified   Boolean     @default(false)
+  enabled    Boolean     @default(false)
+  lastLogin  DateTime?   @default(now())
+  password   String?
+  wechat     WechatUser? @relation("User_wechat", fields: [wechatId], references: [id])
+  wechatId   String?     @unique @map("wechat")
+  posts      Post[]      @relation("Post_user")
+  isAdmin    Boolean     @default(false)
+}
+
+model WechatUser {
   id         String    @id @default(cuid())
-  name       String    @default("")
-  identifier String    @unique @default("")
+  appId      String    @default("")
+  subscribed Boolean   @default(false)
+  openId     String    @unique @default("")
+  unionId    String    @unique @default("")
+  phone      String    @unique @default("")
+  nickName   String    @default("")
+  gender     Int?
+  language   String    @default("")
+  city       String    @default("")
+  province   String    @default("")
+  country    String    @default("")
+  avatarUrl  String    @default("")
+  user       User?     @relation("User_wechat")
   deletedAt  DateTime? @default(now())
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  verified   Boolean   @default(false)
-  enabled    Boolean   @default(false)
-  lastLogin  DateTime? @default(now())
-  password   String?
-  isAdmin    Boolean   @default(false)
+}
+
+model Post {
+  id               String    @id @default(cuid())
+  title            String    @default("")
+  status           String?   @default("draft")
+  content          String    @default("")
+  publishDate      DateTime?
+  user             User?     @relation("Post_user", fields: [userId], references: [id])
+  userId           String?   @map("user")
+  type             String?
+  parent           Post[]    @relation("Post_parent")
+  config           String?
+  from_Post_parent Post[]    @relation("Post_parent")
+
+  @@index([userId])
 }

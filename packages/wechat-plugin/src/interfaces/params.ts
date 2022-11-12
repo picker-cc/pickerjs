@@ -2,13 +2,13 @@ export interface TemplateMessage {
   touser: string;
   template_id: string;
   url?: string;
-  miniprogram?: { appid: string, pagepath?: string };
+  miniprogram?: { appid: string; pagepath?: string };
   data: TemplateData;
   color?: string;
 }
 
 export interface TemplateData {
-  [key: string]: { value: string, color?: string }
+  [key: string]: { value: string; color?: string };
 }
 
 export interface SubmitAuditItem {
@@ -100,6 +100,6 @@ export interface ParamCreateQRCode {
   env_version?: string;
   width?: number;
   auto_color?: boolean;
-  line_color?: { r: number, g: number, b: number };
+  line_color?: { r: number; g: number; b: number };
   is_hyaline?: boolean;
 }

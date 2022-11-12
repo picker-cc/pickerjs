@@ -1,6 +1,5 @@
 import { Permission } from '@pickerjs/common/lib/generated-types';
 import { ID } from '@pickerjs/common/lib/shared-types';
-
 import { InjectableStrategy } from '../../common/types/injectable-strategy';
 
 /**
@@ -10,12 +9,12 @@ import { InjectableStrategy } from '../../common/types/injectable-strategy';
  * @docsCategory auth
  * @docsPage SessionCacheStrategy
  */
-export type CachedSessionUser = {
-    id: ID;
-    identifier: string;
-    verified: boolean;
-    permissions: Permission[]
-};
+export interface CachedSessionUser {
+  id: ID;
+  identifier: string;
+  verified: boolean;
+  permissions: Permission[];
+}
 
 /**
  * @description
@@ -24,22 +23,22 @@ export type CachedSessionUser = {
  * @docsCategory auth
  * @docsPage SessionCacheStrategy
  */
-export type CachedSession = {
-    /**
-     * @description
-     * 时间戳，在此之后该缓存条目被认为是过期的，并将设置一个新的数据副本。
-     * 基于 `sessionCacheTTL` 选项。
-     */
-    cacheExpiry: number;
-    /** 用户 id */
-    id: ID;
-    token: string;
-    expires: Date;
-    authenticationStrategy?: string;
-    user?: CachedSessionUser;
-    // 订单
-    // activeOrderId?
-};
+export interface CachedSession {
+  /**
+   * @description
+   * 时间戳，在此之后该缓存条目被认为是过期的，并将设置一个新的数据副本。
+   * 基于 `sessionCacheTTL` 选项。
+   */
+  cacheExpiry: number;
+  /** 用户 id */
+  id: ID;
+  token: string;
+  expires: Date;
+  authenticationStrategy?: string;
+  user?: CachedSessionUser;
+  // 订单
+  // activeOrderId?
+}
 
 /**
  * @description
@@ -51,28 +50,28 @@ export type CachedSession = {
  * @docsWeight 0
  */
 export interface SessionCacheStrategy extends InjectableStrategy {
-    /**
-     * @description
-     * 将会话存储在缓存中。当缓存一个会话时，数据不应该被修改，除非执行任何转换来将其转换为要存储的状态，
-     * 例如：JSON.stringify()
-     */
-    set(session: CachedSession): void | Promise<void>;
+  /**
+   * @description
+   * 将会话存储在缓存中。当缓存一个会话时，数据不应该被修改，除非执行任何转换来将其转换为要存储的状态，
+   * 例如：JSON.stringify()
+   */
+  set(session: CachedSession): void | Promise<void>;
 
-    /**
-     * @description
-     * 从缓存中检索会话
-     */
-    get(sessionToken: string): CachedSession | undefined | Promise<CachedSession | undefined>;
+  /**
+   * @description
+   * 从缓存中检索会话
+   */
+  get(sessionToken: string): CachedSession | undefined | Promise<CachedSession | undefined>;
 
-    /**
-     * @description
-     * 从缓存中删除会话
-     */
-    delete(sessionToken: string): void | Promise<void>;
+  /**
+   * @description
+   * 从缓存中删除会话
+   */
+  delete(sessionToken: string): void | Promise<void>;
 
-    /**
-     * @description
-     * 清除整个缓存
-     */
-    clear(): void | Promise<void>;
+  /**
+   * @description
+   * 清除整个缓存
+   */
+  clear(): void | Promise<void>;
 }

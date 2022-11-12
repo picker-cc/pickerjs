@@ -1,6 +1,9 @@
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ConfigService, PickerPlugin, PluginCommonModule, ProcessContext, Type } from '@pickerjs/core';
+import { ConfigModule, ConfigService, PickerPlugin, PluginCommonModule, ProcessContext, Type } from '@pickerjs/core';
+import { WeChatModule } from '@pickerjs/wechat-plugin';
+import gql from 'graphql-tag';
 import { UploadController } from './controller/upload.controller';
+import { WeappResolver } from './resolvers/weapp.resolver';
 
 /**
  * @description
@@ -19,11 +22,43 @@ export interface PluginOptions {
 
 @PickerPlugin({
   imports: [
-    PluginCommonModule
+    PluginCommonModule,
+    // WeChatModule.forRootAsync({
+    //     useFactory: () => ({
+    //         appId: 'wx25d35ab97e993e90',
+    //         secret: 'c5a829b5bf3e128588769bbfacf029e6',
+    //         token: '',
+    //         encodingAESKey: '',
+    //     })
+    // }),
     // UsersModule,
     // WeChatModule,
+    WeChatModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: () => ({
+        appId: 'wx25d35ab97e993e90',
+        secret: 'cab3cc059246334a4d93a387145c1c6f'
+        // token: '',
+        // encodingAESKey: ''
+        // appId: configService.get('WX_APPID'),
+        // secret: configService.get('WX_SECRET'),
+        // token: configService.get('WX_TOKEN'),
+        // encodingAESKey: configService.get('WX_AESKEY'),
+        // cacheAdapter: new RedisCache(cache)
+      })
+    })
   ],
-  providers: [],
+  // providers: [WeappResolver],
+  apiExtensions: {
+    schema: gql`
+      extend type Mutation {
+        wxLogin(code: String!): JSON
+        wxPhoneLogin(phoneCode: String!, loginCode: String!): JSON
+      }
+    `,
+    resolvers: [WeappResolver]
+  },
   controllers: [
     UploadController
     // AppController
@@ -44,6 +79,6 @@ export class DevAppPlugin implements NestModule {
     return DevAppPlugin;
   }
 
-    // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line class-methods-use-this
   async configure(consumer: MiddlewareConsumer) {}
 }

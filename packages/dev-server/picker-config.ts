@@ -5,13 +5,14 @@ import {
   createAuth,
   DefaultLogger,
   LogLevel,
-  statelessSessions,
-  DefaultAssetNamingStrategy
+  statelessSessions
 } from '@pickerjs/core';
 import { ADMIN_API_PATH, API_PORT } from '@pickerjs/common/lib/shared-constants';
 import { AssetServerPlugin, configureAliOSSAssetStorage } from '@pickerjs/asset-server-plugin';
 import { User } from './schemas/User';
 import { DevAppPlugin } from './plugin';
+import { WechatUser } from './schemas/WechatUser';
+import { Post } from './schemas/Post';
 
 const sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
 const sessionMaxAge = 60 * 60 * 24 * 30; // 30 days
@@ -26,7 +27,9 @@ const schemaConfig = typeInfoConfig({
     url: 'file:./dev.db'
   },
   models: {
-    User
+    User,
+    WechatUser,
+    Post
   },
   session: statelessSessions(sessionConfig),
   experimental: {
@@ -41,6 +44,7 @@ const { withAuth } = createAuth({
     fields: ['name', 'identifier', 'password']
   }
   // sessionData: `
+  //   id name identifier
   // `
 });
 const withAuthSchemaConfig = withAuth(schemaConfig);
@@ -50,7 +54,7 @@ const withAuthSchemaConfig = withAuth(schemaConfig);
 export const config: PickerConfig = {
   // graphqlSchema: customSchema,
   // context: schemaContext,
-  shouldDropDatabase: true,
+  shouldDropDatabase: false,
   schemaConfig: withAuthSchemaConfig,
   context: null,
   apiOptions: {
@@ -71,9 +75,9 @@ export const config: PickerConfig = {
       assetUploadDir: path.join(__dirname, 'assets'),
       // namingStrategy: new DefaultAssetNamingStrategy(),
       storageStrategyFactory: configureAliOSSAssetStorage({
-        bucket: '',
-        accessKeyId: '',
-        accessKeySecret: '',
+        bucket: 'caixie-favorite',
+        accessKeyId: 'LTAI5t6hCnZiCx2U3hMorHtL',
+        accessKeySecret: 'mRx3jSCNma1vhRcqOeDoKrujPAFk10',
         region: 'oss-cn-hangzhou',
         endpoint: 'oss-cn-hangzhou.aliyuncs.com'
       })

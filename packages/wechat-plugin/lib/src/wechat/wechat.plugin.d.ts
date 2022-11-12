@@ -1,6 +1,6 @@
-import { MiddlewareConsumer, NestModule, OnModuleInit } from "@nestjs/common";
-import { Type } from "@pickerjs/core";
-import { WeChatModuleOptions } from "../types";
+import { MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
+import { Type } from '@pickerjs/core';
+import { WeChatModuleOptions } from '../types';
 export declare class WechatPlugin implements NestModule, OnModuleInit {
     private static options;
     static init(options: WeChatModuleOptions): Type<WechatPlugin>;

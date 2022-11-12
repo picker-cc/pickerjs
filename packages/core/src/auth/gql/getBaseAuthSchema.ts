@@ -1,8 +1,6 @@
-
 import { AuthGqlNames, SecretFieldImpl } from '../types';
-
 import { validateSecret } from '../lib/validateSecret';
-import {BaseItem, graphql} from "../../schema/types";
+import { BaseItem, graphql } from '../../schema/types';
 
 export function getBaseAuthSchema<I extends string, S extends string>({
   listKey,
@@ -10,7 +8,7 @@ export function getBaseAuthSchema<I extends string, S extends string>({
   secretField,
   gqlNames,
   secretFieldImpl,
-  base,
+  base
 }: {
   listKey: string;
   identityField: I;
@@ -26,14 +24,14 @@ export function getBaseAuthSchema<I extends string, S extends string>({
     name: gqlNames.ItemAuthenticationWithPasswordSuccess,
     fields: {
       sessionToken: graphql.field({ type: graphql.nonNull(graphql.String) }),
-      item: graphql.field({ type: graphql.nonNull(base.object(listKey)) }),
-    },
+      item: graphql.field({ type: graphql.nonNull(base.object(listKey)) })
+    }
   });
   const ItemAuthenticationWithPasswordFailure = graphql.object<{ message: string }>()({
     name: gqlNames.ItemAuthenticationWithPasswordFailure,
     fields: {
-      message: graphql.field({ type: graphql.nonNull(graphql.String) }),
-    },
+      message: graphql.field({ type: graphql.nonNull(graphql.String) })
+    }
   });
   const AuthenticationResult = graphql.union({
     name: gqlNames.ItemAuthenticationWithPasswordResult,
@@ -43,7 +41,7 @@ export function getBaseAuthSchema<I extends string, S extends string>({
         return gqlNames.ItemAuthenticationWithPasswordSuccess;
       }
       return gqlNames.ItemAuthenticationWithPasswordFailure;
-    },
+    }
   });
   const extension = {
     query: {
@@ -51,22 +49,22 @@ export function getBaseAuthSchema<I extends string, S extends string>({
         type: graphql.union({
           name: 'AuthenticatedItem',
           types: [base.object(listKey) as graphql.ObjectType<BaseItem>],
-          resolveType: (root, context) => context.session?.listKey,
+          resolveType: (root, context) => context.session?.listKey
         }),
         resolve(root, args, { session, db }) {
           if (typeof session?.itemId === 'string' && typeof session.listKey === 'string') {
             return db[session.listKey].findOne({ where: { id: session.itemId } });
           }
           return null;
-        },
-      }),
+        }
+      })
     },
     mutation: {
       [gqlNames.authenticateItemWithPassword]: graphql.field({
         type: AuthenticationResult,
         args: {
           [identityField]: graphql.arg({ type: graphql.nonNull(graphql.String) }),
-          [secretField]: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+          [secretField]: graphql.arg({ type: graphql.nonNull(graphql.String) })
         },
         async resolve(root, { [identityField]: identity, [secretField]: secret }, context) {
           if (!context.startSession) {
@@ -74,14 +72,7 @@ export function getBaseAuthSchema<I extends string, S extends string>({
           }
 
           const dbItemAPI = context.sudo().db[listKey];
-          const result = await validateSecret(
-            secretFieldImpl,
-            identityField,
-            identity,
-            secretField,
-            secret,
-            dbItemAPI
-          );
+          const result = await validateSecret(secretFieldImpl, identityField, identity, secretField, secret, dbItemAPI);
 
           if (!result.success) {
             return { code: 'FAILURE', message: 'Authentication failed.' };
@@ -90,12 +81,12 @@ export function getBaseAuthSchema<I extends string, S extends string>({
           // Update system state
           const sessionToken = await context.startSession({
             listKey,
-            itemId: result.item.id.toString(),
+            itemId: result.item.id.toString()
           });
           return { sessionToken, item: result.item };
-        },
-      }),
-    },
+        }
+      })
+    }
   };
   return { extension, ItemAuthenticationWithPasswordSuccess };
 }
