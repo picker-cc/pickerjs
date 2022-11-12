@@ -1,13 +1,6 @@
 // Validate there is a user with a valid session
 // const isUser = ({ session }: { session: Session }) =>
 //   !!session?.data.id;
-interface UserData {
-  id: string;
-  name: string;
-  identifier: string;
-  isAdmin: boolean;
-}
-
 interface AccessArgs {
   session?: {
     itemId?: string;
