@@ -1,6 +1,6 @@
 {
   "name": "pickerjs",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
@@ -23,7 +23,7 @@
     "generate-changelog": "ts-node scripts/changelogs/generate-changelog.ts",
     "update-pkg": "ncu --deep -u",
     "update-version": "bumpp package.json packages/*/package.json",
-    "release": "standard-version pnpm update-version && cd scripts && ./publish-to-npm.sh",
+    "release": "standard-version  && cd scripts && ./publish-to-npm.sh",
     "commit": "caixie git-commit",
     "lint": "eslint . --fix",
     "sync-pkg": "esno ./scripts/sync.ts"
