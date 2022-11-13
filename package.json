@@ -1,6 +1,6 @@
 {
   "name": "pickerjs",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
