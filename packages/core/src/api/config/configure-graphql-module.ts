@@ -17,6 +17,7 @@ import { EventBus, EventBusModule } from '../../event-bus';
 import { getPluginAPIExtensions } from '../../plugin/plugin-metadata';
 import { ConfigModule, ConfigService } from '../../config';
 import { REQUEST_CONTEXT_KEY, RequestContextService } from '../common/request-context.service';
+import { RequestContext } from '../common/request-context';
 
 // import {}
 export interface GraphQLApiOptions {
@@ -103,6 +104,7 @@ async function createGraphQLOptions(
     context: async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       // if (req.context)
       //  console.log(configService.context({}).session)
+      // console.log('config graphql module...')
       const context = configService.context({
         eventBus,
         injector: configService.injector,
@@ -112,11 +114,11 @@ async function createGraphQLOptions(
           : undefined,
         req
       });
-      // const requestContext = await requestContextService.fromRequest(req, info, permissions, session, picker);
-      (req as any)[REQUEST_CONTEXT_KEY] = {
-        req,
+      // const requestContext = await requestContextService.fromRequest(req as any, context);
+      (req as any)[REQUEST_CONTEXT_KEY] = new RequestContext({
+        req: req as any,
         picker: context
-      };
+      });
       return context;
       // return configService.context
     },

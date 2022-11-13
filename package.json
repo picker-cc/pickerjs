@@ -1,5 +1,5 @@
 {
-  "name": "pickercc",
+  "name": "pickerjs",
   "version": "0.1.33",
   "private": true,
   "scripts": {
@@ -25,7 +25,8 @@
     "update-version": "bumpp package.json packages/*/package.json",
     "release": "standard-version pnpm update-version && cd scripts && ./publish-to-npm.sh",
     "commit": "caixie git-commit",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "sync-pkg": "esno ./scripts/sync.ts"
   },
   "dependencies": {
     "@graphql-codegen/plugin-helpers": "^2.4.2",
@@ -59,6 +60,7 @@
     "eslint": "^8.14.0",
     "eslint-config-caixiejs": "^0.1.1",
     "eslint-config-caixiejs-vue": "^0.1.1",
+    "esno": "^0.16.3",
     "find": "^0.3.0",
     "fs-extra": "^10.1.0",
     "got": "^12.0.4",
@@ -76,7 +78,8 @@
     "ts-jest": "^27.1.4",
     "ts-node": "^10.9.1",
     "turbo": "^1.2.9",
-    "typescript": "4.8.3"
+    "typescript": "4.8.3",
+    "zx": "^7.1.1"
   },
   "resolutions": {
     "npm-packlist": "1.1.12"

@@ -1,14 +1,15 @@
 import * as _ from 'lodash';
-import { LanguageCode, Permission } from '@pickerjs/common/lib/generated-types';
+// import { LanguageCode, Permission } from '@pickerjs/common/lib/generated-types';
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { GraphQLResolveInfo } from 'graphql';
+// import { GraphQLResolveInfo } from 'graphql';
 
 // import {ApiType, getApiType} from './get-api-type';
-import { ID } from '@pickerjs/common/lib/shared-types';
-import ms from 'ms';
-import { CachedSession, CachedSessionUser } from '../../config/session-cache/session-cache-strategy';
-import { CreateContext, PickerContext } from '../../schema/types';
+// import { ID } from '@pickerjs/common/lib/shared-types';
+// import ms from 'ms';
+// import { CachedSession, CachedSessionUser } from '../../config/session-cache/session-cache-strategy';
+// import { CreateContext, PickerContext } from '../../schema/types';
+import { PickerContext } from '../../schema/types';
 import { RequestContext } from './request-context';
 
 export const REQUEST_CONTEXT_KEY = 'pickerRequestContext';
@@ -33,35 +34,38 @@ export class RequestContextService {
     req?: Request;
     // apiType?: ApiType;
     // languageCode?: LanguageCode;
-    user?: any;
-    activeOrderId?: ID;
+    // user?: any;
+    // activeOrderId?: ID;
+    picker?: PickerContext;
   }): Promise<RequestContext> {
-    const { req, user, activeOrderId } = config;
+    // const { req, user, activeOrderId } = config;
+    const { req, picker } = config;
 
-    let session: CachedSession | undefined;
-    if (user) {
-      // const permission = user.roles ?
-      session = {
-        user: {
-          id: user.id,
-          identifier: user.identifier,
-          verified: user.verified,
-          permissions: []
-          // permissions: user.roles ? getUserPermissions(user) : []
-        },
-        id: '__dummy_session_id__',
-        token: '__dummy_session_token__',
-        expires: new Date(Date.now() + ms('1y')),
-        cacheExpiry: ms('1y')
-      };
-    }
+    // let session: CachedSession | undefined;
+    // if (user) {
+    // const permission = user.roles ?
+    // session = {
+    //   user: {
+    //     id: user.id,
+    //     identifier: user.identifier,
+    //     verified: user.verified,
+    //     permissions: []
+    // permissions: user.roles ? getUserPermissions(user) : []
+    // },
+    // id: '__dummy_session_id__',
+    // token: '__dummy_session_token__',
+    // expires: new Date(Date.now() + ms('1y')),
+    // cacheExpiry: ms('1y')
+    // };
+    // }
     return new RequestContext({
       req,
       // apiType,
       // languageCode,
-      session,
-      isAuthorized: true,
-      authorizedAsOwnerOnly: false
+      // session,
+      // isAuthorized: true,
+      // authorizedAsOwnerOnly: false
+      picker
     });
   }
 
@@ -80,38 +84,38 @@ export class RequestContextService {
   async fromRequest(
     req: Request,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    info?: GraphQLResolveInfo,
-    requiredPermissions?: Permission[],
-    session?: CachedSession,
+    // info?: GraphQLResolveInfo,
+    // requiredPermissions?: Permission[],
+    // session?: CachedSession,
     picker?: PickerContext
   ): Promise<RequestContext> {
     // const apiType = getApiType(info);
-    const hasOwnerPermission = Boolean(requiredPermissions) && requiredPermissions.includes(Permission.Owner);
-    const user = session && session.user;
-    const permissions = user && user.permissions;
+    // const hasOwnerPermission = Boolean(requiredPermissions) && requiredPermissions.includes(Permission.Owner);
+    // const user = session && session.user;
+    // const permissions = user && user.permissions;
 
-    if (permissions) {
-      // 交集处理
-      _.intersection(_.flatten(permissions), requiredPermissions);
-    }
+    // if (permissions) {
+    // 交集处理
+    // _.intersection(_.flatten(permissions), requiredPermissions);
+    // }
 
-    const isAuthorized = (() => {
-      if (!permissions) {
-        return false;
-      }
-      const intersection = _.intersection(_.flatten(permissions), requiredPermissions);
-      return intersection.length > 0;
-    })();
-    const authorizedAsOwnerOnly = user && hasOwnerPermission;
-    const translationFn = (req as any).t;
+    // const isAuthorized = (() => {
+    //   if (!permissions) {
+    //     return false;
+    //   }
+    //   const intersection = _.intersection(_.flatten(permissions), requiredPermissions);
+    //   return intersection.length > 0;
+    // })();
+    // const authorizedAsOwnerOnly = user && hasOwnerPermission;
+    // const translationFn = (req as any).t;
 
     return new RequestContext({
       req,
       // apiType,
       // user,
-      session,
-      isAuthorized,
-      authorizedAsOwnerOnly,
+      // session,
+      // isAuthorized,
+      // authorizedAsOwnerOnly,
       picker
       // picker:
     });

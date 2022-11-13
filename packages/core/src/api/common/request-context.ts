@@ -8,11 +8,12 @@ import { PickerContext } from '../../schema/types';
 
 export interface SerializedRequestContext {
   _req?: any;
-  _session: JsonCompatible<Required<CachedSession>>;
+  // _session: JsonCompatible<Required<CachedSession>>;
   // _apiType: ApiType;
-  _languageCode: LanguageCode;
-  _isAuthorized: boolean;
-  _authorizedAsOwnerOnly: boolean;
+  // _languageCode: LanguageCode;
+  // _isAuthorized: boolean;
+  // _authorizedAsOwnerOnly: boolean;
+  _picker?: PickerContext
 }
 
 /**
@@ -54,21 +55,22 @@ export class RequestContext {
    */
   constructor(options: {
     req?: Request;
-    session?: CachedSession;
-    languageCode?: LanguageCode;
-    isAuthorized: boolean;
-    authorizedAsOwnerOnly: boolean;
-    translationFn?: TFunction;
+    // session?: CachedSession;
+    // languageCode?: LanguageCode;
+    // isAuthorized: boolean;
+    // authorizedAsOwnerOnly: boolean;
+    // translationFn?: TFunction;
     picker?: PickerContext;
   }) {
-    const { req, session, languageCode, translationFn, picker } = options;
+    // const { req, session, languageCode, translationFn, picker } = options;
+    const { req, picker } = options;
     this._req = req;
     // this._apiType = apiType;
-    this._session = session;
-    this._languageCode = languageCode;
-    this._isAuthorized = options.isAuthorized;
-    this._authorizedAsOwnerOnly = options.authorizedAsOwnerOnly;
-    this._translationFn = translationFn || (((key: string) => key) as any);
+    // this._session = session;
+    // this._languageCode = languageCode;
+    // this._isAuthorized = options.isAuthorized;
+    // this._authorizedAsOwnerOnly = options.authorizedAsOwnerOnly;
+    // this._translationFn = translationFn || (((key: string) => key) as any);
     this._picker = picker;
   }
 
@@ -82,8 +84,9 @@ export class RequestContext {
   static empty(): RequestContext {
     return new RequestContext({
       // apiType: 'admin',
-      authorizedAsOwnerOnly: false,
-      isAuthorized: true
+      // authorizedAsOwnerOnly: false,
+      // isAuthorized: true
+      picker: null
     });
   }
 
@@ -94,13 +97,14 @@ export class RequestContext {
   static deserialize(ctxObject: SerializedRequestContext): RequestContext {
     return new RequestContext({
       req: ctxObject._req as any,
+      picker: ctxObject._picker as any
       // apiType: ctxObject._apiType,
-      session: {
-        ...ctxObject._session,
-        expires: ctxObject._session?.expires && new Date(ctxObject._session.expires)
-      },
-      isAuthorized: ctxObject._isAuthorized,
-      authorizedAsOwnerOnly: ctxObject._authorizedAsOwnerOnly
+      // session: {
+      //   ...ctxObject._session,
+      //   expires: ctxObject._session?.expires && new Date(ctxObject._session.expires)
+      // },
+      // isAuthorized: ctxObject._isAuthorized,
+      // authorizedAsOwnerOnly: ctxObject._authorizedAsOwnerOnly
     });
   }
 

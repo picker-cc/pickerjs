@@ -27,7 +27,7 @@ import { PickerContextModule } from './picker-context/picker-context.module';
   ],
   // providers: [ InitializerService, ]
   providers: [
-    RequestContextService,
+    RequestContextService
     // {
     //   provide: APP_GUARD,
     //   useClass: AuthGuard

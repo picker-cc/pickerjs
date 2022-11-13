@@ -1,3 +1,4 @@
+import { IncomingMessage, ServerResponse } from 'http';
 import { Permission } from '@pickerjs/common/lib/generated-types';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -10,6 +11,8 @@ import { PERMISSIONS_METADATA_KEY } from '../decorators/allow.decorator';
 import { ForbiddenError } from '../../common/error/errors';
 import { CachedSession } from '../../config/session-cache/session-cache-strategy';
 import { createSessionContext } from '../../schema/session';
+import { EventBus } from '../../event-bus';
+import { RequestContext } from '../common/request-context';
 
 /**
  * @description
@@ -25,68 +28,114 @@ export class AuthGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private configService: ConfigService,
+    // private readonly eventBus: EventBus,
     // private authService: AuthService,
     // private sessionService: SessionService,
     private requestContextService: RequestContextService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // console.log('can activeate ....')
     const { req, res, info } = parseContext(context);
-    // req.test = 'lalala'
-    const isFieldResolver = this.isFieldResolver(info);
-    const permissions = this.reflector.get<Permission[]>(PERMISSIONS_METADATA_KEY, context.getHandler());
-    // console.log(permissions)
-    if (isFieldResolver && !permissions) {
+    // console.log(req)
+    // const req = context.switchToHttp().getRequest();
+    // console.log(req)
+    // const res = context.switchToHttp().getRequest();
+    // console.log('is auth guard');
+    // console.log((req as any)[REQUEST_CONTEXT_KEY])
+    // if ((req as any)[REQUEST_CONTEXT_KEY].picker) {
+    //   console.log('有 picker...')
+    //
+    //
+    //
+    //   return true
+    // }
+    if (Reflect.has(req, REQUEST_CONTEXT_KEY)) {
       return true;
     }
-    // const authDisabled = this.configService.authOptions.disableAuth;
-
-    const isPublic = Boolean(permissions) && permissions.includes(Permission.Public);
-    const hasOwnerPermission = Boolean(permissions) && permissions.includes(Permission.Owner);
-    // let requestContext: RequestContext;
-    //
-    // if (isFieldResolver) {
-    //     requestContext = (req as any)[REQUEST_CONTEXT_KEY];
-    // } else {
-    //     const session = await this.getSession(req, res, hasOwnerPermission);
-    //     requestContext = await this.requestContextService.fromRequest(req, info, permissions, session);
-    //     (req as any)[REQUEST_CONTEXT_KEY] = requestContext;
-    // }
-    const session = await this.getSession(req, res, hasOwnerPermission);
-    const picker = await this.configService.context({
-      // injector: 'haha',
+    const pickerContext = this.configService.context({
+      injector: this.configService.injector,
       sessionContext: this.configService.schemaConfig.session
         ? await createSessionContext(
             this.configService.schemaConfig.session,
-            context.getArgs()[1].req,
-            context.getArgs()[1].res,
+            req as IncomingMessage,
+            res as ServerResponse,
             this.configService.context
           )
         : undefined,
-      req
-      // req: context.getArgs()[1].req
+      req: req as IncomingMessage
     });
-    const requestContext = await this.requestContextService.fromRequest(req, info, permissions, session, picker);
-    (req as any)[REQUEST_CONTEXT_KEY] = requestContext;
-
-    // this.configService.context({
-    //     sessionContext: this.configService.schemaConfig.session
-    //         ? await createSessionContext(this.configService.schemaConfig.session, req, res, this.configService.context)
-    //         : undefined,
-    //     req
-    // })
-    // console.log(requestContext)
-    // console.log(session)
-    if (!permissions || isPublic) {
-      return true;
-    }
-    const canActivate = requestContext.isAuthorized || requestContext.authorizedAsOwnerOnly;
-    if (!canActivate) {
-      throw new ForbiddenError(LogLevel.Verbose);
-    } else {
-      return canActivate;
-    }
+    // const requestContext = await requestContextService.fromRequest(req, info, permissions, session, picker);
+    // (req as any)[REQUEST_CONTEXT_KEY] = {
+    //   req,
+    //   picker: pickerContext
+    // };
+    // return context
+    (req as any)[REQUEST_CONTEXT_KEY] = new RequestContext({
+      req: req as any,
+      picker: pickerContext
+    });
+    return true;
+    // console.log('can activeate ....')
+    // const { req, res, info } = parseContext(context);
+    // // req.test = 'lalala'
+    // const isFieldResolver = this.isFieldResolver(info);
+    // const permissions = this.reflector.get<Permission[]>(PERMISSIONS_METADATA_KEY, context.getHandler());
+    // // console.log(permissions)
+    // if (isFieldResolver && !permissions) {
+    //   return true;
+    // }
+    // // const authDisabled = this.configService.authOptions.disableAuth;
+    //
+    // const isPublic = Boolean(permissions) && permissions.includes(Permission.Public);
+    // const hasOwnerPermission = Boolean(permissions) && permissions.includes(Permission.Owner);
+    // // let requestContext: RequestContext;
+    // //
+    // // if (isFieldResolver) {
+    // //     requestContext = (req as any)[REQUEST_CONTEXT_KEY];
+    // // } else {
+    // //     const session = await this.getSession(req, res, hasOwnerPermission);
+    // //     requestContext = await this.requestContextService.fromRequest(req, info, permissions, session);
+    // //     (req as any)[REQUEST_CONTEXT_KEY] = requestContext;
+    // // }
+    // // console.log('auth guard ..')
+    // if ((req as any)[REQUEST_CONTEXT_KEY] !== null) {
+    //   return true;
+    // }
+    //
+    // const session = await this.getSession(req, res, hasOwnerPermission);
+    // const picker = await this.configService.context({
+    //   // injector: 'haha',
+    //   sessionContext: this.configService.schemaConfig.session
+    //     ? await createSessionContext(
+    //         this.configService.schemaConfig.session,
+    //         context.getArgs()[1].req,
+    //         context.getArgs()[1].res,
+    //         this.configService.context
+    //       )
+    //     : undefined,
+    //   req
+    //   // req: context.getArgs()[1].req
+    // });
+    // const requestContext = await this.requestContextService.fromRequest(req, info, permissions, session, picker);
+    // (req as any)[REQUEST_CONTEXT_KEY] = requestContext;
+    //
+    // // this.configService.context({
+    // //     sessionContext: this.configService.schemaConfig.session
+    // //         ? await createSessionContext(this.configService.schemaConfig.session, req, res, this.configService.context)
+    // //         : undefined,
+    // //     req
+    // // })
+    // // console.log(requestContext)
+    // // console.log(session)
+    // if (!permissions || isPublic) {
+    //   return true;
+    // }
+    // const canActivate = requestContext.isAuthorized || requestContext.authorizedAsOwnerOnly;
+    // if (!canActivate) {
+    //   throw new ForbiddenError(LogLevel.Verbose);
+    // } else {
+    //   return canActivate;
+    // }
   }
 
   private async getSession(

@@ -1,11 +1,13 @@
 import { join } from 'path';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '../config';
 import { ServiceModule } from '../service/service.module';
 import { I18nModule } from '../i18n/i18n.module';
 import { createDynamicGraphQlModulesForPlugins, getPluginExports } from '../plugin/dynamic-plugin-api.module';
 import { configureGraphQLModule } from './config/configure-graphql-module';
+import { RequestContextService } from './common/request-context.service';
+import { AuthGuard } from './middleware/auth-guard';
 // import {Injector} from "../common";
 
 @Module({
@@ -24,11 +26,18 @@ import { configureGraphQLModule } from './config/configure-graphql-module';
       // resolverModule: StudioApiModule,
       // validationRules: configService.apiOptions.appApiValidationRules   ,
     }))
-  ]
+  ],
   // exports: [
   //     ConfigModule,
   //     ServiceModule,
   // ],
+  providers: [
+    RequestContextService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
+    }
+  ]
   // providers: [
   //     RequestContextService,
   //     {
