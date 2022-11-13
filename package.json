@@ -1,6 +1,6 @@
 {
   "name": "pickerjs",
-  "version": "0.2.2",
+  "version": "0.1.40",
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
@@ -24,6 +24,7 @@
     "update-pkg": "ncu --deep -u",
     "update-version": "bumpp package.json packages/*/package.json",
     "release": "standard-version  && cd scripts && ./publish-to-npm.sh",
+    "publish-pkg": "cd scripts && ./publish-to-npm.sh",
     "commit": "caixie git-commit",
     "lint": "eslint . --fix",
     "sync-pkg": "esno ./scripts/sync.ts"
