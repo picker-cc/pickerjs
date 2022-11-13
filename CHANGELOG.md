@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.34](https://github.com/picker-cc/pickerjs/compare/v0.1.33...v0.1.34) (2022-11-13)
+
+
+### Bug Fixes
+
+* **hooks:** context picker 的获取单例处理 ([fd274b5](https://github.com/picker-cc/pickerjs/commit/fd274b5a962d46db39a522a0adb60d42c8958e92))
+
 ### [0.1.33](https://github.com/picker-cc/pickerjs/compare/v0.1.32...v0.1.33) (2022-11-12)
 
 ### [0.1.32](https://github.com/picker-cc/pickerjs/compare/v0.1.31...v0.1.32) (2022-11-12)
