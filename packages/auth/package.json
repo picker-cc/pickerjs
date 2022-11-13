@@ -1,6 +1,6 @@
 {
   "name": "@pickerjs/auth",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "description": "",
   "main": "dist/picker-cc-auth.cjs.js",
   "module": "dist/picker-cc-auth.esm.js",
