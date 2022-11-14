@@ -155,7 +155,7 @@ export class AliOSSAssetStorageStrategy implements AssetStorageStrategy {
         // console.log(result);
         // return result.
         // return '';
-        return result;
+        return result.name;
       })
       .catch(error => {
         // console.warn('---', error);
@@ -194,7 +194,6 @@ export class AliOSSAssetStorageStrategy implements AssetStorageStrategy {
         return result.content;
       })
       .catch(e => {
-        console.log(e);
         return false;
       });
   }
