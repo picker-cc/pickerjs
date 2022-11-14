@@ -167,19 +167,20 @@ export class AliOSSAssetStorageStrategy implements AssetStorageStrategy {
   }
 
   async fileExists(fileName: string): Promise<boolean> {
-    const client = this.getOSSClient();
-    return (
-      client
-        .get(fileName)
-        // .get(`${this.aliOSSConfig.bucket}/${fileName}`)
-        .then(result => {
-          return result.res.status === 200;
-        })
-        .catch(notFoundErr => {
-          // console.log(notFoundErr);
-          return false;
-        })
-    );
+    // const client = this.getOSSClient();
+    // return (
+    //   client
+    //     .get(fileName)
+    //     // .get(`${this.aliOSSConfig.bucket}/${fileName}`)
+    //     .then(result => {
+    //       return result.res.status === 200;
+    //     })
+    //     .catch(notFoundErr => {
+    //       // console.log(notFoundErr);
+    //       return false;
+    //     })
+    // );
+    return false
   }
 
   readFileToBuffer(identifier: string): Promise<Buffer> {

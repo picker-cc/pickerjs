@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import path from 'path';
-import {DefaultAssetNamingStrategy} from "@pickerjs/core";
+import { DefaultAssetNamingStrategy } from '@pickerjs/core';
 
 /**
  * @description
@@ -15,19 +15,17 @@ import {DefaultAssetNamingStrategy} from "@pickerjs/core";
  * @docsCategory AssetServerPlugin
  */
 export class HashedAssetNamingStrategy extends DefaultAssetNamingStrategy {
-    generateSourceFileName(originalFileName: string, conflictFileName?: string): string {
-        const filename = super.generateSourceFileName(originalFileName, conflictFileName);
-        return path.join('source', this.getHashedDir(filename), filename);
-    }
-    generatePreviewFileName(originalFileName: string, conflictFileName?: string): string {
-        const filename = super.generatePreviewFileName(originalFileName, conflictFileName);
-        return path.join('preview', this.getHashedDir(filename), filename);
-    }
+  generateSourceFileName(originalFileName: string, conflictFileName?: string): string {
+    const filename = super.generateSourceFileName(originalFileName, conflictFileName);
+    return path.join('source', this.getHashedDir(filename), filename);
+  }
 
-    private getHashedDir(filename: string): string {
-        return createHash('md5')
-            .update(filename)
-            .digest('hex')
-            .slice(0, 2);
-    }
+  generatePreviewFileName(originalFileName: string, conflictFileName?: string): string {
+    const filename = super.generatePreviewFileName(originalFileName, conflictFileName);
+    return path.join('preview', this.getHashedDir(filename), filename);
+  }
+
+  private getHashedDir(filename: string): string {
+    return createHash('md5').update(filename).digest('hex').slice(0, 2);
+  }
 }

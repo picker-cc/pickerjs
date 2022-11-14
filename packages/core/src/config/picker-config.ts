@@ -112,19 +112,24 @@ export interface AssetOptions {
    * 定义在保存资产文和预览图像之前如何命名。
    * @default DefaultAssetNamingStrategy
    */
-  assetNamingStrategy: AssetNamingStrategy;
+  assetNamingStrategy?: AssetNamingStrategy;
   /**
    * @description
    * 定义存储上传二进制文件的策略。
    * @default NoAssetStorageStrategy
    */
-  assetStorageStrategy: AssetStorageStrategy;
+  assetStorageStrategy?: AssetStorageStrategy;
   /**
    * @description
    * 定义用于创建上传资产的预图像的策略。
    * @default NoAssetPreviewStrategy
    */
-  assetPreviewStrategy: AssetPreviewStrategy;
+  assetPreviewStrategy?: AssetPreviewStrategy;
+  /**
+   * 定义是否关闭预览策略的文件生成
+   * 这个主要是为了解决云存储上面已有了图片和文件处理能力，不需要再增加这个能力
+   */
+  offPreview?: boolean;
   /**
    * @description
    * i.e. either a file extension (".pdf") or a mime type ("image/*", "audio/mpeg" etc.).

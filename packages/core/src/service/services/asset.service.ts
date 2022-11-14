@@ -86,34 +86,44 @@ export class AssetService {
     const sourceFileIdentifier = await assetStorageStrategy.writeFileFromStream(sourceFileName, stream);
 
     const sourceFile = await assetStorageStrategy.readFileToBuffer(sourceFileIdentifier);
-    let preview: Buffer;
-    try {
-      preview = await assetPreviewStrategy.generatePreviewImage(mimetype, sourceFile);
-    } catch (e: any) {
-      Logger.error(`无法创建资产(Asset)预览图像: ${e.message}`);
-      throw e;
-    }
-    const previewFileIdentifier = await assetStorageStrategy.writeFileFromBuffer(previewFileName, preview);
+
     const type = getAssetType(mimetype);
-    const { width, height } = this.getDimensions(type === AssetType.IMAGE ? sourceFile : preview);
     const getFileTitle = (fileTitleName: any) => {
       if (fileTitleName.split('.').length > 0) {
         return fileTitleName.split('.')[0];
       }
       return fileTitleName;
     };
+    if (!assetOptions.offPreview) {
+      let preview: Buffer;
+      try {
+        preview = await assetPreviewStrategy.generatePreviewImage(mimetype, sourceFile);
+      } catch (e: any) {
+        Logger.error(`无法创建资产(Asset)预览图像: ${e.message}`);
+        throw e;
+      }
+      const previewFileIdentifier = await assetStorageStrategy.writeFileFromBuffer(previewFileName, preview);
+      const { width, height } = this.getDimensions(type === AssetType.IMAGE ? sourceFile : preview);
 
-    // await this.prismaService.asset.create({data: {
-    //         type,
-    //         width,
-    //         height,
-    //         name: path.basename(sourceFileName),
-    //         title: getFileTitle(filename),
-    //         fileSize: sourceFile.byteLength,
-    //         mimeType: mimetype,
-    //         source: sourceFileIdentifier,
-    //         preview: previewFileIdentifier,
-    //     }})
+      const asset: Asset = {
+        createdAt: undefined,
+        tags: undefined,
+        updatedAt: undefined,
+        id: '',
+        type,
+        width,
+        height,
+        name: path.basename(sourceFileName),
+        title: getFileTitle(filename),
+        fileSize: sourceFile.byteLength,
+        mimeType: mimetype,
+        source: sourceFileIdentifier,
+        preview: previewFileIdentifier,
+        focalPoint: null
+      };
+      return asset;
+    }
+    const { width, height } = this.getDimensions(sourceFile);
     const asset: Asset = {
       createdAt: undefined,
       tags: undefined,
@@ -127,12 +137,12 @@ export class AssetService {
       fileSize: sourceFile.byteLength,
       mimeType: mimetype,
       source: sourceFileIdentifier,
-      preview: previewFileIdentifier,
+      preview: sourceFileIdentifier,
       focalPoint: null
     };
+    return asset;
 
     // await this.em.persistAndFlush(asset);
-    return asset;
   }
 
   // eslint-disable-next-line class-methods-use-this
