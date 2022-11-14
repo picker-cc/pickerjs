@@ -8,7 +8,8 @@ NPM = "https://registry.npmjs.org/"
 echo "Publishing to NPM @ https://registry.npmjs.org/"
 #cd ../apps/jy-server && npm publish -reg $NPM
 
-cd ../packages/common && pnpm publish --access public $NPM &&\
+cd ../packages/asset-server-plugin && pnpm publish --access public $NPM &&\
+cd ../common && pnpm  publish --access public $NPM &&\
 cd ../core && pnpm  publish --access public $NPM &&\
 cd ../create && pnpm  publish --access public $NPM &&\
 cd ../auth && pnpm  publish --access public $NPM &&\
