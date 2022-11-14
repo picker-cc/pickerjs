@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.41](https://github.com/picker-cc/pickerjs/compare/v0.2.2...v0.1.41) (2022-11-14)
+
 ### [0.2.2](https://github.com/picker-cc/pickerjs/compare/v0.2.1...v0.2.2) (2022-11-13)
 
 ### [0.2.1](https://github.com/picker-cc/pickerjs/compare/v0.2.0...v0.2.1) (2022-11-13)
