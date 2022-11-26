@@ -3,17 +3,17 @@ import { trackingFields } from './utils';
 import { access } from './auth-and-access-control';
 
 export const Post = list({
-  access: {
-    operation: {
-      create: access.isUser,
-      delete: access.isUser
-    },
-    item: {
-      // create: access.isSelf,
-      update: access.isSelf,
-      delete: access.isSelf
-    }
-  },
+  // access: {
+  //   operation: {
+  //     create: access.isUser,
+  //     delete: access.isUser
+  //   },
+  //   item: {
+  //     // create: access.isSelf,
+  //     update: access.isSelf,
+  //     delete: access.isSelf
+  //   }
+  // },
   fields: {
     title: text(),
     // 状态字段，用于控制是否显示内容

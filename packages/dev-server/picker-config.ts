@@ -79,8 +79,8 @@ export const config: PickerConfig = {
       // namingStrategy: new DefaultAssetNamingStrategy(),
       storageStrategyFactory: configureAliOSSAssetStorage({
         bucket: 'caixie-favorite',
-        accessKeyId: '',
-        accessKeySecret: '',
+        accessKeyId: 'LTAI5t6hCnZiCx2U3hMorHtL',
+        accessKeySecret: 'mRx3jSCNma1vhRcqOeDoKrujPAFk10',
         region: 'oss-cn-hangzhou',
         endpoint: 'oss-cn-hangzhou.aliyuncs.com'
       })

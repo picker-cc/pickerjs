@@ -1,8 +1,6 @@
 import { assertInputObjectType, GraphQLInputObjectType, GraphQLSchema } from 'graphql';
-
 import { AuthGqlNames, InitFirstItemConfig } from '../types';
-import {BaseItem, graphql} from "../../schema/types";
-
+import { BaseItem, graphql } from '../../schema/types';
 
 export function getInitFirstItemSchema({
   listKey,
@@ -10,7 +8,7 @@ export function getInitFirstItemSchema({
   itemData,
   gqlNames,
   graphQLSchema,
-  ItemAuthenticationWithPasswordSuccess,
+  ItemAuthenticationWithPasswordSuccess
 }: {
   listKey: string;
   fields: InitFirstItemConfig<any>['fields'];
@@ -22,9 +20,7 @@ export function getInitFirstItemSchema({
     sessionToken: string;
   }>;
 }) {
-  const createInputConfig = assertInputObjectType(
-    graphQLSchema.getType(`${listKey}CreateInput`)
-  ).toConfig();
+  const createInputConfig = assertInputObjectType(graphQLSchema.getType(`${listKey}CreateInput`)).toConfig();
   const fieldsSet = new Set(fields);
   const initialCreateInput = graphql.wrap.inputObject(
     new GraphQLInputObjectType({
@@ -32,7 +28,7 @@ export function getInitFirstItemSchema({
       fields: Object.fromEntries(
         Object.entries(createInputConfig.fields).filter(([fieldKey]) => fieldsSet.has(fieldKey))
       ),
-      name: gqlNames.CreateInitialInput,
+      name: gqlNames.CreateInitialInput
     })
   );
   return {
@@ -40,6 +36,7 @@ export function getInitFirstItemSchema({
       [gqlNames.createInitialItem]: graphql.field({
         type: graphql.nonNull(ItemAuthenticationWithPasswordSuccess),
         args: { data: graphql.arg({ type: graphql.nonNull(initialCreateInput) }) },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async resolve(rootVal, { data }, context) {
           if (!context.startSession) {
             throw new Error('No session implementation available on context');
@@ -48,7 +45,7 @@ export function getInitFirstItemSchema({
           const dbItemAPI = context.sudo().db[listKey];
           const count = await dbItemAPI.count({});
           if (count !== 0) {
-              throw new Error('只有当该列表中不存在任何项时，才可以创建初始项')
+            throw new Error('只有当该列表中不存在任何项时，才可以创建初始项');
             // throw new Error('Initial items can only be created when no items exist in that list');
           }
 
@@ -60,8 +57,8 @@ export function getInitFirstItemSchema({
 
           const sessionToken = await context.startSession({ listKey, itemId: item.id.toString() });
           return { item, sessionToken };
-        },
-      }),
-    },
+        }
+      })
+    }
   };
 }
