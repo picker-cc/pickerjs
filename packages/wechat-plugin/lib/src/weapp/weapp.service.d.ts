@@ -1,8 +1,8 @@
 /// <reference types="node" />
 import type { Request, Response } from 'express';
-import { DefaultRequestResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
+import { DefaultRequestResult, MediaCheckSubmitResult, MsgSecCheckResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
 import { WeChatModuleOptions } from '../types';
-import { CreateActivityId, CreateQRCode, GenerateNFCScheme, GenerateScheme, GenerateShortLink, GenerateUrlLink, GetUnlimitedQRCode, MessageTemplate, PubTemplateTitleList, QRCode, SendMessage, SendUniformMessage, UpdatableMsg } from './weapp.params';
+import { CreateActivityId, CreateQRCode, GenerateNFCScheme, GenerateScheme, GenerateShortLink, GenerateUrlLink, GetUnlimitedQRCode, MediaSecCheckParams, MessageTemplate, MsgSecCheckParams, PubTemplateTitleList, QRCode, SendMessage, SendUniformMessage, UpdatableMsg } from './weapp.params';
 import { AccessTokenResult, ActivityIdResult, MessageTemplateListResult, PubTemplateKeyWords, PubTemplateTitleListResult, RidInfo, SchemeInfo, SchemeQuota, UrlLinkResult } from './weapp.result';
 export declare class WeAppService {
     private options;
@@ -48,6 +48,19 @@ export declare class WeAppService {
      * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
      */
     code2Session(code: string, appId?: string, secret?: string): Promise<SessionResult>;
+    /**
+     * 检验图片或音频是否违规
+     * @param imgPath
+     * @param accessToken
+     */
+    mediaSecCheck(mediaSecCheck: MediaSecCheckParams, accessToken: string): Promise<import("axios").AxiosResponse<MediaCheckSubmitResult, any>>;
+    /**
+     * 内容安全，检查一段文本是否含有违法违规内容
+     * @param content
+     * @param accessToken
+     * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/sec-check/security.msgSecCheck.html
+     */
+    msgSecCheck(msgSecCheck: MsgSecCheckParams, accessToken: string): Promise<import("axios").AxiosResponse<MsgSecCheckResult, any>>;
     /**
      * 获取手机号
      * @param {string} accessToken 小程序调用token，第三方可通过使用authorizer_access_token代商家进行调用

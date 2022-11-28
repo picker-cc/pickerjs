@@ -99,6 +99,29 @@ class WeAppService {
         }
     }
     /**
+     * 检验图片或音频是否违规
+     * @param imgPath
+     * @param accessToken
+     */
+    async mediaSecCheck(mediaSecCheck, accessToken) {
+        const url = `https://api.weixin.qq.com/wxa/media_check_async?access_token=${accessToken}`;
+        return axios_1.default.post(url, {
+            ...mediaSecCheck
+        });
+    }
+    /**
+     * 内容安全，检查一段文本是否含有违法违规内容
+     * @param content
+     * @param accessToken
+     * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/sec-check/security.msgSecCheck.html
+     */
+    async msgSecCheck(msgSecCheck, accessToken) {
+        const url = `https://api.weixin.qq.com/wxa/msg_sec_check?access_token=${accessToken}`;
+        return axios_1.default.post(url, {
+            ...msgSecCheck
+        });
+    }
+    /**
      * 获取手机号
      * @param {string} accessToken 小程序调用token，第三方可通过使用authorizer_access_token代商家进行调用
      * @param {string} code 手机号获取凭证，小程序端获取

@@ -228,3 +228,22 @@ export interface MessageTemplate {
      */
     sceneDesc: string;
 }
+/**
+ * 检查文本是否违规
+ */
+export interface MsgSecCheckParams {
+    version: 2;
+    openid: string;
+    scene: 1 | 2 | 3 | 4;
+    content: string;
+    nickname?: string;
+    title?: string;
+    signature?: string;
+}
+export interface MediaSecCheckParams {
+    media_url: string;
+    media_type: 1 | 2;
+    version: 2 | number;
+    openid: string;
+    scene: 1 | 2 | 3 | 4 | number;
+}

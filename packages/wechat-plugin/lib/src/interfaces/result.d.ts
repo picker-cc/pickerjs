@@ -1,3 +1,56 @@
+/**
+ * 异步校验图片/音频提交结果
+ */
+export interface MediaCheckSubmitResult {
+    trace_id: string;
+    errcode: number;
+    errmsg: string;
+}
+/**
+ * 异步校验图片/音频检测结果
+ * 异步检测结果在 30 分钟内会推送到你的消息接收服务器。
+ * 返回的 JSON 数据包
+ */
+export interface MediaCheckAsyncResult {
+    ToUserName: string;
+    FromUserName: string;
+    CreateTime: string;
+    MsgType: string;
+    Event: string;
+    appid: string;
+    trace_id: string;
+    version: string;
+    result: {
+        suggest: string;
+        label: string;
+    };
+    detail: {
+        strategy: string;
+        errcode: number;
+        suggest: 'risky' | 'pass' | 'review' | string;
+        label?: number;
+        prob?: number;
+        keyword?: string;
+    }[];
+}
+export interface MsgSecCheckResult {
+    errcode: number;
+    errmsg: string;
+    trace_id: string;
+    result: {
+        suggest: string;
+        label: string;
+    };
+    detail: {
+        strategy: string;
+        errcode: number;
+        suggest: 'risky' | 'pass' | 'review' | string;
+        label: number;
+        level: number;
+        prob: number;
+        keyword: string;
+    }[];
+}
 export interface FollowerResult {
     total: number;
     count: number;
