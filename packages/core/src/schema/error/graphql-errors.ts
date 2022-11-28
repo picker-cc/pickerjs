@@ -18,8 +18,8 @@ export const prismaError = (err: Error) => {
 };
 
 export const validationFailureError = (messages: string[]) => {
-  // const s = messages.map(m => `  - ${m}`).join('\n');
-  const s = messages.map(() => `  `).join('\n');
+  const s = messages.map(m => `  - ${m}`).join('\n');
+  // const s = messages.map(() => `  `).join('\n');
   return new ApolloError(`数据验证错误。\n${s}`, 'PS_VALIDATION_FAILURE');
 };
 
