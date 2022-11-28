@@ -135,6 +135,8 @@ export const text =
         type: config.graphql?.read?.isNonNull ? graphql.nonNull(graphql.String) : graphql.String
       }),
       views: '',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       getAdminMeta(): TextFieldMeta {
         return {
           displayMode: config.ui?.displayMode ?? 'input',

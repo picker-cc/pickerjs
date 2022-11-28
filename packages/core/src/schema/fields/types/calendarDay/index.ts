@@ -137,6 +137,8 @@ export const calendarDay =
         }
       }),
       views: '@pickerjs/core/fields/types/calendarDay/views',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       getAdminMeta(): CalendarDayFieldMeta {
         return {
           defaultValue: defaultValue ?? null,
