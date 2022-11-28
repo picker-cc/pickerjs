@@ -1,3 +1,89 @@
+/**
+ * 异步校验图片/音频提交结果
+ */
+export interface MediaCheckSubmitResult {
+  // 唯一请求标识，标记单次请求，用于匹配异步推送结果
+  trace_id: string;
+  // 0 表示检测请求已接收
+  errcode: number;
+  // 错误信息
+  errmsg: string;
+}
+
+/**
+ * 异步校验图片/音频检测结果
+ * 异步检测结果在 30 分钟内会推送到你的消息接收服务器。
+ * 返回的 JSON 数据包
+ */
+export interface MediaCheckAsyncResult {
+  // 小程序的username
+  ToUserName: string;
+  // 平台推送服务UserName
+  FromUserName: string;
+  // 发送时间
+  CreateTime: string;
+  // 默认为：Event
+  MsgType: string;
+  // 默认为：wxa_media_check
+  Event: string;
+  // 小程序的appid
+  appid: string;
+  // 任务id
+  trace_id: string;
+  // 用于区分接口版本
+  version: string;
+  // 综合结果
+  result: {
+    suggest: string;
+    label: string;
+  };
+  // 详细检测结果
+  // 详细检测结果
+  detail: {
+    // 策略类型
+    strategy: string;
+    // 错误码，仅当该值为 0 时，该项结果有效
+    errcode: number;
+    // 建议
+    suggest: 'risky' | 'pass' | 'review' | string;
+    // 命中标签枚举值，100 正常；10001 广告；20001 时政；20002 色情；20003 辱骂；20006 违法犯罪；20008 欺诈；20012 低俗；20013 版权；21000 其他
+    label?: number;
+    // 0-100，代表置信度，越高代表越有可能属于当前返回的标签（label）
+    prob?: number;
+    // 命中的自定义关键词
+    keyword?: string;
+  }[];
+}
+export interface MsgSecCheckResult {
+  // 0 为成功
+  errcode: number;
+  // 错误信息
+  errmsg: string;
+  // 唯一请求标识，标记单次请求
+  trace_id: string;
+  // 综合结果
+  result: {
+    suggest: string;
+    label: string;
+  };
+  // 详细检测结果
+  detail: {
+    // 策略类型
+    strategy: string;
+    // 错误码，仅当该值为 0 时，该项结果有效
+    errcode: number;
+    // 建议
+    suggest: 'risky' | 'pass' | 'review' | string;
+    // 命中标签枚举值，100 正常；10001 广告；20001 时政；20002 色情；20003 辱骂；20006 违法犯罪；20008 欺诈；20012 低俗；20013 版权；21000 其他
+    label: number;
+    level: number;
+    // 0-100，代表置信度，越高代表越有可能属于当前返回的标签（label）
+    prob: number;
+    // 命中的自定义关键词
+    keyword: string;
+  }[];
+  // func_info: { [key: string]: { id: number } }[];
+}
 export interface FollowerResult {
   // "total":2,
   // "count":2,

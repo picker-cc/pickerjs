@@ -242,3 +242,35 @@ export interface MessageTemplate {
    */
   sceneDesc: string;
 }
+
+/**
+ * 检查文本是否违规
+ */
+export interface MsgSecCheckParams {
+  version: 2;
+  // 用户需在最近两小时访问过小程序
+  openid: string;
+  // 场景枚举值（1 资料；2 评论；3 论坛；4 社交日志）
+  scene: 1 | 2 | 3 | 4;
+  // 需检测的文本内容，文本字数的上限为2500字，需使用UTF-8编码
+  content: string;
+  // 用户昵称
+  nickname?: string;
+  // 文本标题
+  title?: string;
+  // 个性签名，该参数仅在资料类场景有效(scene=1)，需使用UTF-8编码
+  signature?: string;
+}
+
+export interface MediaSecCheckParams {
+  // 要检测的图片或音频的url，支持图片格式包括 jpg , jepg, png, bmp, gif（取首帧），支持的音频格式包括mp3, aac, ac3, wma, flac, vorbis, opus, wav
+  media_url: string;
+  // 1:音频，2:图片
+  media_type: 1 | 2;
+  // 接口版本号
+  version: 2 | number;
+  // 用户的openid（用户需在近两小时访问过小程序）
+  openid: string;
+  // 场景枚举值（1 资料；2 评论；3 论坛；4 社交日志）
+  scene: 1 | 2 | 3 | 4 | number;
+}

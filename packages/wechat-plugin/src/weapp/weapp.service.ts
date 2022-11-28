@@ -1,7 +1,14 @@
 import { Logger, Req, Res } from '@nestjs/common';
 import axios from 'axios';
 import type { Request, Response } from 'express';
-import { DefaultRequestResult, ParamCreateQRCode, PhoneNumberResult, SessionResult } from '../interfaces';
+import {
+  DefaultRequestResult,
+  MediaCheckSubmitResult,
+  MsgSecCheckResult,
+  ParamCreateQRCode,
+  PhoneNumberResult,
+  SessionResult
+} from '../interfaces';
 import { WeChatModuleOptions } from '../types';
 import { MessageCrypto } from '../utils';
 import {
@@ -12,7 +19,9 @@ import {
   GenerateShortLink,
   GenerateUrlLink,
   GetUnlimitedQRCode,
+  MediaSecCheckParams,
   MessageTemplate,
+  MsgSecCheckParams,
   PubTemplateTitleList,
   QRCode,
   SendMessage,
@@ -112,6 +121,31 @@ export class WeAppService {
       const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${newAppId}&secret=${newSecret}&js_code=${code}&grant_type=authorization_code`;
       return (await axios.get<SessionResult>(url)).data;
     }
+  }
+
+  /**
+   * 检验图片或音频是否违规
+   * @param imgPath
+   * @param accessToken
+   */
+  public async mediaSecCheck(mediaSecCheck: MediaSecCheckParams, accessToken: string) {
+    const url = `https://api.weixin.qq.com/wxa/media_check_async?access_token=${accessToken}`;
+    return axios.post<MediaCheckSubmitResult>(url, {
+      ...mediaSecCheck
+    });
+  }
+
+  /**
+   * 内容安全，检查一段文本是否含有违法违规内容
+   * @param content
+   * @param accessToken
+   * @link https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/sec-check/security.msgSecCheck.html
+   */
+  public async msgSecCheck(msgSecCheck: MsgSecCheckParams, accessToken: string) {
+    const url = `https://api.weixin.qq.com/wxa/msg_sec_check?access_token=${accessToken}`;
+    return axios.post<MsgSecCheckResult>(url, {
+      ...msgSecCheck
+    });
   }
 
   /**
