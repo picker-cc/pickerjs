@@ -32,6 +32,8 @@ export interface MediaCheckAsyncResult {
         prob?: number;
         keyword?: string;
     }[];
+    errcode: number;
+    errmsg: string;
 }
 export interface MsgSecCheckResult {
     errcode: number;
