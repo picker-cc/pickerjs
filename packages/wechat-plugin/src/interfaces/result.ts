@@ -53,6 +53,10 @@ export interface MediaCheckAsyncResult {
     // 命中的自定义关键词
     keyword?: string;
   }[];
+  // 0 表示检测请求已接收
+  errcode: number;
+  // 错误信息
+  errmsg: string;
 }
 export interface MsgSecCheckResult {
   // 0 为成功
