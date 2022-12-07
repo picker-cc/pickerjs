@@ -1,21 +1,22 @@
 import { GraphQLResolveInfo } from 'graphql';
 import {
   InputFilter,
-  PrismaFilter, resolveUniqueWhereInput,
+  PrismaFilter,
+  resolveUniqueWhereInput,
   resolveWhereInput,
   UniqueInputFilter,
   UniquePrismaFilter
-} from "../../types/filters/where-inputs";
-import { getDBFieldKeyForFieldOnMultiField, InitialisedList } from "../../prisma/prisma-schema";
-import { checkFilterOrderAccess } from "../../types/filters/filter-order-access";
-import { limitsExceededError, prismaError, userInputError } from "../../error/graphql-errors";
-import { getAccessFilters, getOperationAccess } from "../access-control";
-import {BaseItem,PickerContext, FindManyArgsValue, OrderDirection} from "../../types";
+} from '../../types/filters/where-inputs';
+import { getDBFieldKeyForFieldOnMultiField, InitialisedList } from '../../prisma/prisma-schema';
+import { checkFilterOrderAccess } from '../../types/filters/filter-order-access';
+import { limitsExceededError, prismaError, userInputError } from '../../error/graphql-errors';
+import { getAccessFilters, getOperationAccess } from '../access-control';
+import { BaseItem, PickerContext, FindManyArgsValue, OrderDirection } from '../../types';
 declare const prisma: unique symbol;
 
 export type PrismaPromise<T> = Promise<T> & { [prisma]: true };
 
-type PrismaModel = {
+interface PrismaModel {
   count: (arg: {
     where?: PrismaFilter;
     take?: number;
@@ -55,15 +56,13 @@ type PrismaModel = {
     include?: Record<string, any>;
     select?: Record<string, any>;
   }) => PrismaPromise<BaseItem>;
-};
+}
 
-export type UnwrapPromise<TPromise extends Promise<any>> = TPromise extends Promise<infer T>
-    ? T
-    : never;
+export type UnwrapPromise<TPromise extends Promise<any>> = TPromise extends Promise<infer T> ? T : never;
 
 export type UnwrapPromises<T extends Promise<any>[]> = {
-    // unsure about this conditional
-    [Key in keyof T]: Key extends number ? UnwrapPromise<T[Key]> : never;
+  // unsure about this conditional
+  [Key in keyof T]: Key extends number ? UnwrapPromise<T[Key]> : never;
 };
 
 // please do not make this type be the value of KeystoneContext['prisma']
@@ -71,11 +70,10 @@ export type UnwrapPromises<T extends Promise<any>[]> = {
 // and we should generate a KeystoneContext type in node_modules/.picker-cc/types which passes in the user's PrismaClient type
 // so that users get right PrismaClient types specifically for their project
 export type PrismaClient = {
-    $disconnect(): Promise<void>;
-    $connect(): Promise<void>;
-    $transaction<T extends PrismaPromise<any>[]>(promises: [...T]): UnwrapPromises<T>;
+  $disconnect(): Promise<void>;
+  $connect(): Promise<void>;
+  $transaction<T extends PrismaPromise<any>[]>(promises: [...T]): UnwrapPromises<T>;
 } & Record<string, PrismaModel>;
-
 
 // Run prisma operations as part of a resolver
 export async function runWithPrisma<T>(
@@ -128,11 +126,7 @@ function traverseQuery(
   });
 }
 
-export async function checkFilterAccess(
-  list: InitialisedList,
-  context: PickerContext,
-  inputFilter: InputFilter
-) {
+export async function checkFilterAccess(list: InitialisedList, context: PickerContext, inputFilter: InputFilter) {
   if (!inputFilter) return;
   const filterFields: Record<string, { fieldKey: string; list: InitialisedList }> = {};
   traverseQuery(list, context, inputFilter, filterFields);
@@ -153,11 +147,7 @@ export async function accessControlledFilter(
   return resolvedWhere;
 }
 
-export async function findOne(
-  args: { where: UniqueInputFilter },
-  list: InitialisedList,
-  context: PickerContext
-) {
+export async function findOne(args: { where: UniqueInputFilter }, list: InitialisedList, context: PickerContext) {
   // Check operation permission to pass into single operation
   const operationAccess = await getOperationAccess(list, context, 'query');
   if (!operationAccess) {
@@ -217,7 +207,7 @@ export async function findMany(
       where: extraFilter === undefined ? resolvedWhere : { AND: [resolvedWhere, extraFilter] },
       orderBy,
       take: take ?? undefined,
-      skip,
+      skip
     })
   );
 
@@ -240,9 +230,7 @@ async function resolveOrderBy(
   orderBy.forEach(orderBySelection => {
     const keys = Object.keys(orderBySelection);
     if (keys.length !== 1) {
-      throw userInputError(
-        `Only a single key must be passed to ${list.types.orderBy.graphQLType.name}`
-      );
+      throw userInputError(`Only a single key must be passed to ${list.types.orderBy.graphQLType.name}`);
     }
 
     const fieldKey = keys[0];
@@ -255,7 +243,7 @@ async function resolveOrderBy(
   // Check orderBy access
   const orderByKeys = orderBy.map(orderBySelection => ({
     fieldKey: Object.keys(orderBySelection)[0],
-    list,
+    list
   }));
   await checkFilterOrderAccess(orderByKeys, context, 'orderBy');
 
@@ -272,17 +260,14 @@ async function resolveOrderBy(
         // This code path is only relevent to custom fields which fit that criteria.
         const keys = Object.keys(resolvedValue);
         if (keys.length !== 1) {
-          throw new Error(
-            `Only a single key must be returned from an orderBy input resolver for a multi db field`
-          );
+          throw new Error(`Only a single key must be returned from an orderBy input resolver for a multi db field`);
         }
         const innerKey = keys[0];
         return {
-          [getDBFieldKeyForFieldOnMultiField(fieldKey, innerKey)]: resolvedValue[innerKey],
+          [getDBFieldKeyForFieldOnMultiField(fieldKey, innerKey)]: resolvedValue[innerKey]
         };
-      } else {
-        return { [fieldKey]: resolvedValue };
       }
+      return { [fieldKey]: resolvedValue };
     })
   );
 }
@@ -314,7 +299,7 @@ export async function count(
 
   const count = await runWithPrisma(context, list, model =>
     model.count({
-      where: extraFilter === undefined ? resolvedWhere : { AND: [resolvedWhere, extraFilter] },
+      where: extraFilter === undefined ? resolvedWhere : { AND: [resolvedWhere, extraFilter] }
     })
   );
   // if (info.cacheControl && list.cacheHint) {
@@ -353,7 +338,7 @@ function applyMaxResults(results: unknown[], list: InitialisedList, context: Pic
       throw limitsExceededError({
         list: list.listKey,
         type: 'maxTotalResults',
-        limit: context.maxTotalResults,
+        limit: context.maxTotalResults
       });
     }
   }

@@ -15,11 +15,13 @@ import {withAuth, session} from './auth';
 export const schemaConfig = withAuth(
     // 使用 config 函数的目的是帮助 typescript 引入你找到可用的选项
     typeInfoConfig({
-        // 数据库设置提供配置，当前使用 sqlite 来获得最快的启动体验
+        // 数据库设置
         db: {
-            provider: 'sqlite',
-            url: 'file:./picker.db',
+            provider: '{{ dbType }}',
+            url: {{#if isSQLite}}'file:./picker.db'{{else}}{{dbType}}://{{dbUserName}}:{{dbPassword}}@{{dbHost}}:{{dbPort}}/{{dbName}}{{/if}},
             // useMigrations: true
+            enableLogging: true,
+            useMigrations: true,
         },
         // 这个配置允许我们设置 Admin UI 的特性（暂未实现，仅配置）
         ui: {

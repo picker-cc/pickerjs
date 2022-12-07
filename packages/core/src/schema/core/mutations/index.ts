@@ -1,9 +1,9 @@
 // import * as createAndUpdate from './create-update';
-import * as deletes from './delete';
-import {getGqlNames, InitialisedList} from "../../prisma/prisma-schema";
+import { getGqlNames, InitialisedList } from '../../prisma/prisma-schema';
 import * as graphql from '../../types/schema/graphql-ts-schema';
+// import { EventBus } from '../../../event-bus';
 import * as createAndUpdate from './create-update';
-import {EventBus} from "../../../event-bus";
+import * as deletes from './delete';
 // import { PickerContext } from "../context";
 
 // This is not a thing that I really agree with but it's to make the behaviour consistent with old picker-cc.
@@ -13,112 +13,104 @@ import {EventBus} from "../../../event-bus";
 // doesn't affect anything, If some reject though, the order that they reject in will be the order in the errors array
 // and some of our tests rely on the order of the graphql errors array. They shouldn't, but they do.
 function promisesButSettledWhenAllSettledAndInOrder<T extends Promise<unknown>[]>(promises: T): T {
-    const resultsPromise = Promise.allSettled(promises);
-    return promises.map(async (_, i) => {
-        const result = (await resultsPromise)[i];
-        return result.status === 'fulfilled'
-            ? Promise.resolve(result.value)
-            : Promise.reject(result.reason);
-    }) as T;
+  const resultsPromise = Promise.allSettled(promises);
+  return promises.map(async (_, i) => {
+    const result = (await resultsPromise)[i];
+    return result.status === 'fulfilled' ? Promise.resolve(result.value) : Promise.reject(result.reason);
+  }) as T;
 }
 
 export function getMutationsForList(list: InitialisedList) {
-    const names = getGqlNames(list);
+  const names = getGqlNames(list);
 
-    const createOne = graphql.field({
-        type: list.types.output,
-        args: {data: graphql.arg({type: graphql.nonNull(list.types.create)})},
-        resolve(_rootVal, {data}, context) {
-            return createAndUpdate.createOne({data}, list, context);
-        },
-    });
+  const createOne = graphql.field({
+    type: list.types.output,
+    args: { data: graphql.arg({ type: graphql.nonNull(list.types.create) }) },
+    resolve(_rootVal, { data }, context) {
+      return createAndUpdate.createOne({ data }, list, context);
+    }
+  });
 
-    const createMany = graphql.field({
-        type: graphql.list(list.types.output) as any,
-        args: {
-            data: graphql.arg({
-                type: graphql.nonNull(graphql.list(graphql.nonNull(list.types.create))),
-            }),
-        },
-        async resolve(_rootVal, args, context) {
-            return promisesButSettledWhenAllSettledAndInOrder(
-                await createAndUpdate.createMany(args, list, context)
-            );
-        },
-    });
+  const createMany = graphql.field({
+    type: graphql.list(list.types.output) as any,
+    args: {
+      data: graphql.arg({
+        type: graphql.nonNull(graphql.list(graphql.nonNull(list.types.create)))
+      })
+    },
+    async resolve(_rootVal, args, context) {
+      return promisesButSettledWhenAllSettledAndInOrder(await createAndUpdate.createMany(args, list, context));
+    }
+  });
 
-    const updateOne = graphql.field({
-        type: list.types.output as any,
-        args: {
-            where: graphql.arg({type: graphql.nonNull(list.types.uniqueWhere)}),
-            data: graphql.arg({type: graphql.nonNull(list.types.update)}),
-        },
-        resolve(_rootVal, args, context: any) {
-            return createAndUpdate.updateOne(args, list, context);
-        },
-    });
+  const updateOne = graphql.field({
+    type: list.types.output as any,
+    args: {
+      where: graphql.arg({ type: graphql.nonNull(list.types.uniqueWhere) }),
+      data: graphql.arg({ type: graphql.nonNull(list.types.update) })
+    },
+    resolve(_rootVal, args, context: any) {
+      return createAndUpdate.updateOne(args, list, context);
+    }
+  });
 
-    const updateManyInput = graphql.inputObject({
-        name: names.updateManyInputName,
-        fields: {
-            where: graphql.arg({type: graphql.nonNull(list.types.uniqueWhere)}),
-            data: graphql.arg({type: graphql.nonNull(list.types.update)}),
-        },
-    });
-    const updateMany = graphql.field({
-        type: graphql.list(list.types.output) as any,
-        args: {
-            data: graphql.arg({type: graphql.nonNull(graphql.list(graphql.nonNull(updateManyInput)))}),
-        },
-        async resolve(_rootVal, args, context: any) {
-            return promisesButSettledWhenAllSettledAndInOrder(
-                await createAndUpdate.updateMany(args, list, context)
-            );
-        },
-        // async resolve(_rootVal, args, context) {
-        //   return promisesButSettledWhenAllSettledAndInOrder(
-        //     await createAndUpdate.updateMany(args, list, context)
-        //   );
-        // },
-    });
+  const updateManyInput = graphql.inputObject({
+    name: names.updateManyInputName,
+    fields: {
+      where: graphql.arg({ type: graphql.nonNull(list.types.uniqueWhere) }),
+      data: graphql.arg({ type: graphql.nonNull(list.types.update) })
+    }
+  });
+  const updateMany = graphql.field({
+    type: graphql.list(list.types.output) as any,
+    args: {
+      data: graphql.arg({ type: graphql.nonNull(graphql.list(graphql.nonNull(updateManyInput))) })
+    },
+    async resolve(_rootVal, args, context: any) {
+      return promisesButSettledWhenAllSettledAndInOrder(await createAndUpdate.updateMany(args, list, context));
+    }
+    // async resolve(_rootVal, args, context) {
+    //   return promisesButSettledWhenAllSettledAndInOrder(
+    //     await createAndUpdate.updateMany(args, list, context)
+    //   );
+    // },
+  });
 
-    const deleteOne = graphql.field({
-        type: list.types.output as any,
-        args: {where: graphql.arg({type: graphql.nonNull(list.types.uniqueWhere)})},
-        resolve(rootVal, {where}, context: any) {
-            return deletes.deleteOne(where, list, context);
-        },
-    });
+  const deleteOne = graphql.field({
+    type: list.types.output as any,
+    args: { where: graphql.arg({ type: graphql.nonNull(list.types.uniqueWhere) }) },
+    resolve(rootVal, { where }, context: any) {
+      return deletes.deleteOne(where, list, context);
+    }
+  });
 
-    const deleteMany = graphql.field({
-        type: graphql.list(list.types.output) as any,
-        args: {
-            where: graphql.arg({
-                type: graphql.nonNull(graphql.list(graphql.nonNull(list.types.uniqueWhere))),
-            }),
-        },
-        async resolve(rootVal, {where}, context: any) {
-            return promisesButSettledWhenAllSettledAndInOrder(
-                await deletes.deleteMany(where, list, context)
-            );
-        },
-    });
+  const deleteMany = graphql.field({
+    type: graphql.list(list.types.output) as any,
+    args: {
+      where: graphql.arg({
+        type: graphql.nonNull(graphql.list(graphql.nonNull(list.types.uniqueWhere)))
+      })
+    },
+    async resolve(rootVal, { where }, context: any) {
+      return promisesButSettledWhenAllSettledAndInOrder(await deletes.deleteMany(where, list, context));
+    }
+  });
 
-    return {
-        mutations: {
-            ...(list.graphql.isEnabled.create && {
-                [names.createMutationName]: createOne,
-                [names.createManyMutationName]: createMany,
-            }),
-            ...(list.graphql.isEnabled.update && {
-                [names.updateMutationName]: updateOne,
-                [names.updateManyMutationName]: updateMany,
-            }),
-            ...(list.graphql.isEnabled.delete && {
-                [names.deleteMutationName]: deleteOne,
-                [names.deleteManyMutationName]: deleteMany,
-            }),
-        },
-        updateManyInput,
-    };
+  return {
+    mutations: {
+      ...(list.graphql.isEnabled.create && {
+        [names.createMutationName]: createOne,
+        [names.createManyMutationName]: createMany
+      }),
+      ...(list.graphql.isEnabled.update && {
+        [names.updateMutationName]: updateOne,
+        [names.updateManyMutationName]: updateMany
+      }),
+      ...(list.graphql.isEnabled.delete && {
+        [names.deleteMutationName]: deleteOne,
+        [names.deleteManyMutationName]: deleteMany
+      })
+    },
+    updateManyInput
+  };
 }

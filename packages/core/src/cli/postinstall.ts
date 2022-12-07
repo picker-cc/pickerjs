@@ -18,26 +18,25 @@
 //     - types.{js,.ts}: .d.ts 将与当前的 .picker/schema-types.ts 相同, .js 文件会是空的
 //     - api.js: 列表的 API 只生成 generateNodeAPI 选项
 
-import {createSystem} from "../createSystem";
+import { createSystem } from '../createSystem';
 import {
-    generateCommittedArtifacts,
-    generateNodeModulesArtifacts,
-    validateCommittedArtifacts
-} from "../schema/artifacts";
-import {logColored} from "./cli-utils";
-import {getConfig} from "./utils";
+  generateCommittedArtifacts,
+  generateNodeModulesArtifacts,
+  validateCommittedArtifacts
+} from '../schema/artifacts';
+import { logColored } from './cli-utils';
+import { getConfig } from './utils';
 
 export async function postinstall(cwd: string, shouldFix: boolean) {
+  const config = getConfig(cwd);
+  const { graphQLSchema } = createSystem(config);
 
-    const config = getConfig(cwd);
-    const { graphQLSchema } = createSystem(config);
-
-    if (shouldFix) {
-        await generateCommittedArtifacts(graphQLSchema, config, cwd);
-        logColored('\n✨ 生成 GraphQL 和 Prisma schemas\n');
-    } else {
-        await validateCommittedArtifacts(graphQLSchema, config, cwd);
-        logColored('\n✨ GraphQL 和 Prisma schemas 是最新的\n');
-    }
-    await generateNodeModulesArtifacts(graphQLSchema, config, cwd);
+  if (shouldFix) {
+    await generateCommittedArtifacts(graphQLSchema, config, cwd);
+    logColored('\n✨ 生成 GraphQL 和 Prisma schemas\n');
+  } else {
+    await validateCommittedArtifacts(graphQLSchema, config, cwd);
+    logColored('\n✨ GraphQL 和 Prisma schemas 是最新的\n');
+  }
+  await generateNodeModulesArtifacts(graphQLSchema, config, cwd);
 }

@@ -15,6 +15,7 @@ export async function validateUpdateCreate({
 
   const fieldsErrors: { error: Error; tag: string }[] = [];
   // Field validation hooks
+  // 字段验证
   await Promise.all(
     Object.entries(list.fields).map(async ([fieldKey, field]) => {
       const addValidationError = (msg: string) => messages.push(`${list.listKey}.${fieldKey}: ${msg}`);
@@ -31,7 +32,9 @@ export async function validateUpdateCreate({
   }
 
   // List validation hooks
-  const addValidationError = (msg: string) => messages.push(`${list.listKey}: ${msg}`);
+  const addValidationError = (msg: string) => {
+    return messages.push(`${list.listKey}: ${msg}`);
+  };
   try {
     await list.hooks.validateInput?.({ ...hookArgs, addValidationError });
   } catch (error: any) {

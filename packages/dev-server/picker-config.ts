@@ -7,12 +7,10 @@ import {
   LogLevel,
   statelessSessions
 } from '@pickerjs/core';
-import { ADMIN_API_PATH, API_PORT } from '@pickerjs/common/lib/shared-constants';
+import { ADMIN_API_PATH, API_PORT, APP_API_PATH } from '@pickerjs/common/lib/shared-constants';
 import { AssetServerPlugin, configureAliOSSAssetStorage } from '@pickerjs/asset-server-plugin';
-import { User } from './schemas/User';
-import { DevAppPlugin } from './plugin';
-import { WechatUser } from './schemas/WechatUser';
-import { Post } from './schemas/Post';
+import { AppPlugin } from './plugin';
+import { User, WechatUser, Post, UserFavorite, Tag, Asset } from './schemas';
 
 const sessionSecret = '-- DEV COOKIE SECRET; CHANGE ME --';
 const sessionMaxAge = 60 * 60 * 24 * 30; // 30 days
@@ -23,13 +21,18 @@ const sessionConfig = {
 
 const schemaConfig = typeInfoConfig({
   db: {
-    provider: 'sqlite',
-    url: 'file:./dev.db'
+    // provider: 'sqlite',
+    // url: 'file:./dev.db'
+    provider: 'mysql',
+    url: 'mysql://root:abcd1234@localhost:3306/cx_favorite'
   },
   models: {
+    Asset,
     User,
+    Post,
+    UserFavorite,
     WechatUser,
-    Post
+    Tag
   },
   session: statelessSessions(sessionConfig),
   experimental: {
@@ -59,7 +62,8 @@ export const config: PickerConfig = {
   context: null,
   apiOptions: {
     port: API_PORT,
-    appApiPath: ADMIN_API_PATH,
+    // appApiPath: ADMIN_API_PATH,
+    appApiPath: APP_API_PATH,
     appApiPlayground: {
       settings: {
         'request.credentials': 'include'
@@ -85,7 +89,7 @@ export const config: PickerConfig = {
         endpoint: 'oss-cn-hangzhou.aliyuncs.com'
       })
     }),
-    DevAppPlugin.init({ route: '', port: 0 })
+    AppPlugin.init({ route: '', port: 0 })
     // AssetServerPlugin.init({
     //   route: 'assets',
     //   assetUploadDir: path.join(__dirname, 'assets')

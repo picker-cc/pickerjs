@@ -1,9 +1,9 @@
 // 该文件由 Picker 自动生成，请勿手动修改。当您需要修改 Picker 配置时，请修改 Picker config。
 
-datasource sqlite {
+datasource mysql {
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  provider          = "sqlite"
+  provider          = "mysql"
 }
 
 generator client {
@@ -11,55 +11,134 @@ generator client {
   output   = "node_modules/.prisma/client"
 }
 
-model User {
-  id         String      @id @default(cuid())
-  name       String      @default("")
-  identifier String      @unique @default("")
-  deletedAt  DateTime?   @default(now())
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  verified   Boolean     @default(false)
-  enabled    Boolean     @default(false)
-  lastLogin  DateTime?   @default(now())
-  password   String?
-  wechat     WechatUser? @relation("User_wechat", fields: [wechatId], references: [id])
-  wechatId   String?     @unique @map("wechat")
-  posts      Post[]      @relation("Post_user")
-  isAdmin    Boolean     @default(false)
+model Asset {
+  id               String           @id @default(cuid())
+  name             String           @default("")
+  title            String           @default("")
+  type             AssetTypeType?
+  status           AssetStatusType? @default(PENDING)
+  mimeType         String           @default("")
+  width            Int?             @default(0)
+  height           Int?             @default(0)
+  fileSize         Int?
+  source           String           @default("")
+  preview          String           @default("")
+  focalPoint       Json?
+  tags             Tag[]            @relation("Asset_tags")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  traceId          String?          @unique
+  posts            Post[]           @relation("Post_featured")
+  from_User_avatar User[]           @relation("User_avatar")
 }
 
-model WechatUser {
-  id         String    @id @default(cuid())
-  appId      String    @default("")
-  subscribed Boolean   @default(false)
-  openId     String    @unique @default("")
-  unionId    String    @unique @default("")
-  phone      String    @unique @default("")
-  nickName   String    @default("")
-  gender     Int?
-  language   String    @default("")
-  city       String    @default("")
-  province   String    @default("")
-  country    String    @default("")
-  avatarUrl  String    @default("")
-  user       User?     @relation("User_wechat")
-  deletedAt  DateTime? @default(now())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+model User {
+  id         String         @id @default(cuid())
+  name       String         @default("")
+  identifier String         @unique @default("")
+  phone      String?
+  email      String?
+  password   String
+  avatar     Asset?         @relation("User_avatar", fields: [avatarId], references: [id])
+  avatarId   String?        @map("avatar")
+  gender     Int?           @default(0)
+  posts      Post[]         @relation("Post_user")
+  favorites  UserFavorite[] @relation("UserFavorite_user")
+  wechat     WechatUser?    @relation("User_wechat", fields: [wechatId], references: [id])
+  wechatId   String?        @unique @map("wechat")
+
+  @@index([avatarId])
 }
 
 model Post {
-  id               String    @id @default(cuid())
-  title            String    @default("")
-  status           String?   @default("draft")
-  content          String    @default("")
+  id               String          @id @default(cuid())
+  slug             String          @unique @default("")
+  title            String          @default("")
+  status           PostStatusType? @default(PENDING)
+  content          String?         @mysql.Text
   publishDate      DateTime?
-  user             User?     @relation("Post_user", fields: [userId], references: [id])
-  userId           String?   @map("user")
-  type             String?
-  parent           Post[]    @relation("Post_parent")
-  config           String?
-  from_Post_parent Post[]    @relation("Post_parent")
+  user             User?           @relation("Post_user", fields: [userId], references: [id])
+  userId           String?         @map("user")
+  favorites        UserFavorite[]  @relation("UserFavorite_post")
+  type             PostTypeType?   @default(FAVORITE)
+  parent           Post?           @relation("Post_parent", fields: [parentId], references: [id])
+  parentId         String?         @map("parent")
+  config           Json?
+  tags             Tag[]           @relation("Post_tags")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  featured         Asset?          @relation("Post_featured", fields: [featuredId], references: [id])
+  featuredId       String?         @map("featured")
+  from_Post_parent Post[]          @relation("Post_parent")
 
   @@index([userId])
+  @@index([parentId])
+  @@index([featuredId])
+}
+
+model UserFavorite {
+  id        String   @id @default(cuid())
+  user      User?    @relation("UserFavorite_user", fields: [userId], references: [id])
+  userId    String?  @map("user")
+  post      Post?    @relation("UserFavorite_post", fields: [postId], references: [id])
+  postId    String?  @map("post")
+  ip        String?
+  date      String   @default("2022-11-28")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([postId])
+}
+
+model WechatUser {
+  id         String   @id @default(cuid())
+  appId      String   @default("")
+  subscribed Boolean  @default(false)
+  openId     String   @unique @default("")
+  unionId    String   @unique @default("")
+  nickName   String?
+  gender     Int?
+  language   String?
+  city       String?
+  province   String?
+  country    String?
+  user       User?    @relation("User_wechat")
+  phone      Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @default("")
+  posts  Post[]  @relation("Post_tags")
+  assets Asset[] @relation("Asset_tags")
+}
+
+enum AssetTypeType {
+  BINARY
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum AssetStatusType {
+  APPROVED
+  PENDING
+  SPAM
+  TRASH
+}
+
+enum PostStatusType {
+  APPROVED
+  PENDING
+  SPAM
+  TRASH
+}
+
+enum PostTypeType {
+  FAVORITE
+  MEMORY
+  STORY
 }

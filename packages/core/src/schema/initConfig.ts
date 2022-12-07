@@ -1,4 +1,3 @@
-
 import { applyIdFieldDefaults } from './applyIdFieldDefaults';
 import {SchemaConfig} from "./types";
 

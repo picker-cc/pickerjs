@@ -1,12 +1,13 @@
-import { checkbox, integer, list, relationship, text, timestamp } from '@pickerjs/core';
-import { trackingFields } from './utils';
+import {checkbox, integer, json, list, relationship, text} from "@pickerjs/core";
+import {trackingFields} from "../utils";
 
 export const WechatUser = list({
-  ui: {},
   fields: {
     // 所属的小程序应用 ID
     appId: text(),
-    subscribed: checkbox(),
+    subscribed: checkbox({
+      defaultValue: false
+    }),
     openId: text({
       isIndexed: 'unique',
       validation: {
@@ -14,29 +15,55 @@ export const WechatUser = list({
       }
     }),
     unionId: text({
-      isIndexed: 'unique'
+      isIndexed: 'unique',
     }),
-    phone: text({
-      isIndexed: 'unique'
+    nickName: text({
+      db: {
+        isNullable: true
+      }
     }),
-    nickName: text(),
     gender: integer(),
-    language: text(),
-    city: text(),
-    province: text(),
-    country: text(),
-    avatarUrl: text(),
+    language: text({
+      db: {
+        isNullable: true
+      }
+    }),
+    city: text({
+      db: {
+        isNullable: true
+      }
+    }),
+    province: text({
+      db: {
+        isNullable: true
+      }
+    }),
+    country: text({
+      db: {
+        isNullable: true
+      }
+    }),
+    // avatarUrl: text(),
     user: relationship({
       ref: 'User.wechat',
       many: false
     }),
-    deletedAt: timestamp({
-      defaultValue: { kind: 'now' }
-    }),
-    // featured:
-    ...trackingFields
-    // administrator: relationship({
-    //     ref: 'Administrator.user',
-    // })
+    /**
+     * {
+     *     "errcode":0,
+     *     "errmsg":"ok",
+     *     "phone_info": {
+     *         "phoneNumber":"xxxxxx",
+     *         "purePhoneNumber": "xxxxxx",
+     *         "countryCode": 86,
+     *         "watermark": {
+     *             "timestamp": 1637744274,
+     *             "appid": "xxxx"
+     *         }
+     *     }
+     * }
+     */
+    phone: json(),
+    ...trackingFields,
   }
-});
+})

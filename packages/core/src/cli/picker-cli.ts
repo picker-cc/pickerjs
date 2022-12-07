@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { INestApplication } from '@nestjs/common';
-import {Command} from 'commander';
+import { Command } from 'commander';
 // import fs from 'fs-extra';
 // import path from 'path';
 const program = new Command();
 import { logColored } from './cli-utils';
 // import { importProductsFromCsv, populateCollections, populateInitialData } from './populate';
-import {postinstall} from "./postinstall";
-import {prisma} from "./prisma";
+import { postinstall } from './postinstall';
+import { prisma } from './prisma';
 // tslint:disable-next-line:no-var-requires
 const version = require('../../package.json').version;
 
@@ -20,29 +20,23 @@ logColored(`
   _  ____/__/ /  / /___  _  /| | _  /___  _  _, _/
   /_/     /___/  \\____/  /_/ |_| /_____/  /_/ |_|
 
-                  _________________
-                  __  ____/_  ____/
-                  _  /    _  /
-                  / /___  / /___
-                  \\____/  \\____/
-
                                        `);
 program.version(`Picker CLI v${version}`, '-v --version').name('picker');
 
 program
-    .command('postinstall')
-    .description('生成客户有端 APIs 和 types')
-    .option('-f, --fix', '生成确定的项目构件（prisma、graphql ...）', false)
-    .action(async (options, command) => {
-        return await postinstall(process.cwd(), options.fix);
-    })
+  .command('postinstall')
+  .description('生成客户有端 APIs 和 types')
+  .option('-f, --fix', '生成确定的项目构件（prisma、graphql ...）', false)
+  .action(async (options, command) => {
+    return await postinstall(process.cwd(), options.fix);
+  });
 
 program
-    .command('prisma')
-    .description('安全状态下运行 Prisma CLI 命令')
-    .action((command) => {
-        return prisma(process.cwd(),process.argv.slice(1) )
-    })
+  .command('prisma')
+  .description('安全状态下运行 Prisma CLI 命令')
+  .action(command => {
+    return prisma(process.cwd(), process.argv.slice(1));
+  });
 program.parse(process.argv);
 // if (!process.argv.slice(2).length) {
 //     program.help();

@@ -1,4 +1,4 @@
-import { extensionError } from "../../error/graphql-errors";
+import { extensionError } from '../../error/graphql-errors';
 
 export async function runSideEffectOnlyHook<
   HookName extends string,
@@ -10,14 +10,14 @@ export async function runSideEffectOnlyHook<
           [Key in HookName]?: (args: { fieldKey: string } & Args) => Promise<void> | void;
         };
       }
-      >;
+    >;
     hooks: {
       [Key in HookName]?: (args: any) => Promise<void> | void;
     };
     listKey: string;
   },
   Args extends Parameters<NonNullable<List['hooks'][HookName]>>[0]
-  >(list: List, hookName: HookName, args: Args) {
+>(list: List, hookName: HookName, args: Args) {
   // Runs the before/after operation hooks
 
   let shouldRunFieldLevelHook: (fieldKey: string) => boolean;

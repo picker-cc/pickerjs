@@ -1,28 +1,23 @@
-
 import Decimal from 'decimal.js';
-import { ResolvedFieldAccessControl, ResolvedListAccessControl } from "../core/access-control";
-import { CacheHint } from "apollo-server-types";
-import {FilterOrderArgs} from "../types/config/fields";
-import {ResolvedRelationDBField} from "../resolve-relationships";
+import { CacheHint } from 'apollo-server-types';
+import { ResolvedFieldAccessControl, ResolvedListAccessControl } from '../core/access-control';
+import { FilterOrderArgs } from '../types/config/fields';
+import { ResolvedRelationDBField } from '../resolve-relationships';
 import {
-    BaseListTypeInfo,
-    GqlNames,
-    GraphQLTypesForList, JSONValue,
-    ListHooks,
-    MaybePromise,
-    NextFieldType, ScalarDBField,
-    ScalarDBFieldDefault
-} from "../types";
+  BaseListTypeInfo,
+  GqlNames,
+  GraphQLTypesForList,
+  JSONValue,
+  ListHooks,
+  MaybePromise,
+  NextFieldType,
+  ScalarDBField,
+  ScalarDBFieldDefault
+} from '../types';
 export type DatabaseProvider = 'sqlite' | 'postgresql' | 'mysql';
 
 // TODO: don't duplicate this between here and packages/core/ListTypes/list.js
-export function getGqlNames({
-                              listKey,
-                              pluralGraphQLName,
-                            }: {
-  listKey: string;
-  pluralGraphQLName: string;
-}): GqlNames {
+export function getGqlNames({ listKey, pluralGraphQLName }: { listKey: string; pluralGraphQLName: string }): GqlNames {
   const lowerPluralName = pluralGraphQLName.slice(0, 1).toLowerCase() + pluralGraphQLName.slice(1);
   const lowerSingularName = listKey.slice(0, 1).toLowerCase() + listKey.slice(1);
   const names = {
@@ -45,13 +40,12 @@ export function getGqlNames({
     relateToManyForCreateInputName: `${listKey}RelateToManyForCreateInput`,
     relateToManyForUpdateInputName: `${listKey}RelateToManyForUpdateInput`,
     relateToOneForCreateInputName: `${listKey}RelateToOneForCreateInput`,
-    relateToOneForUpdateInputName: `${listKey}RelateToOneForUpdateInput`,
+    relateToOneForUpdateInputName: `${listKey}RelateToOneForUpdateInput`
   };
-  return names
+  return names;
 }
 
-
-export type InitialisedField = Omit<NextFieldType, 'dbField' | 'access' | 'graphql'>  & {
+export type InitialisedField = Omit<NextFieldType, 'dbField' | 'access' | 'graphql'> & {
   dbField: ResolvedDBField;
   access: ResolvedFieldAccessControl;
   hooks: any;
@@ -67,7 +61,7 @@ export type InitialisedField = Omit<NextFieldType, 'dbField' | 'access' | 'graph
   };
 };
 
-export type InitialisedList = {
+export interface InitialisedList {
   fields: Record<string, InitialisedField>;
   /** This will include the opposites to one-sided relationships */
   resolvedDbFields: Record<string, ResolvedDBField>;
@@ -84,11 +78,9 @@ export type InitialisedList = {
   graphql: {
     isEnabled: IsEnabled;
   };
+}
 
-};
-
-
-type IsEnabled = {
+interface IsEnabled {
   type: boolean;
   query: boolean;
   create: boolean;
@@ -96,10 +88,9 @@ type IsEnabled = {
   delete: boolean;
   filter: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
   orderBy: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
-};
+}
 
-
-type ScalarPrismaTypes = {
+interface ScalarPrismaTypes {
   String: string;
   Boolean: boolean;
   Int: number;
@@ -108,8 +99,8 @@ type ScalarPrismaTypes = {
   BigInt: bigint;
   Json: JSONValue;
   Decimal: Decimal;
-};
-export type EnumDBField<Value extends string, Mode extends 'required' | 'many' | 'optional'> = {
+}
+export interface EnumDBField<Value extends string, Mode extends 'required' | 'many' | 'optional'> {
   kind: 'enum';
   name: string;
   values: readonly Value[];
@@ -117,24 +108,26 @@ export type EnumDBField<Value extends string, Mode extends 'required' | 'many' |
   default?: { kind: 'literal'; value: Value };
   index?: 'unique' | 'index';
   map?: string;
-};
-export type RelationDBField<Mode extends 'many' | 'one'> = {
+}
+export interface RelationDBField<Mode extends 'many' | 'one'> {
   kind: 'relation';
   list: string;
   field?: string;
   mode: Mode;
   foreignKey?: { one: true | { map: string }; many: undefined }[Mode];
   relationName?: { one: undefined; many: string }[Mode];
-};
+}
 
-export type NoDBField = { kind: 'none' };
+export interface NoDBField {
+  kind: 'none';
+}
 
 export type RealDBField = ScalarishDBField | RelationDBField<'many' | 'one'>;
 
-export type MultiDBField<Fields extends Record<string, ScalarishDBField>> = {
+export interface MultiDBField<Fields extends Record<string, ScalarishDBField>> {
   kind: 'multi';
   fields: Fields;
-};
+}
 export type ScalarishDBField =
   | ScalarDBField<keyof ScalarPrismaTypes, 'required' | 'many' | 'optional'>
   | EnumDBField<string, 'required' | 'many' | 'optional'>;
@@ -158,14 +151,14 @@ function areArraysEqual(a: readonly unknown[], b: readonly unknown[]) {
 const modifiers = {
   required: '',
   optional: '?',
-  many: '[]',
+  many: '[]'
 };
 
 function printIndex(fieldPath: string, index: undefined | 'index' | 'unique') {
   return {
     none: '',
     unique: '@unique',
-    index: `\n@@index([${fieldPath}])`,
+    index: `\n@@index([${fieldPath}])`
   }[index || ('none' as const)];
 }
 
@@ -207,14 +200,10 @@ export function printField(
   if (field.kind === 'scalar') {
     const nativeType = printNativeType(field.nativeType, datasourceName);
     const index = printIndex(fieldPath, field.index);
-    const defaultValue = field.default
-      ? ` @default(${printScalarDefaultValue(field.default)})`
-      : '';
+    const defaultValue = field.default ? ` @default(${printScalarDefaultValue(field.default)})` : '';
     const map = field.map ? ` @map(${JSON.stringify(field.map)})` : '';
     const updatedAt = field.updatedAt ? ' @updatedAt' : '';
-    return `${fieldPath} ${field.scalar}${
-      modifiers[field.mode]
-    }${updatedAt}${nativeType}${defaultValue}${map}${index}`;
+    return `${fieldPath} ${field.scalar}${modifiers[field.mode]}${updatedAt}${nativeType}${defaultValue}${map}${index}`;
   }
   if (field.kind === 'enum') {
     const index = printIndex(fieldPath, field.index);
@@ -225,12 +214,7 @@ export function printField(
   if (field.kind === 'multi') {
     return Object.entries(field.fields)
       .map(([subField, field]) =>
-        printField(
-          getDBFieldKeyForFieldOnMultiField(fieldPath, subField),
-          field,
-          datasourceName,
-          lists
-        )
+        printField(getDBFieldKeyForFieldOnMultiField(fieldPath, subField), field, datasourceName, lists)
       )
       .join('\n');
   }
@@ -246,10 +230,7 @@ export function printField(
     const foreignIdField = lists[field.list].resolvedDbFields.id;
     assertDbFieldIsValidForIdField(field.list, foreignIdField);
     const nativeType = printNativeType(foreignIdField.nativeType, datasourceName);
-    const index = printIndex(
-      relationIdFieldPath,
-      field.foreignIdField.kind === 'owned' ? 'index' : 'unique'
-    );
+    const index = printIndex(relationIdFieldPath, field.foreignIdField.kind === 'owned' ? 'index' : 'unique');
     const relationIdField = `${relationIdFieldPath} ${foreignIdField.scalar}? @map(${JSON.stringify(
       field.foreignIdField.map
     )}) ${nativeType}${index}`;
@@ -277,7 +258,7 @@ function collectEnums(lists: Record<string, InitialisedList>) {
         if (alreadyExistingEnum === undefined) {
           enums[field.name] = {
             values: field.values,
-            firstDefinedByRef: ref,
+            firstDefinedByRef: ref
           };
           continue;
         }
@@ -306,9 +287,7 @@ function assertDbFieldIsValidForIdField(
   field: ResolvedDBField
 ): asserts field is ScalarDBField<'Int' | 'String', 'required'> {
   if (field.kind !== 'scalar') {
-    throw new Error(
-      `id 字段必须是 String 或 Int Prisma scalar，但是 ${listKey} 列表的 id 字段不是 scalar`
-    );
+    throw new Error(`id 字段必须是 String 或 Int Prisma scalar，但是 ${listKey} 列表的 id 字段不是 scalar`);
   }
   // this may be loosened in the future
   if (field.scalar !== 'String' && field.scalar !== 'Int' && field.scalar !== 'BigInt') {
@@ -369,7 +348,7 @@ generator client {
     prismaSchema += `model ${listKey} {`;
     for (const [fieldPath, field] of Object.entries(resolvedDbFields)) {
       if (field.kind !== 'none') {
-        prismaSchema += '\n' + printField(fieldPath, field, provider, lists);
+        prismaSchema += `\n${printField(fieldPath, field, provider, lists)}`;
       }
       if (fieldPath === 'id') {
         assertDbFieldIsValidForIdField(listKey, field);

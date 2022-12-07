@@ -1,17 +1,28 @@
 # 该文件由 Picker 自动生成，请勿手动修改。当您需要修改 Picker 配置时，请修改 Picker config。
 
-type User {
+type Asset {
   id: ID!
   name: String
-  identifier: String
-  deletedAt: DateTime
+  title: String
+  type: AssetTypeType
+  status: AssetStatusType
+  mimeType: String
+  width: Int
+  height: Int
+  fileSize: Int
+  source: String
+  preview: String
+  focalPoint: JSON
+  tags(
+    where: TagWhereInput! = {}
+    orderBy: [TagOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Tag!]
+  tagsCount(where: TagWhereInput! = {}): Int
   createdAt: DateTime
   updatedAt: DateTime
-  verified: Boolean
-  enabled: Boolean
-  lastLogin: DateTime
-  password: PasswordState
-  wechat: WechatUser
+  traceId: String
   posts(
     where: PostWhereInput! = {}
     orderBy: [PostOrderByInput!]! = []
@@ -19,37 +30,49 @@ type User {
     skip: Int! = 0
   ): [Post!]
   postsCount(where: PostWhereInput! = {}): Int
-  isAdmin: Boolean
+}
+
+enum AssetTypeType {
+  BINARY
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum AssetStatusType {
+  APPROVED
+  PENDING
+  SPAM
+  TRASH
 }
 
 scalar DateTime
 
-type PasswordState {
-  isSet: Boolean!
-}
-
-input UserWhereUniqueInput {
+input AssetWhereUniqueInput {
   id: ID
-  identifier: String
+  traceId: String
 }
 
-input UserWhereInput {
-  AND: [UserWhereInput!]
-  OR: [UserWhereInput!]
-  NOT: [UserWhereInput!]
+input AssetWhereInput {
+  AND: [AssetWhereInput!]
+  OR: [AssetWhereInput!]
+  NOT: [AssetWhereInput!]
   id: IDFilter
   name: StringFilter
-  identifier: StringFilter
-  deletedAt: DateTimeNullableFilter
+  title: StringFilter
+  type: AssetTypeTypeNullableFilter
+  status: AssetStatusTypeNullableFilter
+  mimeType: StringFilter
+  width: IntNullableFilter
+  height: IntNullableFilter
+  fileSize: IntNullableFilter
+  source: StringFilter
+  preview: StringFilter
+  tags: TagManyRelationFilter
   createdAt: DateTimeFilter
   updatedAt: DateTimeFilter
-  verified: BooleanFilter
-  enabled: BooleanFilter
-  lastLogin: DateTimeNullableFilter
-  password: PasswordFilter
-  wechat: WechatUserWhereInput
+  traceId: StringNullableFilter
   posts: PostManyRelationFilter
-  isAdmin: BooleanFilter
 }
 
 input IDFilter {
@@ -91,167 +114,18 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
-input DateTimeNullableFilter {
-  equals: DateTime
-  in: [DateTime!]
-  notIn: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  gt: DateTime
-  gte: DateTime
-  not: DateTimeNullableFilter
+input AssetTypeTypeNullableFilter {
+  equals: AssetTypeType
+  in: [AssetTypeType!]
+  notIn: [AssetTypeType!]
+  not: AssetTypeTypeNullableFilter
 }
 
-input DateTimeFilter {
-  equals: DateTime
-  in: [DateTime!]
-  notIn: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  gt: DateTime
-  gte: DateTime
-  not: DateTimeFilter
-}
-
-input BooleanFilter {
-  equals: Boolean
-  not: BooleanFilter
-}
-
-input PasswordFilter {
-  isSet: Boolean!
-}
-
-input PostManyRelationFilter {
-  every: PostWhereInput
-  some: PostWhereInput
-  none: PostWhereInput
-}
-
-input UserOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-  identifier: OrderDirection
-  deletedAt: OrderDirection
-  createdAt: OrderDirection
-  updatedAt: OrderDirection
-  verified: OrderDirection
-  enabled: OrderDirection
-  lastLogin: OrderDirection
-  isAdmin: OrderDirection
-}
-
-enum OrderDirection {
-  asc
-  desc
-}
-
-input UserUpdateInput {
-  name: String
-  identifier: String
-  deletedAt: DateTime
-  createdAt: DateTime
-  updatedAt: DateTime
-  verified: Boolean
-  enabled: Boolean
-  lastLogin: DateTime
-  password: String
-  wechat: WechatUserRelateToOneForUpdateInput
-  posts: PostRelateToManyForUpdateInput
-  isAdmin: Boolean
-}
-
-input WechatUserRelateToOneForUpdateInput {
-  create: WechatUserCreateInput
-  connect: WechatUserWhereUniqueInput
-  disconnect: Boolean
-}
-
-input PostRelateToManyForUpdateInput {
-  disconnect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
-}
-
-input UserUpdateArgs {
-  where: UserWhereUniqueInput!
-  data: UserUpdateInput!
-}
-
-input UserCreateInput {
-  name: String
-  identifier: String
-  deletedAt: DateTime
-  createdAt: DateTime
-  updatedAt: DateTime
-  verified: Boolean
-  enabled: Boolean
-  lastLogin: DateTime
-  password: String
-  wechat: WechatUserRelateToOneForCreateInput
-  posts: PostRelateToManyForCreateInput
-  isAdmin: Boolean
-}
-
-input WechatUserRelateToOneForCreateInput {
-  create: WechatUserCreateInput
-  connect: WechatUserWhereUniqueInput
-}
-
-input PostRelateToManyForCreateInput {
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
-}
-
-type WechatUser {
-  id: ID!
-  appId: String
-  subscribed: Boolean
-  openId: String
-  unionId: String
-  phone: String
-  nickName: String
-  gender: Int
-  language: String
-  city: String
-  province: String
-  country: String
-  avatarUrl: String
-  user: User
-  deletedAt: DateTime
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input WechatUserWhereUniqueInput {
-  id: ID
-  openId: String
-  unionId: String
-  phone: String
-}
-
-input WechatUserWhereInput {
-  AND: [WechatUserWhereInput!]
-  OR: [WechatUserWhereInput!]
-  NOT: [WechatUserWhereInput!]
-  id: IDFilter
-  appId: StringFilter
-  subscribed: BooleanFilter
-  openId: StringFilter
-  unionId: StringFilter
-  phone: StringFilter
-  nickName: StringFilter
-  gender: IntNullableFilter
-  language: StringFilter
-  city: StringFilter
-  province: StringFilter
-  country: StringFilter
-  avatarUrl: StringFilter
-  user: UserWhereInput
-  deletedAt: DateTimeNullableFilter
-  createdAt: DateTimeFilter
-  updatedAt: DateTimeFilter
+input AssetStatusTypeNullableFilter {
+  equals: AssetStatusType
+  in: [AssetStatusType!]
+  notIn: [AssetStatusType!]
+  not: AssetStatusTypeNullableFilter
 }
 
 input IntNullableFilter {
@@ -265,21 +139,562 @@ input IntNullableFilter {
   not: IntNullableFilter
 }
 
+input TagManyRelationFilter {
+  every: TagWhereInput
+  some: TagWhereInput
+  none: TagWhereInput
+}
+
+input DateTimeFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeFilter
+}
+
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
+}
+
+input NestedStringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
+}
+
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
+input AssetOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  title: OrderDirection
+  type: OrderDirection
+  status: OrderDirection
+  mimeType: OrderDirection
+  width: OrderDirection
+  height: OrderDirection
+  fileSize: OrderDirection
+  source: OrderDirection
+  preview: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+  traceId: OrderDirection
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+input AssetUpdateInput {
+  name: String
+  title: String
+  type: AssetTypeType
+  status: AssetStatusType
+  mimeType: String
+  width: Int
+  height: Int
+  fileSize: Int
+  source: String
+  preview: String
+  focalPoint: JSON
+  tags: TagRelateToManyForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+  traceId: String
+  posts: PostRelateToManyForUpdateInput
+}
+
+input TagRelateToManyForUpdateInput {
+  disconnect: [TagWhereUniqueInput!]
+  set: [TagWhereUniqueInput!]
+  create: [TagCreateInput!]
+  connect: [TagWhereUniqueInput!]
+}
+
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
+input AssetUpdateArgs {
+  where: AssetWhereUniqueInput!
+  data: AssetUpdateInput!
+}
+
+input AssetCreateInput {
+  name: String
+  title: String
+  type: AssetTypeType
+  status: AssetStatusType
+  mimeType: String
+  width: Int
+  height: Int
+  fileSize: Int
+  source: String
+  preview: String
+  focalPoint: JSON
+  tags: TagRelateToManyForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+  traceId: String
+  posts: PostRelateToManyForCreateInput
+}
+
+input TagRelateToManyForCreateInput {
+  create: [TagCreateInput!]
+  connect: [TagWhereUniqueInput!]
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
+type User {
+  id: ID!
+  name: String
+  identifier: String
+  phone: String
+  email: String
+  password: PasswordState
+  avatar: Asset
+  gender: Int
+  posts(
+    where: PostWhereInput! = {}
+    orderBy: [PostOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
+  favorites(
+    where: UserFavoriteWhereInput! = {}
+    orderBy: [UserFavoriteOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [UserFavorite!]
+  favoritesCount(where: UserFavoriteWhereInput! = {}): Int
+  wechat: WechatUser
+}
+
+type PasswordState {
+  isSet: Boolean!
+}
+
+input UserWhereUniqueInput {
+  id: ID
+  identifier: String
+}
+
+input UserWhereInput {
+  AND: [UserWhereInput!]
+  OR: [UserWhereInput!]
+  NOT: [UserWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  identifier: StringFilter
+  phone: StringNullableFilter
+  email: StringNullableFilter
+  avatar: AssetWhereInput
+  gender: IntNullableFilter
+  posts: PostManyRelationFilter
+  favorites: UserFavoriteManyRelationFilter
+  wechat: WechatUserWhereInput
+}
+
+input UserFavoriteManyRelationFilter {
+  every: UserFavoriteWhereInput
+  some: UserFavoriteWhereInput
+  none: UserFavoriteWhereInput
+}
+
+input UserOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  identifier: OrderDirection
+  phone: OrderDirection
+  email: OrderDirection
+  gender: OrderDirection
+}
+
+input UserUpdateInput {
+  name: String
+  identifier: String
+  phone: String
+  email: String
+  password: String
+  avatar: AssetRelateToOneForUpdateInput
+  gender: Int
+  posts: PostRelateToManyForUpdateInput
+  favorites: UserFavoriteRelateToManyForUpdateInput
+  wechat: WechatUserRelateToOneForUpdateInput
+}
+
+input AssetRelateToOneForUpdateInput {
+  create: AssetCreateInput
+  connect: AssetWhereUniqueInput
+  disconnect: Boolean
+}
+
+input UserFavoriteRelateToManyForUpdateInput {
+  disconnect: [UserFavoriteWhereUniqueInput!]
+  set: [UserFavoriteWhereUniqueInput!]
+  create: [UserFavoriteCreateInput!]
+  connect: [UserFavoriteWhereUniqueInput!]
+}
+
+input WechatUserRelateToOneForUpdateInput {
+  create: WechatUserCreateInput
+  connect: WechatUserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input UserUpdateArgs {
+  where: UserWhereUniqueInput!
+  data: UserUpdateInput!
+}
+
+input UserCreateInput {
+  name: String
+  identifier: String
+  phone: String
+  email: String
+  password: String
+  avatar: AssetRelateToOneForCreateInput
+  gender: Int
+  posts: PostRelateToManyForCreateInput
+  favorites: UserFavoriteRelateToManyForCreateInput
+  wechat: WechatUserRelateToOneForCreateInput
+}
+
+input AssetRelateToOneForCreateInput {
+  create: AssetCreateInput
+  connect: AssetWhereUniqueInput
+}
+
+input UserFavoriteRelateToManyForCreateInput {
+  create: [UserFavoriteCreateInput!]
+  connect: [UserFavoriteWhereUniqueInput!]
+}
+
+input WechatUserRelateToOneForCreateInput {
+  create: WechatUserCreateInput
+  connect: WechatUserWhereUniqueInput
+}
+
+type Post {
+  id: ID!
+  slug: String
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: User
+  favorites(
+    where: UserFavoriteWhereInput! = {}
+    orderBy: [UserFavoriteOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [UserFavorite!]
+  favoritesCount(where: UserFavoriteWhereInput! = {}): Int
+  type: PostTypeType
+  parent: Post
+  config: JSON
+  tags(
+    where: TagWhereInput! = {}
+    orderBy: [TagOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Tag!]
+  tagsCount(where: TagWhereInput! = {}): Int
+  createdAt: DateTime
+  updatedAt: DateTime
+  featured: Asset
+}
+
+enum PostStatusType {
+  APPROVED
+  PENDING
+  SPAM
+  TRASH
+}
+
+enum PostTypeType {
+  FAVORITE
+  MEMORY
+  STORY
+}
+
+input PostWhereUniqueInput {
+  id: ID
+  slug: String
+}
+
+input PostWhereInput {
+  AND: [PostWhereInput!]
+  OR: [PostWhereInput!]
+  NOT: [PostWhereInput!]
+  id: IDFilter
+  slug: StringFilter
+  title: StringFilter
+  status: PostStatusTypeNullableFilter
+  content: StringNullableFilter
+  publishDate: DateTimeNullableFilter
+  user: UserWhereInput
+  favorites: UserFavoriteManyRelationFilter
+  type: PostTypeTypeNullableFilter
+  parent: PostWhereInput
+  tags: TagManyRelationFilter
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+  featured: AssetWhereInput
+}
+
+input PostStatusTypeNullableFilter {
+  equals: PostStatusType
+  in: [PostStatusType!]
+  notIn: [PostStatusType!]
+  not: PostStatusTypeNullableFilter
+}
+
+input DateTimeNullableFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeNullableFilter
+}
+
+input PostTypeTypeNullableFilter {
+  equals: PostTypeType
+  in: [PostTypeType!]
+  notIn: [PostTypeType!]
+  not: PostTypeTypeNullableFilter
+}
+
+input PostOrderByInput {
+  id: OrderDirection
+  slug: OrderDirection
+  title: OrderDirection
+  status: OrderDirection
+  content: OrderDirection
+  publishDate: OrderDirection
+  type: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input PostUpdateInput {
+  slug: String
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForUpdateInput
+  favorites: UserFavoriteRelateToManyForUpdateInput
+  type: PostTypeType
+  parent: PostRelateToOneForUpdateInput
+  config: JSON
+  tags: TagRelateToManyForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+  featured: AssetRelateToOneForUpdateInput
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input PostRelateToOneForUpdateInput {
+  create: PostCreateInput
+  connect: PostWhereUniqueInput
+  disconnect: Boolean
+}
+
+input PostUpdateArgs {
+  where: PostWhereUniqueInput!
+  data: PostUpdateInput!
+}
+
+input PostCreateInput {
+  slug: String
+  title: String
+  status: PostStatusType
+  content: String
+  publishDate: DateTime
+  user: UserRelateToOneForCreateInput
+  favorites: UserFavoriteRelateToManyForCreateInput
+  type: PostTypeType
+  parent: PostRelateToOneForCreateInput
+  config: JSON
+  tags: TagRelateToManyForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+  featured: AssetRelateToOneForCreateInput
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+input PostRelateToOneForCreateInput {
+  create: PostCreateInput
+  connect: PostWhereUniqueInput
+}
+
+type UserFavorite {
+  id: ID!
+  user: User
+  post: Post
+  ip: String
+  date: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input UserFavoriteWhereUniqueInput {
+  id: ID
+}
+
+input UserFavoriteWhereInput {
+  AND: [UserFavoriteWhereInput!]
+  OR: [UserFavoriteWhereInput!]
+  NOT: [UserFavoriteWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  post: PostWhereInput
+  ip: StringNullableFilter
+  date: StringFilter
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+}
+
+input UserFavoriteOrderByInput {
+  id: OrderDirection
+  ip: OrderDirection
+  date: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input UserFavoriteUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  post: PostRelateToOneForUpdateInput
+  ip: String
+  date: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input UserFavoriteUpdateArgs {
+  where: UserFavoriteWhereUniqueInput!
+  data: UserFavoriteUpdateInput!
+}
+
+input UserFavoriteCreateInput {
+  user: UserRelateToOneForCreateInput
+  post: PostRelateToOneForCreateInput
+  ip: String
+  date: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type WechatUser {
+  id: ID!
+  appId: String
+  subscribed: Boolean
+  openId: String
+  unionId: String
+  nickName: String
+  gender: Int
+  language: String
+  city: String
+  province: String
+  country: String
+  user: User
+  phone: JSON
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input WechatUserWhereUniqueInput {
+  id: ID
+  openId: String
+  unionId: String
+}
+
+input WechatUserWhereInput {
+  AND: [WechatUserWhereInput!]
+  OR: [WechatUserWhereInput!]
+  NOT: [WechatUserWhereInput!]
+  id: IDFilter
+  appId: StringFilter
+  subscribed: BooleanFilter
+  openId: StringFilter
+  unionId: StringFilter
+  nickName: StringNullableFilter
+  gender: IntNullableFilter
+  language: StringNullableFilter
+  city: StringNullableFilter
+  province: StringNullableFilter
+  country: StringNullableFilter
+  user: UserWhereInput
+  createdAt: DateTimeFilter
+  updatedAt: DateTimeFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
 input WechatUserOrderByInput {
   id: OrderDirection
   appId: OrderDirection
   subscribed: OrderDirection
   openId: OrderDirection
   unionId: OrderDirection
-  phone: OrderDirection
   nickName: OrderDirection
   gender: OrderDirection
   language: OrderDirection
   city: OrderDirection
   province: OrderDirection
   country: OrderDirection
-  avatarUrl: OrderDirection
-  deletedAt: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -289,24 +704,16 @@ input WechatUserUpdateInput {
   subscribed: Boolean
   openId: String
   unionId: String
-  phone: String
   nickName: String
   gender: Int
   language: String
   city: String
   province: String
   country: String
-  avatarUrl: String
   user: UserRelateToOneForUpdateInput
-  deletedAt: DateTime
+  phone: JSON
   createdAt: DateTime
   updatedAt: DateTime
-}
-
-input UserRelateToOneForUpdateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-  disconnect: Boolean
 }
 
 input WechatUserUpdateArgs {
@@ -319,120 +726,89 @@ input WechatUserCreateInput {
   subscribed: Boolean
   openId: String
   unionId: String
-  phone: String
   nickName: String
   gender: Int
   language: String
   city: String
   province: String
   country: String
-  avatarUrl: String
   user: UserRelateToOneForCreateInput
-  deletedAt: DateTime
+  phone: JSON
   createdAt: DateTime
   updatedAt: DateTime
 }
 
-input UserRelateToOneForCreateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-}
-
-type Post {
+type Tag {
   id: ID!
-  title: String
-  status: PostStatusType
-  content: String
-  publishDate: DateTime
-  user: User
-  type: PostTypeType
-  parent(
+  name: String
+  posts(
     where: PostWhereInput! = {}
     orderBy: [PostOrderByInput!]! = []
     take: Int
     skip: Int! = 0
   ): [Post!]
-  parentCount(where: PostWhereInput! = {}): Int
-  config: JSON
+  postsCount(where: PostWhereInput! = {}): Int
+  assets(
+    where: AssetWhereInput! = {}
+    orderBy: [AssetOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Asset!]
+  assetsCount(where: AssetWhereInput! = {}): Int
 }
 
-enum PostStatusType {
-  published
-  draft
-}
-
-enum PostTypeType {
-  favorite
-  memory
-  story
-}
-
-input PostWhereUniqueInput {
+input TagWhereUniqueInput {
   id: ID
 }
 
-input PostWhereInput {
-  AND: [PostWhereInput!]
-  OR: [PostWhereInput!]
-  NOT: [PostWhereInput!]
+input TagWhereInput {
+  AND: [TagWhereInput!]
+  OR: [TagWhereInput!]
+  NOT: [TagWhereInput!]
   id: IDFilter
-  title: StringFilter
-  status: PostStatusTypeNullableFilter
-  content: StringFilter
-  publishDate: DateTimeNullableFilter
-  user: UserWhereInput
-  type: PostTypeTypeNullableFilter
-  parent: PostManyRelationFilter
+  name: StringFilter
+  posts: PostManyRelationFilter
+  assets: AssetManyRelationFilter
 }
 
-input PostStatusTypeNullableFilter {
-  equals: PostStatusType
-  in: [PostStatusType!]
-  notIn: [PostStatusType!]
-  not: PostStatusTypeNullableFilter
+input AssetManyRelationFilter {
+  every: AssetWhereInput
+  some: AssetWhereInput
+  none: AssetWhereInput
 }
 
-input PostTypeTypeNullableFilter {
-  equals: PostTypeType
-  in: [PostTypeType!]
-  notIn: [PostTypeType!]
-  not: PostTypeTypeNullableFilter
-}
-
-input PostOrderByInput {
+input TagOrderByInput {
   id: OrderDirection
-  title: OrderDirection
-  status: OrderDirection
-  content: OrderDirection
-  publishDate: OrderDirection
-  type: OrderDirection
+  name: OrderDirection
 }
 
-input PostUpdateInput {
-  title: String
-  status: PostStatusType
-  content: String
-  publishDate: DateTime
-  user: UserRelateToOneForUpdateInput
-  type: PostTypeType
-  parent: PostRelateToManyForUpdateInput
-  config: JSON
+input TagUpdateInput {
+  name: String
+  posts: PostRelateToManyForUpdateInput
+  assets: AssetRelateToManyForUpdateInput
 }
 
-input PostUpdateArgs {
-  where: PostWhereUniqueInput!
-  data: PostUpdateInput!
+input AssetRelateToManyForUpdateInput {
+  disconnect: [AssetWhereUniqueInput!]
+  set: [AssetWhereUniqueInput!]
+  create: [AssetCreateInput!]
+  connect: [AssetWhereUniqueInput!]
 }
 
-input PostCreateInput {
-  title: String
-  status: PostStatusType
-  content: String
-  publishDate: DateTime
-  user: UserRelateToOneForCreateInput
-  type: PostTypeType
-  parent: PostRelateToManyForCreateInput
-  config: JSON
+input TagUpdateArgs {
+  where: TagWhereUniqueInput!
+  data: TagUpdateInput!
+}
+
+input TagCreateInput {
+  name: String
+  posts: PostRelateToManyForCreateInput
+  assets: AssetRelateToManyForCreateInput
+}
+
+input AssetRelateToManyForCreateInput {
+  create: [AssetCreateInput!]
+  connect: [AssetWhereUniqueInput!]
 }
 
 """
@@ -441,12 +817,33 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
+  createAsset(data: AssetCreateInput!): Asset
+  createAssets(data: [AssetCreateInput!]!): [Asset]
+  updateAsset(where: AssetWhereUniqueInput!, data: AssetUpdateInput!): Asset
+  updateAssets(data: [AssetUpdateArgs!]!): [Asset]
+  deleteAsset(where: AssetWhereUniqueInput!): Asset
+  deleteAssets(where: [AssetWhereUniqueInput!]!): [Asset]
   createUser(data: UserCreateInput!): User
   createUsers(data: [UserCreateInput!]!): [User]
   updateUser(where: UserWhereUniqueInput!, data: UserUpdateInput!): User
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createPost(data: PostCreateInput!): Post
+  createPosts(data: [PostCreateInput!]!): [Post]
+  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
+  updatePosts(data: [PostUpdateArgs!]!): [Post]
+  deletePost(where: PostWhereUniqueInput!): Post
+  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  createUserFavorite(data: UserFavoriteCreateInput!): UserFavorite
+  createUserFavorites(data: [UserFavoriteCreateInput!]!): [UserFavorite]
+  updateUserFavorite(
+    where: UserFavoriteWhereUniqueInput!
+    data: UserFavoriteUpdateInput!
+  ): UserFavorite
+  updateUserFavorites(data: [UserFavoriteUpdateArgs!]!): [UserFavorite]
+  deleteUserFavorite(where: UserFavoriteWhereUniqueInput!): UserFavorite
+  deleteUserFavorites(where: [UserFavoriteWhereUniqueInput!]!): [UserFavorite]
   createWechatUser(data: WechatUserCreateInput!): WechatUser
   createWechatUsers(data: [WechatUserCreateInput!]!): [WechatUser]
   updateWechatUser(
@@ -456,12 +853,12 @@ type Mutation {
   updateWechatUsers(data: [WechatUserUpdateArgs!]!): [WechatUser]
   deleteWechatUser(where: WechatUserWhereUniqueInput!): WechatUser
   deleteWechatUsers(where: [WechatUserWhereUniqueInput!]!): [WechatUser]
-  createPost(data: PostCreateInput!): Post
-  createPosts(data: [PostCreateInput!]!): [Post]
-  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
-  updatePosts(data: [PostUpdateArgs!]!): [Post]
-  deletePost(where: PostWhereUniqueInput!): Post
-  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  createTag(data: TagCreateInput!): Tag
+  createTags(data: [TagCreateInput!]!): [Tag]
+  updateTag(where: TagWhereUniqueInput!, data: TagUpdateInput!): Tag
+  updateTags(data: [TagUpdateArgs!]!): [Tag]
+  deleteTag(where: TagWhereUniqueInput!): Tag
+  deleteTags(where: [TagWhereUniqueInput!]!): [Tag]
   endSession: Boolean!
   authenticateUserWithPassword(
     identifier: String!
@@ -492,6 +889,14 @@ input CreateInitialUserInput {
 }
 
 type Query {
+  assets(
+    where: AssetWhereInput! = {}
+    orderBy: [AssetOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Asset!]
+  asset(where: AssetWhereUniqueInput!): Asset
+  assetsCount(where: AssetWhereInput! = {}): Int
   users(
     where: UserWhereInput! = {}
     orderBy: [UserOrderByInput!]! = []
@@ -500,14 +905,6 @@ type Query {
   ): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
-  wechatUsers(
-    where: WechatUserWhereInput! = {}
-    orderBy: [WechatUserOrderByInput!]! = []
-    take: Int
-    skip: Int! = 0
-  ): [WechatUser!]
-  wechatUser(where: WechatUserWhereUniqueInput!): WechatUser
-  wechatUsersCount(where: WechatUserWhereInput! = {}): Int
   posts(
     where: PostWhereInput! = {}
     orderBy: [PostOrderByInput!]! = []
@@ -516,6 +913,30 @@ type Query {
   ): [Post!]
   post(where: PostWhereUniqueInput!): Post
   postsCount(where: PostWhereInput! = {}): Int
+  userFavorites(
+    where: UserFavoriteWhereInput! = {}
+    orderBy: [UserFavoriteOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [UserFavorite!]
+  userFavorite(where: UserFavoriteWhereUniqueInput!): UserFavorite
+  userFavoritesCount(where: UserFavoriteWhereInput! = {}): Int
+  wechatUsers(
+    where: WechatUserWhereInput! = {}
+    orderBy: [WechatUserOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [WechatUser!]
+  wechatUser(where: WechatUserWhereUniqueInput!): WechatUser
+  wechatUsersCount(where: WechatUserWhereInput! = {}): Int
+  tags(
+    where: TagWhereInput! = {}
+    orderBy: [TagOrderByInput!]! = []
+    take: Int
+    skip: Int! = 0
+  ): [Tag!]
+  tag(where: TagWhereUniqueInput!): Tag
+  tagsCount(where: TagWhereInput! = {}): Int
   authenticatedItem: AuthenticatedItem
 }
 

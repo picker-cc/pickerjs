@@ -1,9 +1,27 @@
-import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ConfigModule, ConfigService, PickerPlugin, PluginCommonModule, ProcessContext, Type } from '@pickerjs/core';
+import { MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
+import {
+  AssetService,
+  ConfigModule,
+  ConfigService,
+  Ctx,
+  EventBus,
+  Picker,
+  PickerPlugin,
+  PluginCommonModule,
+  ProcessContext,
+  RequestContext,
+  Type
+} from '@pickerjs/core';
 import { WeChatModule } from '@pickerjs/wechat-plugin';
 import gql from 'graphql-tag';
-import { UploadController } from './controller/upload.controller';
+import { debounceTime } from 'rxjs';
+import axios from 'axios';
+import { nanoid } from 'nanoid';
+import { Context } from '@pickerjs/core/cli/schema/types/schema/graphql-ts-schema';
+import { UserEvent } from './user-event';
 import { WeappResolver } from './resolvers/weapp.resolver';
+import { UploadController } from './controller/upload.controller';
+import { WechatController } from './controller/wechat.controller';
 
 /**
  * @description
@@ -23,14 +41,6 @@ export interface PluginOptions {
 @PickerPlugin({
   imports: [
     PluginCommonModule,
-    // WeChatModule.forRootAsync({
-    //     useFactory: () => ({
-    //         appId: 'wx25d35ab97e993e90',
-    //         secret: 'c5a829b5bf3e128588769bbfacf029e6',
-    //         token: '',
-    //         encodingAESKey: '',
-    //     })
-    // }),
     // UsersModule,
     // WeChatModule,
     WeChatModule.forRootAsync({
@@ -38,7 +48,8 @@ export interface PluginOptions {
       inject: [ConfigService],
       useFactory: () => ({
         appId: 'wx25d35ab97e993e90',
-        secret: 'cab3cc059246334a4d93a387145c1c6f'
+        secret: 'cab3cc059246334a4d93a387145c1c6f',
+        token: 'caixie2022'
         // token: '',
         // encodingAESKey: ''
         // appId: configService.get('WX_APPID'),
@@ -49,7 +60,7 @@ export interface PluginOptions {
       })
     })
   ],
-  // providers: [WeappResolver],
+  providers: [],
   apiExtensions: {
     schema: gql`
       extend type Mutation {
@@ -60,25 +71,98 @@ export interface PluginOptions {
     resolvers: [WeappResolver]
   },
   controllers: [
-    UploadController
+    UploadController,
+    WechatController
     // AppController
   ]
 })
-export class DevAppPlugin implements NestModule {
+export class AppPlugin implements NestModule, OnModuleInit {
   private static options: PluginOptions;
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private configService: ConfigService, private processContext: ProcessContext) {}
+  constructor(
+    private configService: ConfigService,
+    private processContext: ProcessContext,
+    private assetService: AssetService,
+    private eventBus: EventBus,
+    private readonly picker: Picker
+  ) {}
 
   /**
    * @description
    * Set the plugin options
    */
-  static init(options: PluginOptions): Type<DevAppPlugin> {
+  static init(options: PluginOptions): Type<AppPlugin> {
     this.options = options;
-    return DevAppPlugin;
+    return AppPlugin;
   }
 
   // eslint-disable-next-line class-methods-use-this
   async configure(consumer: MiddlewareConsumer) {}
+
+  onModuleInit(): any {
+    // const picker: Context = this.picker.context as Context
+
+    const userEvent$ = this.eventBus.ofType(UserEvent);
+    userEvent$.pipe(debounceTime(50)).subscribe(async event => {
+      if (event.type === 'login') {
+        const user = event.user;
+        // console.log(user)
+        if (!user.avatar || !user.avatar.id) {
+          await this.initUserAvatar(event.ctx, event.user.id);
+        }
+      }
+      if (event.type === 'created') {
+        await this.initUserAvatar(event.ctx, event.user.id);
+      }
+    });
+  }
+
+  private async initUserAvatar(ctx: RequestContext, userId: string) {
+    const image = await axios.get(`https://api.multiavatar.com/${userId}.png?apikey=NhZMgczbRBeQu4`, {
+      responseType: 'arraybuffer'
+    });
+    const buffer = new Buffer(image.data);
+    const genId = nanoid(4);
+
+    const asset = await this.assetService.createFromBuffer(ctx, {
+      filename: `${userId}${genId}.png`,
+      mimetype: 'image/png',
+      stream: buffer
+    });
+    const createdAsset = await ctx.picker.db.Asset.createOne({
+      data: {
+        type: asset.type,
+        width: asset.width,
+        height: asset.height,
+        name: asset.name,
+        title: asset.title,
+        fileSize: asset.fileSize,
+        mimeType: asset.mimeType,
+        source: asset.source,
+        preview: asset.preview,
+        focalPoint: asset.focalPoint
+        // ...assets
+      }
+    });
+
+    if (userId) {
+      const updatedUser = await ctx.picker.db.User.updateOne({
+        where: {
+          id: userId
+        },
+        data: {
+          avatar: {
+            connect: {
+              id: createdAsset.id
+            }
+          }
+        }
+      });
+      // console.log(updatedUser)
+    }
+    // console.log(assets)
+    // return createdAsset;
+    // console.log(asset)
+  }
 }
