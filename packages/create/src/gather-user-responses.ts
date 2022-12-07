@@ -28,7 +28,7 @@ export async function gatherUserResponses(root: string): Promise<UserResponses> 
         choices: [
           { title: 'MySQL', value: 'mysql' },
           // { title: 'MariaDB', value: 'mariadb' },
-          { title: 'Postgres', value: 'postgresql' },
+          { title: 'Postgresql', value: 'postgresql' },
           // { title: 'Cockroachdb', value: 'cockroachdb' },
           { title: 'SQLite', value: 'sqlite' },
           // { title: 'SqlServer', value: 'mssql' }
@@ -203,12 +203,12 @@ function defaultDBPort(dbType: DbType): number {
     case 'mysql':
     case 'mariadb':
       return 3306;
-    case 'postgres':
+    case 'postgresql':
       return 5432;
-    case 'mssql':
-      return 1433;
-    case 'cockroachdb':
-      return 26257;
+    // case 'mssql':
+    //   return 1433;
+    // case 'cockroachdb':
+    //   return 26257;
     // case 'mongodb':
     //   return 27017;
     default:
