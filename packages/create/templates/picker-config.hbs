@@ -19,8 +19,6 @@ export const schemaConfig = withAuth(
         db: {
             provider: '{{ dbType }}',
             url: '{{#if isSQLite}}'file:./picker.db'{{else}}{{dbType}}://{{dbUserName}}:{{dbPassword}}@{{dbHost}}:{{dbPort}}/{{dbName}}{{/if}}',
-<!--            enableLogging: true,-->
-<!--            useMigrations: true,-->
         },
         // 这个配置允许我们设置 Admin UI 的特性（暂未实现，仅配置）
         ui: {
