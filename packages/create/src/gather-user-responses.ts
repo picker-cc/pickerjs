@@ -27,11 +27,11 @@ export async function gatherUserResponses(root: string): Promise<UserResponses> 
         message: '请选择您要使用的数据库?',
         choices: [
           { title: 'MySQL', value: 'mysql' },
-          { title: 'MariaDB', value: 'mariadb' },
-          { title: 'Postgres', value: 'postgres' },
-          { title: 'Cockroachdb', value: 'cockroachdb' },
+          // { title: 'MariaDB', value: 'mariadb' },
+          { title: 'Postgres', value: 'postgresql' },
+          // { title: 'Cockroachdb', value: 'cockroachdb' },
           { title: 'SQLite', value: 'sqlite' },
-          { title: 'SqlServer', value: 'mssql' }
+          // { title: 'SqlServer', value: 'mssql' }
           // { title: 'Mongodb', value: 'mongodb' }
         ],
         initial: 0 as any
