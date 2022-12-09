@@ -1,6 +1,7 @@
 import { AuthGqlNames, SecretFieldImpl } from '../types';
 import { validateSecret } from '../lib/validateSecret';
-import { BaseItem, graphql } from '../../schema/types';
+import { BaseItem } from '../../schema/types';
+import { graphql } from '../../schema';
 
 export function getBaseAuthSchema<I extends string, S extends string>({
   listKey,
@@ -49,8 +50,10 @@ export function getBaseAuthSchema<I extends string, S extends string>({
         type: graphql.union({
           name: 'AuthenticatedItem',
           types: [base.object(listKey) as graphql.ObjectType<BaseItem>],
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           resolveType: (root, context) => context.session?.listKey
         }),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         resolve(root, args, { session, db }) {
           if (typeof session?.itemId === 'string' && typeof session.listKey === 'string') {
             return db[session.listKey].findOne({ where: { id: session.itemId } });
@@ -66,8 +69,9 @@ export function getBaseAuthSchema<I extends string, S extends string>({
           [identityField]: graphql.arg({ type: graphql.nonNull(graphql.String) }),
           [secretField]: graphql.arg({ type: graphql.nonNull(graphql.String) })
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async resolve(root, { [identityField]: identity, [secretField]: secret }, context) {
-          if (!context.startSession) {
+          if (!context.sessionStrategy) {
             throw new Error('No session implementation available on context');
           }
 
@@ -79,10 +83,13 @@ export function getBaseAuthSchema<I extends string, S extends string>({
           }
 
           // Update system state
-          const sessionToken = await context.startSession({
-            listKey,
-            itemId: result.item.id.toString()
-          });
+          const sessionToken = (await context.sessionStrategy.start({
+            data: {
+              listKey,
+              itemId: result.item.id.toString()
+            },
+            context
+          })) as string;
           return { sessionToken, item: result.item };
         }
       })

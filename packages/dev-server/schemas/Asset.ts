@@ -1,7 +1,8 @@
-import { integer, json, list, relationship, select, text } from '@pickerjs/core';
+import { allowAll, integer, json, list, relationship, select, text } from '@pickerjs/core';
 import { trackingFields } from '../utils';
 
 export const Asset = list({
+  access: allowAll,
   fields: {
     name: text(),
     title: text(),

@@ -20,7 +20,7 @@ const schemaConfig = config({
         url: 'file:./dev.db',
         useMigrations: true,
     },
-    models: {
+    lists: {
         User,
         Post,
     },

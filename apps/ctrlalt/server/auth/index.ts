@@ -88,7 +88,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>
      * 为验证提供的认证配置，集成认证时可选
      */
     const validateConfig = (schemaConfig: SchemaConfig) => {
-        const listConfig = schemaConfig.models[listKey];
+        const listConfig = schemaConfig.lists[listKey];
         if (listConfig === undefined) {
             const msg = `A createAuth() invocation specifies the list "${listKey}" but no list with that key has been defined.`;
             throw new Error(msg);
@@ -181,7 +181,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>
         const session = withItemData(schemaConfig.session);
 
         const existingExtendGraphQLSchema = schemaConfig.extendGraphqlSchema;
-        const listConfig = schemaConfig.models[listKey];
+        const listConfig = schemaConfig.lists[listKey];
         return {
             ...schemaConfig,
             // ui,
@@ -190,8 +190,8 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>
             // TODO: The fields we're adding here shouldn't naively replace existing fields with the same key
             // Leaving existing fields in place would allow solution devs to customise these field defs (eg. access control,
             // work factor for the tokens, etc.) without abandoning the withAuth() interface
-            models: {
-                ...schemaConfig.models,
+            lists: {
+                ...schemaConfig.lists,
                 [listKey]: {...listConfig, fields: {...listConfig.fields, ...fields}},
             },
             extendGraphqlSchema: existingExtendGraphQLSchema

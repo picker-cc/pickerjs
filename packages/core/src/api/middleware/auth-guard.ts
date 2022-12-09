@@ -1,5 +1,5 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { Permission } from '@pickerjs/common/lib/generated-types';
+// import { IncomingMessage, ServerResponse } from 'http';
+// import { Permission } from '@pickerjs/common/lib/generated-types';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
@@ -7,12 +7,14 @@ import { GraphQLResolveInfo } from 'graphql';
 import { ConfigService, LogLevel } from '../../config';
 import { parseContext } from '../common/parse-context';
 import { REQUEST_CONTEXT_KEY, RequestContextService } from '../common/request-context.service';
-import { PERMISSIONS_METADATA_KEY } from '../decorators/allow.decorator';
-import { ForbiddenError } from '../../common/error/errors';
+// import { PERMISSIONS_METADATA_KEY } from '../decorators/allow.decorator';
+// import { ForbiddenError } from '../../common/error/errors';
 import { CachedSession } from '../../config/session-cache/session-cache-strategy';
-import { createSessionContext } from '../../schema/session';
-import { EventBus } from '../../event-bus';
+// import { createSessionContext } from '../../schema/session';
+// import { EventBus } from '../../event-bus';
 import { RequestContext } from '../common/request-context';
+// import { makeCreateContext } from '../../schema/context/createContext';
+import { PickerContext } from '../../schema/types';
 
 /**
  * @description
@@ -52,27 +54,34 @@ export class AuthGuard implements CanActivate {
     if (Reflect.has(req, REQUEST_CONTEXT_KEY)) {
       return true;
     }
-    const pickerContext = this.configService.context({
-      injector: this.configService.injector,
-      sessionContext: this.configService.schemaConfig.session
-        ? await createSessionContext(
-            this.configService.schemaConfig.session,
-            req as IncomingMessage,
-            res as ServerResponse,
-            this.configService.context
-          )
-        : undefined,
-      req: req as IncomingMessage
-    });
+    // const pickerContext = this.configService.context({
+    //   injector: this.configService.injector,
+    //   sessionContext: this.configService.schemaConfig.session
+    //     ? await createSessionContext(
+    //         this.configService.schemaConfig.session,
+    //         req as IncomingMessage,
+    //         res as ServerResponse,
+    //         this.configService.context
+    //       )
+    //     : undefined,
+    //   req: req as IncomingMessage
+    // });
+
+    // makeCreateContext()
     // const requestContext = await requestContextService.fromRequest(req, info, permissions, session, picker);
     // (req as any)[REQUEST_CONTEXT_KEY] = {
     //   req,
     //   picker: pickerContext
     // };
     // return context
+    // this.configService.context.injector = this.configService.injector
+    const extendContext: PickerContext = {
+      ...this.configService.context,
+      injector: this.configService.injector
+    };
     (req as any)[REQUEST_CONTEXT_KEY] = new RequestContext({
       req: req as any,
-      picker: pickerContext
+      picker: extendContext
     });
     return true;
     // console.log('can activeate ....')

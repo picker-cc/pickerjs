@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
-import { ConfigService, DefaultLogger, Logger, PickerConfig, RuntimePickerConfig } from './config';
+import { DefaultLogger, Logger, PickerConfig, RuntimePickerConfig } from './config';
 import { getConfig, setConfig } from './config/config-helpers';
-import { getConfigurationFunction, getEntitiesFromPlugins } from './plugin/plugin-metadata';
-import { getPluginStartupMessages } from './plugin/plugin-utils';
+import { getConfigurationFunction } from './plugin/plugin-metadata';
+import { getPluginStartupMessages } from './plugin';
 import { setProcessContext } from './process-context/process-context';
 import { PickerWorker } from './worker';
 import {
@@ -37,8 +37,10 @@ import { setPickerContext } from './picker-context/picker-context';
 export async function bootstrap(userConfig: Partial<PickerConfig>): Promise<INestApplication> {
   const setInitConfig = initConfig(userConfig.schemaConfig);
   const { graphQLSchema, picker } = await setInitialPicker(setInitConfig, process.cwd(), userConfig.shouldDropDatabase);
+  // eslint-disable-next-line require-atomic-updates
   userConfig.graphqlSchema = graphQLSchema;
-  userConfig.context = picker.createContext;
+  // eslint-disable-next-line require-atomic-updates
+  userConfig.context = picker.context;
 
   // 1 在系统启动前处理预置的各项配置
   const config = await preBootstrapConfig(userConfig);
@@ -52,7 +54,7 @@ export async function bootstrap(userConfig: Partial<PickerConfig>): Promise<INes
   // console.log(configServ)
   // console.log(appModule)
   setProcessContext('server');
-  setPickerContext(picker.createContext());
+  setPickerContext(picker.context);
   const { hostname, port, cors, middleware } = config.apiOptions;
   DefaultLogger.hideNestBoostrapLogs();
   const app = await NestFactory.create(appModule.AppModule, {
@@ -137,6 +139,7 @@ export async function bootstrapWorker(userConfig: Partial<PickerConfig>): Promis
 export async function preBootstrapConfig(userConfig: Partial<PickerConfig>): Promise<Readonly<RuntimePickerConfig>> {
   // 1-1 配置系统的定定义配置
   if (userConfig) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     setConfig(userConfig);
   }
@@ -173,6 +176,7 @@ async function runPluginConfigurations(config: RuntimePickerConfig): Promise<Run
   for (const plugin of config.plugins) {
     const configFn = getConfigurationFunction(plugin);
     if (typeof configFn === 'function') {
+      // eslint-disable-next-line no-param-reassign,no-await-in-loop
       config = await configFn(config);
     }
   }
@@ -180,7 +184,7 @@ async function runPluginConfigurations(config: RuntimePickerConfig): Promise<Run
 }
 
 async function setInitialPicker(config: SchemaConfig, cwd: string, shouldDropDatabase: boolean) {
-  const { graphQLSchema, getPicker } = createSystem(config, true);
+  const { graphQLSchema, getPicker } = createSystem(config);
 
   // Generate the Artifacts
   console.log('✨ 生成 GraphQL 和 Prisma 的 schemas');
@@ -275,6 +279,7 @@ async function setInitialPicker(config: SchemaConfig, cwd: string, shouldDropDat
 function logWelcomeMessage(config: RuntimePickerConfig) {
   let version: string;
   try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     version = require('../package.json').version;
   } catch (e) {
     version = ' unknown';

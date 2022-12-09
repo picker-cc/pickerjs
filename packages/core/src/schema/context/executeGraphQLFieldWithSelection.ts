@@ -1,18 +1,18 @@
 import {
-    execute,
-    FragmentDefinitionNode,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLOutputType,
-    GraphQLSchema,
-    Kind,
-    OperationTypeNode,
-    DocumentNode,
-    parse,
-    validate,
+  execute,
+  FragmentDefinitionNode,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLOutputType,
+  GraphQLSchema,
+  Kind,
+  OperationTypeNode,
+  DocumentNode,
+  parse,
+  validate
 } from 'graphql';
-import {getVariablesForGraphQLField} from './executeGraphQLFieldToRootVal';
-import {PickerContext} from "../types";
+import { PickerContext } from '../types';
+import { getVariablesForGraphQLField } from './executeGraphQLFieldToRootVal';
 // import {DocumentNode, OperationTypeNode} from "graphql/language/ast";
 
 function getRootTypeName(type: GraphQLOutputType): string {
@@ -44,9 +44,8 @@ export function executeGraphQLFieldWithSelection(
   const { argumentNodes, variableDefinitions } = getVariablesForGraphQLField(field);
   const rootName = getRootTypeName(field.type);
   return async (args: Record<string, any>, query: string, context: PickerContext) => {
-    const selectionSet = (
-      parse(`fragment x on ${rootName} {${query}}`).definitions[0] as FragmentDefinitionNode
-    ).selectionSet;
+    const selectionSet = (parse(`fragment x on ${rootName} {${query}}`).definitions[0] as FragmentDefinitionNode)
+      .selectionSet;
 
     const document: DocumentNode = {
       kind: Kind.DOCUMENT,
@@ -61,13 +60,13 @@ export function executeGraphQLFieldWithSelection(
                 kind: Kind.FIELD,
                 name: { kind: Kind.NAME, value: field.name },
                 arguments: argumentNodes,
-                selectionSet: selectionSet,
-              },
-            ],
+                selectionSet
+              }
+            ]
           },
-          variableDefinitions,
-        },
-      ],
+          variableDefinitions
+        }
+      ]
     } as const;
 
     const validationErrors = validate(schema, document);
@@ -87,7 +86,7 @@ export function executeGraphQLFieldWithSelection(
         // but for the cases where we care, it does
         Object.entries(args).filter(([, val]) => val !== undefined)
       ),
-      rootValue: {},
+      rootValue: {}
     });
     if (result.errors?.length) {
       throw result.errors[0];

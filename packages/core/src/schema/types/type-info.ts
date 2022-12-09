@@ -4,8 +4,9 @@ import { BaseItem } from './next-fields';
 
 type GraphQLInput = Record<string, any>;
 
-export interface BaseListTypeInfo {
+export type BaseListTypeInfo = {
   key: string;
+  isSingleton: boolean;
   fields: string;
   item: BaseItem;
   inputs: {
@@ -25,13 +26,13 @@ export interface BaseListTypeInfo {
   injector?: any;
   eventBus?: EventBus;
   all: BasePickerTypeInfo;
-}
+};
 
 export type BaseModelTypeInfo = BaseListTypeInfo;
 
 export type PickerContextFromListTypeInfo<ListTypeInfo extends BaseListTypeInfo> = PickerContext<ListTypeInfo['all']>;
 
-export interface BasePickerTypeInfo {
+export type BasePickerTypeInfo = {
   lists: Record<string, BaseListTypeInfo>;
   prisma: any;
-}
+};

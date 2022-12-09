@@ -1,93 +1,134 @@
 import { CacheHint } from 'apollo-server-types';
 import { GraphQLResolveInfo } from 'graphql';
-import { ResolvedDBField, ResolvedRelationDBField } from "../../resolve-relationships";
-import { getDBFieldKeyForFieldOnMultiField, InitialisedList } from "../../prisma/prisma-schema";
-import { accessReturnError, extensionError } from "../../error/graphql-errors";
+import DataLoader from 'dataloader';
+import {
+  BaseItem,
+  BaseListTypeInfo,
+  FindManyArgsValue,
+  graphql,
+  GraphQLTypesForList,
+  NextFieldType,
+  PickerContext
+} from '../../..';
+import { getOperationAccess, getAccessFilters } from '../access-control';
+import { ResolvedDBField, ResolvedRelationDBField } from '../../resolve-relationships';
+import { InitialisedList } from '../../types-for-lists';
+import { getDBFieldKeyForFieldOnMultiField, IdType, runWithPrisma } from '../../utils';
+import { FieldReadItemAccessArgs, IndividualFieldAccessControl } from '../../types/config/access-control';
+import { accessReturnError, extensionError } from '../../error/graphql-errors';
+import { accessControlledFilter } from './resolvers';
 import * as queries from './resolvers';
-import { getAccessFilters, getOperationAccess } from "../access-control";
-import { accessControlledFilter, runWithPrisma } from "./resolvers";
-import {graphql, PickerContext, BaseItem, FindManyArgsValue, GraphQLTypesForList, NextFieldType} from "../../types";
 
-// this is wrong
-// all the things should be generic over the id type
-// i don't want to deal with that right now though
-declare const idTypeSymbol: unique symbol;
-export type IdType = { ___pickerIdType: typeof idTypeSymbol; toString(): string };
-
+// eslint-disable-next-line max-params
 function getRelationVal(
   dbField: ResolvedRelationDBField,
   id: IdType,
   foreignList: InitialisedList,
   context: PickerContext,
   info: GraphQLResolveInfo,
-  fk?: IdType
+  fk: IdType | null | undefined
 ) {
   const oppositeDbField = foreignList.resolvedDbFields[dbField.field];
   if (oppositeDbField.kind !== 'relation') throw new Error('failed assert');
 
   if (dbField.mode === 'many') {
     const relationFilter = {
-      [dbField.field]: oppositeDbField.mode === 'many' ? { some: { id } } : { id },
+      [dbField.field]: oppositeDbField.mode === 'many' ? { some: { id } } : { id }
     };
     return {
-      findMany: async (args: FindManyArgsValue) =>
-        queries.findMany(args, foreignList, context, info, relationFilter),
+      findMany: async (args: FindManyArgsValue) => queries.findMany(args, foreignList, context, info, relationFilter),
       count: async ({ where }: { where: GraphQLTypesForList['where'] }) =>
-        queries.count({ where }, foreignList, context, info, relationFilter),
-    };
-  } else {
-    return async () => {
-      if (fk === null) {
-        // If the foreign key is explicitly null, there's no need to anything else,
-        // since we know the related item doesn't exist.
-        return null;
-      }
-      // Check operation permission to pass into single operation
-      const operationAccess = await getOperationAccess(foreignList, context, 'query');
-      if (!operationAccess) {
-        return null;
-      }
-      const accessFilters = await getAccessFilters(foreignList, context, 'query');
-      if (accessFilters === false) {
-        return null;
-      }
-
-      if (accessFilters === true && fk !== undefined) {
-        // We know the exact item we're looking for, and there are no other filters to apply,
-        // so we can use findUnique to get the item. This allows Prisma to group multiple
-        // findUnique operations into a single database query, which solves the N+1 problem
-        // in this specific case.
-        return runWithPrisma(context, foreignList, model =>
-          model.findUnique({ where: { id: fk } })
-        );
-      } else {
-        // Either we have access filters to apply, or we don't have a foreign key to use.
-        // If we have a foreign key, we'll search directly on this ID, and merge in the access filters.
-        // If we don't have a foreign key, we'll use the general solution, which is a filters based
-        // on the original item's ID, merged with any access control filters.
-        const relationFilter =
-          fk !== undefined
-            ? { id: fk }
-            : { [dbField.field]: oppositeDbField.mode === 'many' ? { some: { id } } : { id } };
-
-        // There's no need to check isFilterable access here (c.f. `findOne()`), as
-        // the filters has been constructed internally, not as part of user input.
-
-        // Apply access control
-        const resolvedWhere = await accessControlledFilter(
-          foreignList,
-          context,
-          relationFilter,
-          accessFilters
-        );
-        return runWithPrisma(context, foreignList, model =>
-          model.findFirst({ where: resolvedWhere })
-        );
-      }
+        queries.count({ where }, foreignList, context, info, relationFilter)
     };
   }
+  return async () => {
+    if (fk === null) {
+      // If the foreign key is explicitly null, there's no need to anything else,
+      // since we know the related item doesn't exist.
+      return null;
+    }
+    // for one-to-many relationships, the one side always owns the foreign key
+    // so that means we have the id for the related item and we're fetching it by _its_ id.
+    // for the a one-to-one relationship though, the id might be on the related item
+    // so we need to fetch the related item by the id of the current item on the foreign key field
+    const currentItemOwnsForeignKey = fk !== undefined;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return fetchRelatedItem(context)(foreignList)(currentItemOwnsForeignKey ? 'id' : `${dbField.field}Id`)(
+      currentItemOwnsForeignKey ? fk : id
+    );
+  };
 }
 
+function weakMemoize<Arg extends object, Return>(cb: (arg: Arg) => Return) {
+  const cache = new WeakMap<Arg, Return>();
+  return (arg: Arg) => {
+    if (!cache.has(arg)) {
+      const result = cb(arg);
+      cache.set(arg, result);
+    }
+    return cache.get(arg)!;
+  };
+}
+
+function memoize<Arg, Return>(cb: (arg: Arg) => Return) {
+  const cache = new Map<Arg, Return>();
+  return (arg: Arg) => {
+    if (!cache.has(arg)) {
+      const result = cb(arg);
+      cache.set(arg, result);
+    }
+    return cache.get(arg)!;
+  };
+}
+
+const fetchRelatedItem = weakMemoize((context: PickerContext) =>
+  weakMemoize((foreignList: InitialisedList) =>
+    memoize((idFieldKey: string) => {
+      const relatedItemLoader = new DataLoader(
+        (keys: readonly IdType[]) => fetchRelatedItems(context, foreignList, idFieldKey, keys),
+        { cache: false }
+      );
+      return (id: IdType) => relatedItemLoader.load(id);
+    })
+  )
+);
+
+// eslint-disable-next-line max-params
+async function fetchRelatedItems(
+  context: PickerContext,
+  foreignList: InitialisedList,
+  idFieldKey: string,
+  toFetch: readonly IdType[]
+) {
+  const operationAccess = await getOperationAccess(foreignList, context, 'query');
+  if (!operationAccess) {
+    return [];
+  }
+
+  const accessFilters = await getAccessFilters(foreignList, context, 'query');
+  if (accessFilters === false) {
+    return [];
+  }
+
+  const resolvedWhere = await accessControlledFilter(
+    foreignList,
+    context,
+    { [idFieldKey]: { in: toFetch } },
+    accessFilters
+  );
+
+  const results = await runWithPrisma(context, foreignList, model =>
+    model.findMany({
+      where: resolvedWhere
+    })
+  );
+
+  const resultsById = new Map(results.map(x => [x[idFieldKey], x]));
+
+  return toFetch.map(id => resultsById.get(id));
+}
+
+// eslint-disable-next-line max-params
 function getValueForDBField(
   rootVal: BaseItem,
   dbField: ResolvedDBField,
@@ -112,28 +153,28 @@ function getValueForDBField(
       fk = rootVal[`${fieldPath}Id`] as IdType;
     }
     return getRelationVal(dbField, id, lists[dbField.list], context, info, fk);
-  } else {
-    return rootVal[fieldPath] as any;
   }
+  return rootVal[fieldPath] as any;
 }
-//
+
+// eslint-disable-next-line max-params
 export function outputTypeField(
   output: NextFieldType['output'],
   dbField: ResolvedDBField,
   cacheHint: CacheHint | undefined,
-  // access: IndividualFieldAccessControl<FieldReadItemAccessArgs<BaseListTypeInfo>>,
-  access: any,
+  access: IndividualFieldAccessControl<FieldReadItemAccessArgs<BaseListTypeInfo>>,
   listKey: string,
   fieldKey: string,
   lists: Record<string, InitialisedList>
 ) {
   return graphql.field({
-    type: output.type as any,
+    type: output.type,
     deprecationReason: output.deprecationReason,
     description: output.description,
     args: output.args,
     extensions: output.extensions,
-    async resolve(rootVal: any, args, context, info) {
+    // eslint-disable-next-line max-params
+    async resolve(rootVal: BaseItem, args, context, info) {
       const id = (rootVal as any).id as IdType;
 
       // Check access
@@ -147,18 +188,14 @@ export function outputTypeField(
               item: rootVal,
               listKey,
               operation: 'read',
-              // session: context.session,
+              session: context.session
             })
             : access;
       } catch (error: any) {
-        throw extensionError('Access control', [
-          { error, tag: `${listKey}.${fieldKey}.access.read` },
-        ]);
+        throw extensionError('权限控制', [{ error, tag: `${listKey}.${fieldKey}.access.read` }]);
       }
       if (typeof canAccess !== 'boolean') {
-        throw accessReturnError([
-          { tag: `${listKey}.${fieldKey}.access.read`, returned: typeof canAccess },
-        ]);
+        throw accessReturnError([{ tag: `${listKey}.${fieldKey}.access.read`, returned: typeof canAccess }]);
       }
       if (!canAccess) {
         return null;
@@ -169,13 +206,12 @@ export function outputTypeField(
         info.cacheControl.setCacheHint(cacheHint);
       }
 
-      const value = getValueForDBField(rootVal, dbField, id, fieldKey, context as any, lists, info);
+      const value = getValueForDBField(rootVal, dbField, id, fieldKey, context, lists, info);
 
       if (output.resolve) {
-        return output.resolve({ value, item: rootVal }, args, context as any, info);
-      } else {
-        return value;
+        return output.resolve({ value, item: rootVal }, args, context, info);
       }
-    },
+      return value;
+    }
   });
 }

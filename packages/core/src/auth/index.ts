@@ -1,8 +1,10 @@
-import url from 'url';
+// import url from 'url';
 import { password, timestamp } from '../schema/fields';
-import { BaseListTypeInfo, SchemaConfig, SessionStrategy } from '../schema/types';
+import { AdminFileToWrite, BaseListTypeInfo, PickerContext, SchemaConfig, SessionStrategy } from '../schema/types';
 import { AuthConfig, AuthGqlNames } from './types';
 import { getSchemaExtension } from './schema';
+import { signinTemplate } from './templates/signin';
+import { initTemplate } from './templates/init';
 
 /**
  * createAuth function
@@ -69,14 +71,37 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
   };
 
   /**
+   * getAdditionalFiles
+   *
+   * This function adds files to be generated into the Admin UI build. Must be added to the
+   * ui.getAdditionalFiles config.
+   *
+   * The signin page is always included, and the init page is included when initFirstItem is set
+   */
+  const authGetAdditionalFiles = () => {
+    const filesToWrite: AdminFileToWrite[] = [
+      {
+        mode: 'write',
+        src: signinTemplate({ gqlNames, identityField, secretField }),
+        outputPath: 'pages/signin.js'
+      }
+    ];
+    if (initFirstItem) {
+      filesToWrite.push({
+        mode: 'write',
+        src: initTemplate({ listKey, initFirstItem }),
+        outputPath: 'pages/init.js'
+      });
+    }
+    return filesToWrite;
+  };
+
+  /**
    * publicAuthPages
    *
    * Must be added to the ui.publicPages config
    */
-  const publicPages = ['/signin'];
-  if (initFirstItem) {
-    publicPages.push('/init');
-  }
+  const authPublicPages = ['/signin'];
 
   /**
    * extendGraphqlSchema
@@ -100,14 +125,16 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
    * Validates the provided auth config; optional step when integrating auth
    */
   const validateConfig = (schemaConfig: SchemaConfig) => {
-    const listConfig = schemaConfig.models[listKey];
+    const listConfig = schemaConfig.lists[listKey];
     if (listConfig === undefined) {
       const msg = `A createAuth() invocation specifies the list "${listKey}" but no list with that key has been defined.`;
       throw new Error(msg);
     }
-
+    // eslint-disable-next-line no-warning-comments
     // TODO: Check for String-like typing for identityField? How?
+    // eslint-disable-next-line no-warning-comments
     // TODO: Validate that the identifyField is unique.
+    // eslint-disable-next-line no-warning-comments
     // TODO: If this field isn't required, what happens if I try to log in as `null`?
     const identityFieldConfig = listConfig.fields[identityField];
     if (identityFieldConfig === undefined) {
@@ -115,7 +142,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
       const msg = `A createAuth() invocation for the "${listKey}" list specifies ${i} as its identityField but no field with that key exists on the list.`;
       throw new Error(msg);
     }
-
+    // eslint-disable-next-line no-warning-comments
     // TODO: We could make the secret field optional to disable the standard id/secret auth and password resets (ie. magic links only)
     const secretFieldConfig = listConfig.fields[secretField];
     if (secretFieldConfig === undefined) {
@@ -124,6 +151,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
       throw new Error(msg);
     }
 
+    // eslint-disable-next-line no-warning-comments
     // TODO: Could also validate initFirstItem.itemData keys?
     for (const field of initFirstItem?.fields || []) {
       if (listConfig.fields[field] === undefined) {
@@ -139,6 +167,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
    *
    * Automatically injects a session.data value with the authenticated item
    */
+  // eslint-disable-next-line no-warning-comments
   /* TODO:
       - [ ] We could support additional where input to validate item sessions (e.g an isEnabled boolean)
     */
@@ -148,9 +177,10 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
     const { get, ...sessionStrategy } = _sessionStrategy;
     return {
       ...sessionStrategy,
-      get: async ({ req, createContext }) => {
-        const session = await get({ req, createContext });
-        const sudoContext = createContext({ sudo: true });
+      get: async ({ context }) => {
+        const session = await get({ context });
+        // const sudoContext = createContext({ sudo: true });
+        const sudoContext = context.sudo();
 
         if (
           !session ||
@@ -169,15 +199,62 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
           });
           if (!data) return;
 
+          // eslint-disable-next-line consistent-return
           return { ...session, itemId: session.itemId, listKey, data };
         } catch (e) {
+          // eslint-disable-next-line no-warning-comments
           // TODO: the assumption is this should only be from an invalid sessionData configuration
           //   it could be something else though, either way, result is a bad session
         }
       }
     };
   };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function defaultIsAccessAllowed({ session }: PickerContext) {
+    return session !== undefined;
+  }
+  async function hasInitFirstItemConditions(context: PickerContext) {
+    // do nothing if they aren't using this feature
+    if (!initFirstItem) return false;
 
+    // if they have a session, there is no initialisation necessary
+    if (context.session) return false;
+
+    const count = await context.sudo().db[listKey].count({});
+    return count === 0;
+  }
+  async function authMiddleware({
+    context,
+    isValidSession: wasAccessAllowed
+  }: {
+    context: PickerContext;
+    // eslint-disable-next-line no-warning-comments
+    isValidSession: boolean; // TODO: rename "isValidSession" to "wasAccessAllowed"?
+  }): Promise<{ kind: 'redirect'; to: string } | void> {
+    const { req } = context;
+    const { pathname } = new URL(req!.url!, 'http://_');
+
+    // redirect to init if initFirstItem conditions are met
+    if (pathname !== '/init' && (await hasInitFirstItemConditions(context))) {
+      return { kind: 'redirect', to: '/init' };
+    }
+
+    // redirect to / if attempting to /init and initFirstItem conditions are not met
+    if (pathname === '/init' && !(await hasInitFirstItemConditions(context))) {
+      return { kind: 'redirect', to: '/' };
+    }
+
+    // don't redirect if we have access
+    // eslint-disable-next-line consistent-return
+    if (wasAccessAllowed) return;
+
+    // otherwise, redirect to signin
+    if (pathname === '/') return { kind: 'redirect', to: '/signin' };
+    return {
+      kind: 'redirect',
+      to: `/signin?from=${encodeURIComponent(req!.url!)}`
+    };
+  }
   /**
    * withAuth
    *
@@ -190,49 +267,43 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
    */
   const withAuth = (schemaConfig: SchemaConfig): SchemaConfig => {
     validateConfig(schemaConfig);
-    // let ui = schemaConfig.ui;
-    // if (!schemaConfig.ui?.isDisabled) {
-    //     ui = {
-    //         ...schemaConfig.ui,
-    //         publicPages: [...(schemaConfig.ui?.publicPages || []), ...publicPages],
-    //         getAdditionalFiles: [...(schemaConfig.ui?.getAdditionalFiles || []), getAdditionalFiles],
-    //         pageMiddleware: async args =>
-    //             (await pageMiddleware(args)) ?? schemaConfig?.ui?.pageMiddleware?.(args),
-    //         isAccessAllowed: async (context: PickerContext) => {
-    //             // Allow access to the adminMeta data from the /init path to correctly render that page
-    //             // even if the user isn't logged in (which should always be the case if they're seeing /init)
-    //             const headers = context.req?.headers;
-    //             const host = headers ? headers['x-forwarded-host'] || headers['host'] : null;
-    //             const url = headers?.referer ? new URL(headers.referer) : undefined;
-    //             const accessingInitPage =
-    //                 url?.pathname === '/init' &&
-    //                 url?.host === host &&
-    //                 (await context.sudo().query[listKey].count({})) === 0;
-    //             return (
-    //                 accessingInitPage ||
-    //                 (schemaConfig.ui?.isAccessAllowed
-    //                     ? schemaConfig.ui.isAccessAllowed(context)
-    //                     : context.session !== undefined)
-    //             );
-    //         },
-    //     };
-    // }
 
-    if (!schemaConfig.session) throw new TypeError('Missing .session configuration');
+    let { ui } = schemaConfig;
+    if (!ui?.isDisabled) {
+      const {
+        getAdditionalFiles = [],
+        isAccessAllowed = defaultIsAccessAllowed,
+        pageMiddleware,
+        publicPages = []
+      } = ui || {};
+      ui = {
+        ...ui,
+        publicPages: [...publicPages, ...authPublicPages],
+        getAdditionalFiles: [...getAdditionalFiles, authGetAdditionalFiles],
+
+        isAccessAllowed: async (context: PickerContext) => {
+          if (await hasInitFirstItemConditions(context)) return true;
+          return isAccessAllowed(context);
+        },
+
+        pageMiddleware: async args => {
+          const shouldRedirect = await authMiddleware(args);
+          if (shouldRedirect) return shouldRedirect;
+          return pageMiddleware?.(args);
+        }
+      };
+    }
+    if (!schemaConfig.session) throw new TypeError('缺少 .session 配置');
     const session = withItemData(schemaConfig.session);
 
     const existingExtendGraphQLSchema = schemaConfig.extendGraphqlSchema;
-    const listConfig = schemaConfig.models[listKey];
+    const listConfig = schemaConfig.lists[listKey];
     return {
       ...schemaConfig,
-      // ui,
+      ui,
       session,
-      // Add the additional fields to the references lists fields object
-      // TODO: The fields we're adding here shouldn't naively replace existing fields with the same key
-      // Leaving existing fields in place would allow solution devs to customise these field defs (eg. access control,
-      // work factor for the tokens, etc.) without abandoning the withAuth() interface
-      models: {
-        ...schemaConfig.models,
+      lists: {
+        ...schemaConfig.lists,
         [listKey]: { ...listConfig, fields: { ...listConfig.fields, ...fields } }
       },
       extendGraphqlSchema: existingExtendGraphQLSchema
@@ -243,12 +314,5 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
 
   return {
     withAuth
-    // In the future we may want to return the following so that developers can
-    // roll their own. This is pending a review of the use cases this might be
-    // appropriate for, along with documentation and testing.
-    // ui: { pageMiddleware, getAdditionalFiles, publicPages },
-    // fields,
-    // extendGraphqlSchema,
-    // validateConfig,
   };
 }

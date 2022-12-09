@@ -4,7 +4,6 @@ import { Migrate } from '@prisma/migrate';
 import chalk from 'chalk';
 // import slugify from '@sindresorhus/slugify';
 import slugify from 'limax';
-import prompts from 'prompts';
 import { confirmPrompt, textPrompt } from './prompts';
 import { ExitError } from './utils';
 
@@ -54,6 +53,7 @@ async function withMigrate<T>(dbUrl: string, schemaPath: string, cb: (migrate: M
   }
 }
 
+// eslint-disable-next-line max-params
 export async function pushPrismaSchemaToDatabase(
   dbUrl: string,
   shadowDbUrl: string | undefined,
@@ -81,6 +81,7 @@ export async function pushPrismaSchemaToDatabase(
     // - true：忽略警告，但如果有不可执行的步骤，则不会运行任何东西（因此数据库需要在此之前重置）
     // - false：如果有警告或不可执行的步骤，则不运行迁移
     // https://github.com/prisma/prisma-engines/blob/a2de6b71267b45669d25c3a27ad30998862a275c/migration-engine/core/src/commands/schema_push.rs
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const migration = await runMigrateWithDbUrl(dbUrl, shadowDbUrl, () =>
       migrate.engine.schemaPush({
         force: false,
@@ -150,7 +151,9 @@ function logWarnings(warnings: string[]) {
   }
 }
 
+// eslint-disable-next-line no-warning-comments
 // TODO: don't have process.exit calls here
+// eslint-disable-next-line max-params
 export async function devMigrations(
   dbUrl: string,
   shadowDbUrl: string | undefined,
@@ -290,6 +293,7 @@ async function ensureDatabaseExists(dbUrl: string, schemaDir: string) {
       console.log(`✨ ${credentials.type} database "${credentials.database}" created at ${getDbLocation(credentials)}`);
     }
   }
+  // eslint-disable-next-line no-warning-comments
   // TODO: handle createDatabase returning a failure (prisma's cli does not handle it though so not super worried)
 }
 

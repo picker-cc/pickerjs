@@ -1,148 +1,7 @@
-import Decimal from 'decimal.js';
-import { CacheHint } from 'apollo-server-types';
-import { ResolvedFieldAccessControl, ResolvedListAccessControl } from '../core/access-control';
-import { FilterOrderArgs } from '../types/config/fields';
-import { ResolvedRelationDBField } from '../resolve-relationships';
-import {
-  BaseListTypeInfo,
-  GqlNames,
-  GraphQLTypesForList,
-  JSONValue,
-  ListHooks,
-  MaybePromise,
-  NextFieldType,
-  ScalarDBField,
-  ScalarDBFieldDefault
-} from '../types';
-export type DatabaseProvider = 'sqlite' | 'postgresql' | 'mysql';
-
-// TODO: don't duplicate this between here and packages/core/ListTypes/list.js
-export function getGqlNames({ listKey, pluralGraphQLName }: { listKey: string; pluralGraphQLName: string }): GqlNames {
-  const lowerPluralName = pluralGraphQLName.slice(0, 1).toLowerCase() + pluralGraphQLName.slice(1);
-  const lowerSingularName = listKey.slice(0, 1).toLowerCase() + listKey.slice(1);
-  const names = {
-    outputTypeName: listKey,
-    itemQueryName: lowerSingularName,
-    listQueryName: lowerPluralName,
-    listQueryCountName: `${lowerPluralName}Count`,
-    listOrderName: `${listKey}OrderByInput`,
-    deleteMutationName: `delete${listKey}`,
-    updateMutationName: `update${listKey}`,
-    createMutationName: `create${listKey}`,
-    deleteManyMutationName: `delete${pluralGraphQLName}`,
-    updateManyMutationName: `update${pluralGraphQLName}`,
-    createManyMutationName: `create${pluralGraphQLName}`,
-    whereInputName: `${listKey}WhereInput`,
-    whereUniqueInputName: `${listKey}WhereUniqueInput`,
-    updateInputName: `${listKey}UpdateInput`,
-    createInputName: `${listKey}CreateInput`,
-    updateManyInputName: `${listKey}UpdateArgs`,
-    relateToManyForCreateInputName: `${listKey}RelateToManyForCreateInput`,
-    relateToManyForUpdateInputName: `${listKey}RelateToManyForUpdateInput`,
-    relateToOneForCreateInputName: `${listKey}RelateToOneForCreateInput`,
-    relateToOneForUpdateInputName: `${listKey}RelateToOneForUpdateInput`
-  };
-  return names;
-}
-
-export type InitialisedField = Omit<NextFieldType, 'dbField' | 'access' | 'graphql'> & {
-  dbField: ResolvedDBField;
-  access: ResolvedFieldAccessControl;
-  hooks: any;
-  graphql: {
-    isEnabled: {
-      read: boolean;
-      create: boolean;
-      update: boolean;
-      filter: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
-      orderBy: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
-    };
-    cacheHint?: CacheHint | undefined;
-  };
-};
-
-export interface InitialisedList {
-  fields: Record<string, InitialisedField>;
-  /** This will include the opposites to one-sided relationships */
-  resolvedDbFields: Record<string, ResolvedDBField>;
-  pluralGraphQLName: string;
-  types: GraphQLTypesForList;
-  access: ResolvedListAccessControl;
-  hooks: ListHooks<BaseListTypeInfo>;
-  adminUILabels: any;
-  cacheHint: any;
-  maxResults: number;
-  listKey: string;
-  lists: Record<string, InitialisedList>;
-  dbMap: string | undefined;
-  graphql: {
-    isEnabled: IsEnabled;
-  };
-}
-
-interface IsEnabled {
-  type: boolean;
-  query: boolean;
-  create: boolean;
-  update: boolean;
-  delete: boolean;
-  filter: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
-  orderBy: boolean | ((args: FilterOrderArgs<BaseListTypeInfo>) => MaybePromise<boolean>);
-}
-
-interface ScalarPrismaTypes {
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  DateTime: Date;
-  BigInt: bigint;
-  Json: JSONValue;
-  Decimal: Decimal;
-}
-export interface EnumDBField<Value extends string, Mode extends 'required' | 'many' | 'optional'> {
-  kind: 'enum';
-  name: string;
-  values: readonly Value[];
-  mode: Mode;
-  default?: { kind: 'literal'; value: Value };
-  index?: 'unique' | 'index';
-  map?: string;
-}
-export interface RelationDBField<Mode extends 'many' | 'one'> {
-  kind: 'relation';
-  list: string;
-  field?: string;
-  mode: Mode;
-  foreignKey?: { one: true | { map: string }; many: undefined }[Mode];
-  relationName?: { one: undefined; many: string }[Mode];
-}
-
-export interface NoDBField {
-  kind: 'none';
-}
-
-export type RealDBField = ScalarishDBField | RelationDBField<'many' | 'one'>;
-
-export interface MultiDBField<Fields extends Record<string, ScalarishDBField>> {
-  kind: 'multi';
-  fields: Fields;
-}
-export type ScalarishDBField =
-  | ScalarDBField<keyof ScalarPrismaTypes, 'required' | 'many' | 'optional'>
-  | EnumDBField<string, 'required' | 'many' | 'optional'>;
-
-export type DBField = RealDBField | NoDBField | MultiDBField<Record<string, ScalarishDBField>>;
-
-export type ResolvedDBField =
-  | ResolvedRelationDBField
-  | ScalarishDBField
-  | NoDBField
-  | MultiDBField<Record<string, ScalarishDBField>>;
-
-export function getDBFieldKeyForFieldOnMultiField(fieldKey: string, subField: string) {
-  return `${fieldKey}_${subField}`;
-}
+import { ResolvedDBField } from '../resolve-relationships';
+import { DatabaseProvider, ScalarDBField, ScalarDBFieldDefault } from '../types';
+import { InitialisedList } from '../types-for-lists';
+import { getDBFieldKeyForFieldOnMultiField } from '../utils';
 
 function areArraysEqual(a: readonly unknown[], b: readonly unknown[]) {
   return a.length === b.length && a.every((x, i) => x === b[i]);
@@ -166,6 +25,7 @@ function printNativeType(nativeType: string | undefined, datasourceName: string)
   return nativeType === undefined ? '' : ` @${datasourceName}.${nativeType}`;
 }
 
+// eslint-disable-next-line consistent-return
 function printScalarDefaultValue(defaultValue: ScalarDBFieldDefault): string {
   if (defaultValue.kind === 'literal') {
     if (typeof defaultValue.value === 'string') {
@@ -191,6 +51,7 @@ function assertNever(arg: never): never {
   throw new Error(`expected to never be called but was called with ${arg}`);
 }
 
+// eslint-disable-next-line max-params
 export function printField(
   fieldPath: string,
   field: Exclude<ResolvedDBField, { kind: 'none' }>,
@@ -212,11 +73,14 @@ export function printField(
     return `${fieldPath} ${field.name}${modifiers[field.mode]}${defaultValue}${map}${index}`;
   }
   if (field.kind === 'multi') {
-    return Object.entries(field.fields)
-      .map(([subField, field]) =>
-        printField(getDBFieldKeyForFieldOnMultiField(fieldPath, subField), field, datasourceName, lists)
-      )
-      .join('\n');
+    return (
+      Object.entries(field.fields)
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        .map(([subField, field]) =>
+          printField(getDBFieldKeyForFieldOnMultiField(fieldPath, subField), field, datasourceName, lists)
+        )
+        .join('\n')
+    );
   }
   if (field.kind === 'relation') {
     if (field.mode === 'many') {
@@ -248,11 +112,14 @@ function collectEnums(lists: Record<string, InitialisedList>) {
       const fields =
         field.kind === 'multi'
           ? Object.entries(field.fields).map(
+              // eslint-disable-next-line @typescript-eslint/no-shadow
               ([key, field]) => [field, `${listKey}.${fieldPath} (sub field ${key})`] as const
             )
           : [[field, `${listKey}.${fieldPath}`] as const];
 
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       for (const [field, ref] of fields) {
+        // eslint-disable-next-line no-continue
         if (field.kind !== 'enum') continue;
         const alreadyExistingEnum = enums[field.name];
         if (alreadyExistingEnum === undefined) {
@@ -260,6 +127,7 @@ function collectEnums(lists: Record<string, InitialisedList>) {
             values: field.values,
             firstDefinedByRef: ref
           };
+          // eslint-disable-next-line no-continue
           continue;
         }
         if (!areArraysEqual(alreadyExistingEnum.values, field.values)) {
@@ -317,6 +185,7 @@ function assertDbFieldIsValidForIdField(
   }
 }
 
+// eslint-disable-next-line max-params
 export function printPrismaSchema(
   lists: Record<string, InitialisedList>,
   provider: DatabaseProvider,

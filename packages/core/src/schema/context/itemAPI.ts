@@ -1,14 +1,12 @@
-import {GraphQLSchema, OperationTypeNode} from 'graphql';
-
-import {executeGraphQLFieldToRootVal} from './executeGraphQLFieldToRootVal';
-import {executeGraphQLFieldWithSelection} from './executeGraphQLFieldWithSelection';
-import {BaseListTypeInfo, GqlNames, PickerContext, PickerDbAPI, PickerListsAPI} from "../types";
+import { GraphQLSchema, OperationTypeNode } from 'graphql';
+import { BaseListTypeInfo, GqlNames, PickerContext, PickerDbAPI, PickerListsAPI } from '../types';
+import { executeGraphQLFieldToRootVal } from './executeGraphQLFieldToRootVal';
+import { executeGraphQLFieldWithSelection } from './executeGraphQLFieldWithSelection';
 
 // this is generally incorrect because types are open in TS but is correct in the specific usage here.
 // (i mean it's not really any more incorrect than TS is generally is but let's ignore that)
-const objectEntriesButUsingKeyof: <T extends Record<string, any>>(
-  obj: T
-) => [keyof T, T[keyof T]][] = Object.entries as any;
+const objectEntriesButUsingKeyof: <T extends Record<string, any>>(obj: T) => [keyof T, T[keyof T]][] =
+  Object.entries as any;
 
 export function getDbAPIFactory(
   gqlNames: GqlNames,
@@ -37,14 +35,11 @@ export function getDbAPIFactory(
     updateOne: f(OperationTypeNode.MUTATION, gqlNames.updateMutationName),
     updateMany: f(OperationTypeNode.MUTATION, gqlNames.updateManyMutationName),
     deleteOne: f(OperationTypeNode.MUTATION, gqlNames.deleteMutationName),
-    deleteMany: f(OperationTypeNode.MUTATION, gqlNames.deleteManyMutationName),
+    deleteMany: f(OperationTypeNode.MUTATION, gqlNames.deleteManyMutationName)
   };
   return (context: PickerContext) =>
     Object.fromEntries(
-      objectEntriesButUsingKeyof(api).map(([key, impl]) => [
-        key,
-        (args: Record<string, any>) => impl(args, context),
-      ])
+      objectEntriesButUsingKeyof(api).map(([key, impl]) => [key, (args: Record<string, any>) => impl(args, context)])
     ) as Record<keyof typeof api, any>;
 }
 
@@ -66,7 +61,9 @@ export function itemAPIForList(
     async count({ where = {} } = {}) {
       const { listQueryCountName, whereInputName } = context.gqlNames(listKey);
       const query = `query ($where: ${whereInputName}!) { count: ${listQueryCountName}(where: $where)  }`;
-      const response = await context.graphql.run({ query, variables: { where } });
+      const response = (await context.graphql.run({ query, variables: { where } })) as {
+        count: number;
+      };
       return response.count;
     },
     createOne: f(OperationTypeNode.MUTATION, gqlNames.createMutationName),
@@ -74,6 +71,6 @@ export function itemAPIForList(
     updateOne: f(OperationTypeNode.MUTATION, gqlNames.updateMutationName),
     updateMany: f(OperationTypeNode.MUTATION, gqlNames.updateManyMutationName),
     deleteOne: f(OperationTypeNode.MUTATION, gqlNames.deleteMutationName),
-    deleteMany: f(OperationTypeNode.MUTATION, gqlNames.deleteManyMutationName),
+    deleteMany: f(OperationTypeNode.MUTATION, gqlNames.deleteManyMutationName)
   } as PickerListsAPI<Record<string, BaseListTypeInfo>>[string];
 }

@@ -1,9 +1,9 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import type { GraphQLResolveInfo } from 'graphql';
-import { EventBus } from '../../event-bus';
-import { Injector } from '../../common';
+// import { EventBus } from '../../event-bus';
+// import { Injector } from '../../common';
 import type { GqlNames } from './utils';
-import { PickerContext, SessionContext } from './picker-context';
+import { PickerContext } from './picker-context';
 import { BasePickerTypeInfo } from './type-info';
 
 export type DatabaseProvider = 'sqlite' | 'postgresql' | 'mysql';
@@ -13,13 +13,13 @@ export type CreateRequestContext<TypeInfo extends BasePickerTypeInfo> = (
   res: ServerResponse
 ) => Promise<PickerContext<TypeInfo>>;
 
-export type CreateContext = (args: {
-  eventBus?: EventBus;
-  injector?: Injector;
-  sessionContext?: SessionContext<any>;
-  sudo?: boolean;
-  req?: IncomingMessage;
-}) => PickerContext;
+// export type CreateContext = (args: {
+//   eventBus?: EventBus;
+//   injector?: Injector;
+//   sessionContext?: SessionContext<any>;
+//   sudo?: boolean;
+//   req?: IncomingMessage;
+// }) => PickerContext;
 
 // export type SessionImplementation = {
 //     createSessionContext(
@@ -36,10 +36,10 @@ export type GraphQLResolver<Context extends PickerContext> = (
   info: GraphQLResolveInfo
 ) => any;
 
-export interface GraphQLSchemaExtension<Context extends PickerContext> {
+export type GraphQLSchemaExtension<Context extends PickerContext> = {
   typeDefs: string;
   resolvers: Record<string, Record<string, GraphQLResolver<Context>>>;
-}
+};
 
 // eslint-disable-next-line no-warning-comments
 // TODO: don't duplicate this between here and packages/core/ListTypes/list.js

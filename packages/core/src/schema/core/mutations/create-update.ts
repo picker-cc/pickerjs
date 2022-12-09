@@ -1,114 +1,45 @@
-import pLimit, { Limit } from 'p-limit';
-import { getDBFieldKeyForFieldOnMultiField, InitialisedList } from '../../prisma/prisma-schema';
+import { InitialisedList } from '../../types-for-lists';
+import {
+  getDBFieldKeyForFieldOnMultiField,
+  getPrismaNamespace,
+  getWriteLimit,
+  IdType,
+  promiseAllRejectWithAllErrors,
+  runWithPrisma
+} from '../../utils';
 import { BaseItem, PickerContext } from '../../types';
 import { accessDeniedError, extensionError, relationshipError, resolverError } from '../../error/graphql-errors';
-import { runWithPrisma } from '../queries/resolvers';
-import { PrismaModule } from '../../artifacts';
-import { getAccessFilters, getOperationAccess } from '../access-control';
-import { IdType } from '../queries/output-field';
-import { InputFilter, resolveUniqueWhereInput, UniqueInputFilter } from '../../types/filters/where-inputs';
-import { checkFilterOrderAccess } from '../../types/filters/filter-order-access';
+import { cannotForItem, getAccessFilters, getOperationAccess } from '../access-control';
+import { InputFilter, resolveUniqueWhereInput, UniqueInputFilter } from '../../fields/filters/where-inputs';
+import { checkFilterOrderAccess } from '../../fields/filters/filter-order-access';
 import { ResolvedDBField } from '../../resolve-relationships';
+import { validateUpdateCreate } from './validation';
 import { runSideEffectOnlyHook } from './hooks';
+import { applyAccessControlForCreate, getAccessControlledItemForUpdate } from './access-control';
+import {
+  resolveRelateToOneForCreateInput,
+  resolveRelateToOneForUpdateInput
+} from './nested-mutation-one-input-resolvers';
 import {
   RelationshipErrors,
   resolveRelateToManyForCreateInput,
   resolveRelateToManyForUpdateInput
 } from './nested-mutation-many-input-resolvers';
-import {
-  resolveRelateToOneForCreateInput,
-  resolveRelateToOneForUpdateInput
-} from './nested-mutation-one-input-resolvers';
-import { applyAccessControlForCreate, getAccessControlledItemForUpdate } from './access-control';
-import { validateUpdateCreate } from './validation';
-
-// these aren't here out of thinking this is better syntax(i do not think it is),
-// it's just because TS won't infer the arg is X bit
-export const isFulfilled = <T>(arg: PromiseSettledResult<T>): arg is PromiseFulfilledResult<T> =>
-  arg.status === 'fulfilled';
-export const isRejected = (arg: PromiseSettledResult<any>): arg is PromiseRejectedResult => arg.status === 'rejected';
-
-type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
-
-export async function promiseAllRejectWithAllErrors<T extends unknown[]>(
-  promises: readonly [...T]
-): Promise<{ [P in keyof T]: Awaited<T[P]> }> {
-  const results = await Promise.allSettled(promises);
-  if (!results.every(isFulfilled)) {
-    const errors = results.filter(isRejected).map(x => x.reason);
-    // AggregateError would be ideal here but it's not in Node 12 or 14
-    // (also all of our error stuff is just meh. this whole thing is just to align with previous behaviour)
-    const error = new Error(errors[0].message || errors[0].toString());
-    (error as any).errors = errors;
-    throw error;
-  }
-
-  return results.map((x: any) => x.value) as any;
-}
-
-// this whole thing exists because Prisma doesn't handle doing multiple writes on SQLite well
-// https://github.com/prisma/prisma/issues/2955
-// note this is keyed by the prisma client instance, not the context
-// because even across requests, we want to apply the limit on SQLite
-const writeLimits = new WeakMap<object, Limit>();
-
-export function setWriteLimit(prismaClient: object, limit: Limit) {
-  console.log('set write limit');
-  writeLimits.set(prismaClient, limit);
-}
-
-// this accepts the context instead of the prisma client because the prisma client on context is `any`
-// so by accepting the context, it'll be less likely the wrong thing will be passed.
-export function getWriteLimit(context: PickerContext) {
-  const limit = writeLimits.get(context.prisma);
-  if (limit === undefined) {
-    throw new Error('unexpected write limit not set for prisma client');
-  }
-  return limit;
-}
-
-const prismaNamespaces = new WeakMap<object, PrismaModule['Prisma']>();
-
-export function setPrismaNamespace(prismaClient: object, prismaNamespace: PrismaModule['Prisma']) {
-  prismaNamespaces.set(prismaClient, prismaNamespace);
-}
-
-// this accepts the context instead of the prisma client because the prisma client on context is `any`
-// so by accepting the context, it'll be less likely the wrong thing will be passed.
-export function getPrismaNamespace(context: PickerContext) {
-  const limit = prismaNamespaces.get(context.prisma);
-  if (limit === undefined) {
-    throw new Error('unexpected prisma namespace not set for prisma client');
-  }
-  return limit;
-}
 
 async function createSingle(
   { data: rawData }: { data: Record<string, any> },
   list: InitialisedList,
-  context: PickerContext,
-  operationAccess: boolean
+  context: PickerContext
 ) {
-  // Operation level access control
-  if (!operationAccess) {
-    throw accessDeniedError(`You cannot perform the 'create' operation on the list '${list.listKey}'.`);
-  }
-
   //  Item access control. Will throw an accessDeniedError if not allowed.
   await applyAccessControlForCreate(list, context, rawData);
 
   const { afterOperation, data } = await resolveInputForCreateOrUpdate(list, context, rawData, undefined);
 
-  // const prismaClient = new PrismaClient()
-  // context.prisma = prismaClient
-  // setWriteLimit(context.prisma, pLimit(1));
-  //
   const writeLimit = getWriteLimit(context);
 
   const item = await writeLimit(() =>
-    runWithPrisma(context, list, model => {
-      return model.create({ data });
-    })
+    runWithPrisma(context, list, model => model.create({ data: list.isSingleton ? { ...data, id: 1 } : data }))
   );
 
   return { item, afterOperation };
@@ -126,10 +57,10 @@ export class NestedMutationState {
   async create(data: Record<string, any>, list: InitialisedList) {
     const context = this.#context;
 
-    // Check operation permission to pass into single operation
     const operationAccess = await getOperationAccess(list, context, 'create');
+    if (!operationAccess) throw accessDeniedError(cannotForItem('create', list));
 
-    const { item, afterOperation } = await createSingle({ data }, list, context, operationAccess);
+    const { item, afterOperation } = await createSingle({ data }, list, context);
 
     this.#afterOperations.push(() => afterOperation(item));
     return { id: item.id as IdType };
@@ -145,10 +76,10 @@ export async function createOne(
   list: InitialisedList,
   context: PickerContext
 ) {
-  // Check operation permission to pass into single operation
   const operationAccess = await getOperationAccess(list, context, 'create');
+  if (!operationAccess) throw accessDeniedError(cannotForItem('create', list));
 
-  const { item, afterOperation } = await createSingle(createInput, list, context, operationAccess);
+  const { item, afterOperation } = await createSingle(createInput, list, context);
 
   await afterOperation(item);
 
@@ -160,33 +91,28 @@ export async function createMany(
   list: InitialisedList,
   context: PickerContext
 ) {
-  // Check operation permission to pass into single operation
   const operationAccess = await getOperationAccess(list, context, 'create');
 
   return createInputs.data.map(async data => {
-    const { item, afterOperation } = await createSingle({ data }, list, context, operationAccess);
+    // throw for each attempt
+    if (!operationAccess) throw accessDeniedError(cannotForItem('create', list));
 
+    const { item, afterOperation } = await createSingle({ data }, list, context);
     await afterOperation(item);
-
     return item;
   });
 }
 
+// eslint-disable-next-line max-params
 async function updateSingle(
   updateInput: { where: UniqueInputFilter; data: Record<string, any> },
   list: InitialisedList,
   context: PickerContext,
-  accessFilters: boolean | InputFilter,
-  operationAccess: boolean
+  accessFilters: boolean | InputFilter
 ) {
-  // Operation level access control
-  if (!operationAccess) {
-    throw accessDeniedError(`You cannot perform the 'update' operation on the list '${list.listKey}'.`);
-  }
-
   const { where: uniqueInput, data: rawData } = updateInput;
   // Validate and resolve the input filter
-  const uniqueWhere = await resolveUniqueWhereInput(uniqueInput, list.fields, context);
+  const uniqueWhere = await resolveUniqueWhereInput(uniqueInput, list, context);
 
   // Check filter access
   const fieldKey = Object.keys(uniqueWhere)[0];
@@ -213,13 +139,13 @@ export async function updateOne(
   list: InitialisedList,
   context: PickerContext
 ) {
-  // Check operation permission to pass into single operation
   const operationAccess = await getOperationAccess(list, context, 'update');
+  if (!operationAccess) throw accessDeniedError(cannotForItem('update', list));
 
   // Get list-level access control filters
   const accessFilters = await getAccessFilters(list, context, 'update');
 
-  return updateSingle(updateInput, list, context, accessFilters, operationAccess);
+  return updateSingle(updateInput, list, context, accessFilters);
 }
 
 export async function updateMany(
@@ -227,13 +153,17 @@ export async function updateMany(
   list: InitialisedList,
   context: PickerContext
 ) {
-  // Check operation permission to pass into single operation
   const operationAccess = await getOperationAccess(list, context, 'update');
 
   // Get list-level access control filters
   const accessFilters = await getAccessFilters(list, context, 'update');
 
-  return data.map(async updateInput => updateSingle(updateInput, list, context, accessFilters, operationAccess));
+  return data.map(async updateInput => {
+    // throw for each attempt
+    if (!operationAccess) throw accessDeniedError(cannotForItem('update', list));
+
+    return updateSingle(updateInput, list, context, accessFilters);
+  });
 }
 
 async function getResolvedData(
@@ -290,14 +220,11 @@ async function getResolvedData(
               (() => {
                 if (input === undefined) {
                   // No-op: This is what we want
-                  // return () => undefined;
-                  // 如果不设置为 undefined Prisma 保存时这个外链是错误的
                   return () => input!;
                 }
                 if (input === null) {
                   // No-op: Should this be UserInputError?
                   return () => input!;
-                  // return () => undefined;
                 }
                 const foreignList = list.lists[field.dbField.list];
                 let resolver;
@@ -364,6 +291,7 @@ async function getResolvedData(
   // List hooks
   if (list.hooks.resolveInput) {
     try {
+      // eslint-disable-next-line require-atomic-updates
       resolvedData = (await list.hooks.resolveInput({ ...hookArgs, resolvedData })) as any;
     } catch (error: any) {
       throw extensionError(hookName, [{ error, tag: `${list.listKey}.hooks.${hookName}` }]);
@@ -373,6 +301,7 @@ async function getResolvedData(
   return resolvedData;
 }
 
+// eslint-disable-next-line max-params
 async function resolveInputForCreateOrUpdate(
   list: InitialisedList,
   context: PickerContext,
@@ -386,15 +315,17 @@ async function resolveInputForCreateOrUpdate(
     inputData,
     resolvedData: {}
   };
-  const hookArgs: any =
+  const hookArgs =
     item === undefined
       ? { ...baseHookArgs, operation: 'create' as const, item }
       : { ...baseHookArgs, operation: 'update' as const, item };
 
   // Take the original input and resolve all the fields down to what
   // will be saved into the database.
+  // eslint-disable-next-line require-atomic-updates,@typescript-eslint/ban-ts-comment
+  // @ts-ignore
   // eslint-disable-next-line require-atomic-updates
-  hookArgs.resolvedData = await getResolvedData(list, hookArgs as any, nestedMutationState);
+  hookArgs.resolvedData = await getResolvedData(list, hookArgs, nestedMutationState);
 
   // Apply all validation checks
   await validateUpdateCreate({ list, hookArgs });
@@ -415,6 +346,9 @@ async function resolveInputForCreateOrUpdate(
         // but TypeScript needs it because in each case, it will narrow
         // `hookArgs` based on the `operation` which will make `hookArgs.item`
         // be the right type for `originalItem` for the operation
+        // {...hookArgs, item: updatedItem, originalItem: hookArgs.item}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         hookArgs.operation === 'create'
           ? { ...hookArgs, item: updatedItem, originalItem: hookArgs.item }
           : { ...hookArgs, item: updatedItem, originalItem: hookArgs.item }

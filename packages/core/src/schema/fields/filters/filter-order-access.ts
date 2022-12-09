@@ -1,6 +1,6 @@
-import { accessReturnError, extensionError, filterAccessError } from "../../error/graphql-errors";
-import { InitialisedList } from "../../prisma/prisma-schema";
-import { PickerContext } from "../picker-context";
+import { accessReturnError, extensionError, filterAccessError } from '../../error/graphql-errors';
+import { PickerContext } from '../../types';
+import { InitialisedList } from '../../types-for-lists';
 
 export async function checkFilterOrderAccess(
   things: { fieldKey: string; list: InitialisedList }[],
@@ -22,9 +22,11 @@ export async function checkFilterOrderAccess(
       // Apply dynamic rules
       let result;
       try {
+        // eslint-disable-next-line no-await-in-loop
         result = await rule({ context, session: context.session, listKey: list.listKey, fieldKey });
       } catch (error: any) {
         accessErrors.push({ error, tag: `${list.listKey}.${fieldKey}.${func}` });
+        // eslint-disable-next-line no-continue
         continue;
       }
       const resultType = typeof result;

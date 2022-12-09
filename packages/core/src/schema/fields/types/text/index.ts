@@ -1,16 +1,8 @@
-import { humanize } from '../../../types-for-lists';
-import {
-  filters,
-  BaseModelTypeInfo,
-  CommonFieldConfig,
-  graphql,
-  BaseItem,
-  fieldType,
-  FieldData,
-  FieldTypeFunc,
-  ListGraphQLTypes,
-  orderDirectionEnum
-} from '../../../types';
+import { BaseModelTypeInfo, CommonFieldConfig, fieldType, FieldTypeFunc, orderDirectionEnum } from '../../../types';
+import { humanize } from '../../../../utils/utils';
+import { assertCreateIsNonNullAllowed, assertReadIsNonNullAllowed } from '../../non-null-graphql';
+import { filters } from '../../filters';
+import { graphql } from '../../../types/schema';
 
 export type TextFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = CommonFieldConfig<ModelTypeInfo> & {
   isIndexed?: true | 'unique';
@@ -60,17 +52,18 @@ export const text =
     validation: _validation,
     ...config
   }: TextFieldConfig<ModelTypeInfo> = {}): FieldTypeFunc<ModelTypeInfo> =>
+  // eslint-disable-next-line complexity
   meta => {
     for (const type of ['min', 'max'] as const) {
       const val = _validation?.length?.[type];
       if (val !== undefined && (!Number.isInteger(val) || val < 0)) {
         throw new Error(
-          `The text field at ${meta.modelKey}.${meta.fieldKey} specifies validation.length.${type}: ${val} but it must be a positive integer`
+          `The text field at ${meta.listKey}.${meta.fieldKey} specifies validation.length.${type}: ${val} but it must be a positive integer`
         );
       }
       if (_validation?.isRequired && val !== undefined && val === 0) {
         throw new Error(
-          `The text field at ${meta.modelKey}.${meta.fieldKey} specifies validation.isRequired: true and validation.length.${type}: 0, this is not allowed because validation.isRequired implies at least a min length of 1`
+          `The text field at ${meta.listKey}.${meta.fieldKey} specifies validation.isRequired: true and validation.length.${type}: 0, this is not allowed because validation.isRequired implies at least a min length of 1`
         );
       }
     }
@@ -85,12 +78,13 @@ export const text =
     // const fieldType
     const isNullable = config.db?.isNullable ?? false;
     const fieldLabel = config.label ?? humanize(meta.fieldKey);
-    // assertReadIsNonNullAllowed(meta, config, isNullable);
+    assertReadIsNonNullAllowed(meta, config, isNullable);
+
+    assertCreateIsNonNullAllowed(meta, config);
 
     const mode = isNullable ? 'optional' : 'required';
     const defaultValue = isNullable === false || _defaultValue !== undefined ? _defaultValue || '' : undefined;
 
-    // console.log(JSON.stringify(meta))
     return fieldType({
       kind: 'scalar',
       mode,
@@ -101,7 +95,34 @@ export const text =
       nativeType: config.db?.nativeType
     })({
       ...config,
-      // hooks: {},
+      hooks: {
+        ...config.hooks,
+        async validateInput(args) {
+          const val = args.resolvedData[meta.fieldKey];
+          if (val === null && (validation?.isRequired || isNullable === false)) {
+            args.addValidationError(`${fieldLabel} 是必填的`);
+          }
+          if (val !== null) {
+            if (validation?.length?.min !== undefined && val.length < validation.length.min) {
+              if (validation.length.min === 1) {
+                args.addValidationError(`${fieldLabel} 不能为空`);
+              } else {
+                args.addValidationError(`${fieldLabel} 字符长度不能小于 ${validation.length.min}`);
+              }
+            }
+            if (validation?.length?.max !== undefined && val.length > validation.length.max) {
+              args.addValidationError(`${fieldLabel} 字符长度不能超过 ${validation.length.max} `);
+            }
+            if (validation?.match && !validation.match.regex.test(val)) {
+              args.addValidationError(
+                validation.match.explanation || `${fieldLabel} 必须匹配 ${validation.match.regex}`
+              );
+            }
+          }
+
+          await config.hooks?.validateInput?.(args);
+        }
+      },
       input: {
         uniqueWhere: isIndexed === 'unique' ? { arg: graphql.arg({ type: graphql.String }) } : undefined,
         where: {

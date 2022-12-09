@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '../config';

@@ -32,7 +32,7 @@
     "@nestjs/platform-express": "^9.2.0",
     "@pickerjs/asset-server-plugin": "workspace:*",
     "@pickerjs/common": "workspace:*",
-    "@pickerjs/core": "workspace:*",
+    "@pickerjs/core": "workspace:0.2.0-beta.16",
     "@pickerjs/wechat-plugin": "workspace:*",
     "@prisma/client": "^4.3.1",
     "@types/node": "^18.7.18",

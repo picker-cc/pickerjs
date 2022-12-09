@@ -1,71 +1,108 @@
 import { assertInputObjectType } from 'graphql';
-import { getGqlNames, InitialisedList } from '../prisma/prisma-schema';
 import { accessReturnError, extensionError } from '../error/graphql-errors';
-import { InputFilter } from '../types/filters/where-inputs';
-import { PickerContext, MaybePromise, BaseListTypeInfo, PickerContextFromListTypeInfo } from '../types';
+import { InputFilter } from '../fields/filters/where-inputs';
+import {
+  PickerContext,
+  BaseListTypeInfo,
+  getGqlNames,
+  IndividualFieldAccessControl,
+  FieldCreateItemAccessArgs,
+  FieldUpdateItemAccessArgs,
+  FieldReadItemAccessArgs,
+  FieldAccessControl,
+  MaybePromise
+} from '../types';
 import { coerceAndValidateForGraphQLInput } from '../coerceAndValidateForGraphQLInput';
+import {
+  AccessOperation,
+  BaseAccessArgs,
+  CreateListItemAccessControl,
+  DeleteListItemAccessControl,
+  ListFilterAccessControl,
+  ListOperationAccessControl,
+  UpdateListItemAccessControl
+} from '../types/config/access-control';
+import { InitialisedList } from '../types-for-lists';
 
-interface BaseAccessArgs<ListTypeInfo extends BaseListTypeInfo> {
-  session: any;
-  listKey: string;
-  context: PickerContextFromListTypeInfo<ListTypeInfo>;
+export function cannotForItem(operation: string, list: InitialisedList) {
+  return `你不能 ${operation} 这个 ${list.listKey}${operation === 'create' ? '' : ' - 它可能不存在'}`;
 }
 
-// List Filter Access
+export function cannotForItemFields(operation: string, list: InitialisedList, fieldsDenied: string[]) {
+  return `你不能 ${operation} 这个 ${list.listKey} - 你不能 ${operation} 这些字段 ${JSON.stringify(fieldsDenied)}`;
+}
 
-type FilterOutput<ListTypeInfo extends BaseListTypeInfo> = boolean | ListTypeInfo['inputs']['where'];
+export async function getOperationAccess(
+  list: InitialisedList,
+  context: PickerContext,
+  operation: 'delete' | 'create' | 'update' | 'query'
+) {
+  const args = { operation, session: context.session, listKey: list.listKey, context };
+  // Check the mutation access
+  const access = list.access.operation[operation];
+  let result;
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    result = await access(args);
+  } catch (error: any) {
+    throw extensionError('权限控制', [{ error, tag: `${list.listKey}.access.operation.${args.operation}` }]);
+  }
 
-export type ListFilterAccessControl<
-  Operation extends 'query' | 'update' | 'delete',
-  ListTypeInfo extends BaseListTypeInfo
-> = (args: BaseAccessArgs<ListTypeInfo> & { operation: Operation }) => MaybePromise<FilterOutput<ListTypeInfo>>;
+  const resultType = typeof result;
 
-// List Item Access
+  // It's important that we don't cast objects to truthy values, as there's a strong chance that the user
+  // has accidentally tried to return a filter.
+  // 不要将对象强制转换为真值，因为很有可能返回的是一个过滤器
+  if (resultType !== 'boolean') {
+    throw accessReturnError([{ tag: `${args.listKey}.access.operation.${args.operation}`, returned: resultType }]);
+  }
 
-type CreateItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = BaseAccessArgs<ListTypeInfo> & {
-  operation: 'create';
-  /**
-   * The input passed in from the GraphQL API
-   */
-  inputData: ListTypeInfo['inputs']['create'];
-};
+  return result;
+}
 
-export type CreateListItemAccessControl<ListTypeInfo extends BaseListTypeInfo> = (
-  args: CreateItemAccessArgs<ListTypeInfo>
-) => MaybePromise<boolean>;
+export async function getAccessFilters(
+  list: InitialisedList,
+  context: PickerContext,
+  operation: keyof typeof list.access.filter
+): Promise<boolean | InputFilter> {
+  try {
+    let filters;
+    if (operation === 'query') {
+      filters = await list.access.filter.query({
+        operation,
+        session: context.session,
+        listKey: list.listKey,
+        context
+      });
+    } else if (operation === 'update') {
+      filters = await list.access.filter.update({
+        operation,
+        session: context.session,
+        listKey: list.listKey,
+        context
+      });
+    } else if (operation === 'delete') {
+      filters = await list.access.filter.delete({
+        operation,
+        session: context.session,
+        listKey: list.listKey,
+        context
+      });
+    }
 
-type UpdateItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = BaseAccessArgs<ListTypeInfo> & {
-  operation: 'update';
-  /**
-   * The item being updated
-   */
-  item: ListTypeInfo['item'];
-  /**
-   * The input passed in from the GraphQL API
-   */
-  inputData: ListTypeInfo['inputs']['update'];
-};
+    if (typeof filters === 'boolean') return filters;
+    if (!filters) return false; // shouldn't happen, but, Typescript
 
-export type UpdateListItemAccessControl<ListTypeInfo extends BaseListTypeInfo> = (
-  args: UpdateItemAccessArgs<ListTypeInfo>
-) => MaybePromise<boolean>;
-
-type DeleteItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = BaseAccessArgs<ListTypeInfo> & {
-  operation: 'delete';
-  /**
-   * The item being deleted
-   */
-  item: ListTypeInfo['item'];
-};
-
-export type DeleteListItemAccessControl<ListTypeInfo extends BaseListTypeInfo> = (
-  args: DeleteItemAccessArgs<ListTypeInfo>
-) => MaybePromise<boolean>;
-
-export type ListOperationAccessControl<
-  Operation extends 'create' | 'query' | 'update' | 'delete',
-  ListTypeInfo extends BaseListTypeInfo
-> = (args: BaseAccessArgs<ListTypeInfo> & { operation: Operation }) => MaybePromise<boolean>;
+    const schema = context.sudo().graphql.schema;
+    const whereInput = assertInputObjectType(schema.getType(getGqlNames(list).whereInputName));
+    const result = coerceAndValidateForGraphQLInput(schema, whereInput, filters);
+    if (result.kind === 'valid') return result.value;
+    throw result.error;
+  } catch (error: any) {
+    throw extensionError('权限控制', [{ error, tag: `${list.listKey}.access.filter.${operation.toString()}` }]);
+  }
+}
 
 // 列表级访问控制，允许为每个列表自动生成的 CRUD API 设置权限。
 //
@@ -83,212 +120,139 @@ export type ListOperationAccessControl<
 //     - 多项查询将过滤那些访问被拒绝的条目，无错误信息
 //     - Count 查询将只计算那些访问没有被拒绝的项目，无错误信息
 //
-export interface ListAccessControl<ListTypeInfo extends BaseListTypeInfo> {
-  // These functions should return `true` if access is allowed or `false` if access is denied.
-  operation?: {
-    query?: ListOperationAccessControl<'query', ListTypeInfo>;
-    create?: ListOperationAccessControl<'create', ListTypeInfo>;
-    update?: ListOperationAccessControl<'update', ListTypeInfo>;
-    delete?: ListOperationAccessControl<'delete', ListTypeInfo>;
-  };
+export type ListAccessControl<ListTypeInfo extends BaseListTypeInfo> =
+  | ListAccessControlFunction<ListTypeInfo>
+  | ListAccessControlObject<ListTypeInfo>;
 
-  // 这个 'filter' 规则可以返回：
-  // - 一个过滤器。在这种情况下，操作可以继续进行，但是在 updating/reading/deleting 时将额外应用过滤器，这可能会使某些项看起来不存在。
-  // - 布尔值 true/false。 如果为 false，则视为永远不匹配的过滤器。
+type ListAccessControlFunction<ListTypeInfo extends BaseListTypeInfo> = (
+  args: BaseAccessArgs<ListTypeInfo> & { operation: AccessOperation }
+) => MaybePromise<boolean>;
+
+type ListAccessControlObject<ListTypeInfo extends BaseListTypeInfo> = {
+  // These functions should return `true` if access is allowed or `false` if access is denied.
+  operation:
+    | ListOperationAccessControl<AccessOperation, ListTypeInfo>
+    | {
+        query: ListOperationAccessControl<'query', ListTypeInfo>;
+        create: ListOperationAccessControl<'create', ListTypeInfo>;
+        update: ListOperationAccessControl<'update', ListTypeInfo>;
+        delete: ListOperationAccessControl<'delete', ListTypeInfo>;
+      };
+
+  // The 'filter' rules can return either:
+  // - a filter. In this case, the operation can proceed, but the filter will be additionally applied when updating/reading/deleting
+  //   which may make it appear that some of the items don't exist.
+  // - boolean true/false. If false, treated as a filter that never matches.
   filter?: {
     query?: ListFilterAccessControl<'query', ListTypeInfo>;
+    // create?: not supported
     update?: ListFilterAccessControl<'update', ListTypeInfo>;
     delete?: ListFilterAccessControl<'delete', ListTypeInfo>;
-    // create: not supported: FIXME: Add explicit check that people don't try this.
-    // FIXME: Write tests for parseAccessControl.
   };
 
   // These rules are applied to each item being operated on individually. They return `true` or `false`,
   // and if false, an access denied error will be returned for the individual operation.
-  // 这些规则应用于被单独操作的每个项目。它们返回 `true` 或 `false`,
-  // 如果为 false，将为单个操作返回一个拒绝访问的错误。
   item?: {
-    // query: not supported
+    // read?: not supported
     create?: CreateListItemAccessControl<ListTypeInfo>;
     update?: UpdateListItemAccessControl<ListTypeInfo>;
     delete?: DeleteListItemAccessControl<ListTypeInfo>;
   };
-}
-
-// Field Access
-export type IndividualFieldAccessControl<Args> = (args: Args) => MaybePromise<boolean>;
-
-export type FieldCreateItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = CreateItemAccessArgs<ListTypeInfo> & {
-  fieldKey: string;
 };
-
-export type FieldReadItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = BaseAccessArgs<ListTypeInfo> & {
-  operation: 'read';
-  fieldKey: string;
-  item: ListTypeInfo['item'];
-};
-
-export type FieldUpdateItemAccessArgs<ListTypeInfo extends BaseListTypeInfo> = UpdateItemAccessArgs<ListTypeInfo> & {
-  fieldKey: string;
-};
-
-export type FieldAccessControl<ListTypeInfo extends BaseListTypeInfo> =
-  | {
-      read?: IndividualFieldAccessControl<FieldReadItemAccessArgs<ListTypeInfo>>;
-      create?: IndividualFieldAccessControl<FieldCreateItemAccessArgs<ListTypeInfo>>;
-      update?: IndividualFieldAccessControl<FieldUpdateItemAccessArgs<ListTypeInfo>>;
-      // filter?: COMING SOON
-      // orderBy?: COMING SOON
-    }
-  | IndividualFieldAccessControl<
-      | FieldCreateItemAccessArgs<ListTypeInfo>
-      | FieldReadItemAccessArgs<ListTypeInfo>
-      | FieldUpdateItemAccessArgs<ListTypeInfo>
-    >;
-
-export async function getOperationAccess(
-  list: InitialisedList,
-  context: PickerContext,
-  operation: 'delete' | 'create' | 'update' | 'query'
-) {
-  const args = { operation, session: context.session, listKey: list.listKey, context };
-  // Check the mutation access
-  const access = list.access.operation[operation];
-  let result;
-  try {
-    // @ts-ignore
-    result = await access(args);
-  } catch (error: any) {
-    throw extensionError('Access control', [{ error, tag: `${list.listKey}.access.operation.${args.operation}` }]);
-  }
-
-  const resultType = typeof result;
-
-  // It's important that we don't cast objects to truthy values, as there's a strong chance that the user
-  // has accidentally tried to return a filters.
-  if (resultType !== 'boolean') {
-    throw accessReturnError([{ tag: `${args.listKey}.access.operation.${args.operation}`, returned: resultType }]);
-  }
-
-  return result;
-}
-
-export async function getAccessFilters(
-  list: InitialisedList,
-  context: PickerContext,
-  operation: 'update' | 'query' | 'delete'
-): Promise<boolean | InputFilter> {
-  const args = { operation, session: context.session, listKey: list.listKey, context };
-  // Check the mutation access
-  const access = list.access.filter[operation];
-  try {
-    // @ts-ignore
-    const filters = typeof access === 'function' ? await access(args) : access;
-    if (typeof filters === 'boolean') {
-      return filters;
-    }
-    const schema = context.sudo().graphql.schema;
-    const whereInput = assertInputObjectType(schema.getType(getGqlNames(list).whereInputName));
-    const result = coerceAndValidateForGraphQLInput(schema, whereInput, filters);
-    if (result.kind === 'valid') {
-      return result.value;
-    }
-    throw result.error;
-  } catch (error: any) {
-    throw extensionError('Access control', [{ error, tag: `${args.listKey}.access.filter.${args.operation}` }]);
-  }
-}
 
 export function parseFieldAccessControl(
   access: FieldAccessControl<BaseListTypeInfo> | undefined
 ): ResolvedFieldAccessControl {
-  if (typeof access === 'boolean' || typeof access === 'function') {
+  if (typeof access === 'function') {
     return { read: access, create: access, update: access };
   }
-  // note i'm intentionally not using spread here because typescript can't express an optional property which cannot be undefined so spreading would mean there is a possibility that someone could pass {access: undefined} or {access:{read: undefined}} and bad things would happen
+
   return {
     read: access?.read ?? (() => true),
     create: access?.create ?? (() => true),
     update: access?.update ?? (() => true)
-    // delete: not supported
   };
 }
 
-export interface ResolvedFieldAccessControl {
-  read: IndividualFieldAccessControl<FieldReadItemAccessArgs<BaseListTypeInfo>>;
-  create: IndividualFieldAccessControl<FieldCreateItemAccessArgs<BaseListTypeInfo>>;
-  update: IndividualFieldAccessControl<FieldUpdateItemAccessArgs<BaseListTypeInfo>>;
-}
-
-export function parseListAccessControl(
-  access: ListAccessControl<BaseListTypeInfo> | undefined
-): ResolvedListAccessControl {
-  let filter;
-  let item;
-  let operation;
-
-  // console.log(access.operation)
-  if (typeof access?.operation === 'function') {
-    operation = {
-      create: access.operation,
-      query: access.operation,
-      update: access.operation,
-      delete: access.operation
-    };
-  } else {
-    // Note I'm intentionally not using spread here because typescript can't express
-    // an optional property which cannot be undefined so spreading would mean there
-    // is a possibility that someone could pass { access: undefined } or
-    // { access: { read: undefined } } and bad things would happen.
-    operation = {
-      create: access?.operation?.create ?? (() => true),
-      query: access?.operation?.query ?? (() => true),
-      update: access?.operation?.update ?? (() => true),
-      delete: access?.operation?.delete ?? (() => true)
-    };
-  }
-
-  if (typeof access?.filter === 'boolean' || typeof access?.filter === 'function') {
-    filter = { query: access.filter, update: access.filter, delete: access.filter };
-  } else {
-    filter = {
-      // create: not supported
-      query: access?.filter?.query ?? (() => true),
-      update: access?.filter?.update ?? (() => true),
-      delete: access?.filter?.delete ?? (() => true)
-    };
-  }
-
-  if (typeof access?.item === 'boolean' || typeof access?.item === 'function') {
-    item = { create: access.item, update: access.item, delete: access.item };
-  } else {
-    item = {
-      create: access?.item?.create ?? (() => true),
-      // read: not supported
-      update: access?.item?.update ?? (() => true),
-      delete: access?.item?.delete ?? (() => true)
-    };
-  }
-  return { operation, filter, item };
-}
-
-export interface ResolvedListAccessControl {
+// Field Access
+export type ResolvedListAccessControl = {
   operation: {
-    create: ListOperationAccessControl<'create', BaseListTypeInfo>;
     query: ListOperationAccessControl<'query', BaseListTypeInfo>;
+    create: ListOperationAccessControl<'create', BaseListTypeInfo>;
     update: ListOperationAccessControl<'update', BaseListTypeInfo>;
     delete: ListOperationAccessControl<'delete', BaseListTypeInfo>;
   };
   filter: {
-    // create: not supported
     query: ListFilterAccessControl<'query', BaseListTypeInfo>;
+    // create: not supported
     update: ListFilterAccessControl<'update', BaseListTypeInfo>;
     delete: ListFilterAccessControl<'delete', BaseListTypeInfo>;
   };
   item: {
-    create: CreateListItemAccessControl<BaseListTypeInfo>;
     // query: not supported
+    create: CreateListItemAccessControl<BaseListTypeInfo>;
     update: UpdateListItemAccessControl<BaseListTypeInfo>;
     delete: DeleteListItemAccessControl<BaseListTypeInfo>;
+  };
+};
+
+export type ResolvedFieldAccessControl = {
+  create: IndividualFieldAccessControl<FieldCreateItemAccessArgs<BaseListTypeInfo>>;
+  read: IndividualFieldAccessControl<FieldReadItemAccessArgs<BaseListTypeInfo>>;
+  update: IndividualFieldAccessControl<FieldUpdateItemAccessArgs<BaseListTypeInfo>>;
+};
+
+export function parseListAccessControl(access: ListAccessControl<BaseListTypeInfo>): ResolvedListAccessControl {
+  if (typeof access === 'function') {
+    return {
+      operation: {
+        query: access,
+        create: access,
+        update: access,
+        delete: access
+      },
+      filter: {
+        query: () => true,
+        update: () => true,
+        delete: () => true
+      },
+      item: {
+        create: () => true,
+        update: () => true,
+        delete: () => true
+      }
+    };
+  }
+
+  // eslint-disable-next-line prefer-const
+  let { operation, filter, item } = access;
+  if (typeof operation === 'function') {
+    operation = {
+      query: operation,
+      create: operation,
+      update: operation,
+      delete: operation
+    };
+  }
+
+  return {
+    operation: {
+      query: operation.query ?? (() => true),
+      create: operation.create ?? (() => true),
+      update: operation.update ?? (() => true),
+      delete: operation.delete ?? (() => true)
+    },
+    filter: {
+      query: filter?.query ?? (() => true),
+      // create: not supported
+      update: filter?.update ?? (() => true),
+      delete: filter?.delete ?? (() => true)
+    },
+    item: {
+      // query: not supported
+      create: item?.create ?? (() => true),
+      update: item?.update ?? (() => true),
+      delete: item?.delete ?? (() => true)
+    }
   };
 }

@@ -1,16 +1,15 @@
 import { AuthGqlNames, AuthTokenTypeConfig, SecretFieldImpl } from '../types';
-
 import { createAuthToken } from '../lib/createAuthToken';
 import { validateAuthToken } from '../lib/validateAuthToken';
 import { getAuthTokenErrorMessage } from '../lib/getErrorMessage';
-import {BaseItem, graphql} from "../../schema/types";
-
+import { BaseItem } from '../../schema/types';
+import { graphql } from '../../schema';
 
 const errorCodes = ['FAILURE', 'TOKEN_EXPIRED', 'TOKEN_REDEEMED'] as const;
 
 const MagicLinkRedemptionErrorCode = graphql.enum({
   name: 'MagicLinkRedemptionErrorCode',
-  values: graphql.enumValues(errorCodes),
+  values: graphql.enumValues(errorCodes)
 });
 
 export function getMagicAuthLinkSchema<I extends string>({
@@ -19,7 +18,7 @@ export function getMagicAuthLinkSchema<I extends string>({
   gqlNames,
   magicAuthLink,
   magicAuthTokenSecretFieldImpl,
-  base,
+  base
 }: {
   listKey: string;
   identityField: I;
@@ -35,30 +34,29 @@ export function getMagicAuthLinkSchema<I extends string>({
     name: gqlNames.RedeemItemMagicAuthTokenFailure,
     fields: {
       code: graphql.field({ type: graphql.nonNull(MagicLinkRedemptionErrorCode) }),
-      message: graphql.field({ type: graphql.nonNull(graphql.String) }),
-    },
+      message: graphql.field({ type: graphql.nonNull(graphql.String) })
+    }
   });
   const RedeemItemMagicAuthTokenSuccess = graphql.object<{ token: string; item: BaseItem }>()({
     name: gqlNames.RedeemItemMagicAuthTokenSuccess,
     fields: {
       token: graphql.field({ type: graphql.nonNull(graphql.String) }),
-      item: graphql.field({ type: graphql.nonNull(base.object(listKey)) }),
-    },
+      item: graphql.field({ type: graphql.nonNull(base.object(listKey)) })
+    }
   });
   const RedeemItemMagicAuthTokenResult = graphql.union({
     name: gqlNames.RedeemItemMagicAuthTokenResult,
     types: [RedeemItemMagicAuthTokenSuccess, RedeemItemMagicAuthTokenFailure],
     resolveType(val) {
-      return 'token' in val
-        ? gqlNames.RedeemItemMagicAuthTokenSuccess
-        : gqlNames.RedeemItemMagicAuthTokenFailure;
-    },
+      return 'token' in val ? gqlNames.RedeemItemMagicAuthTokenSuccess : gqlNames.RedeemItemMagicAuthTokenFailure;
+    }
   });
   return {
     mutation: {
       [gqlNames.sendItemMagicAuthLink]: graphql.field({
         type: graphql.nonNull(graphql.Boolean),
         args: { [identityField]: graphql.arg({ type: graphql.nonNull(graphql.String) }) },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async resolve(rootVal, { [identityField]: identity }, context) {
           const dbItemAPI = context.sudo().db[listKey];
           const tokenType = 'magicAuth';
@@ -74,23 +72,24 @@ export function getMagicAuthLinkSchema<I extends string>({
               data: {
                 [`${tokenType}Token`]: token,
                 [`${tokenType}IssuedAt`]: new Date().toISOString(),
-                [`${tokenType}RedeemedAt`]: null,
-              },
+                [`${tokenType}RedeemedAt`]: null
+              }
             });
 
             await magicAuthLink.sendToken({ itemId, identity, token, context });
           }
           return true;
-        },
+        }
       }),
       [gqlNames.redeemItemMagicAuthToken]: graphql.field({
         type: graphql.nonNull(RedeemItemMagicAuthTokenResult),
         args: {
           [identityField]: graphql.arg({ type: graphql.nonNull(graphql.String) }),
-          token: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+          token: graphql.arg({ type: graphql.nonNull(graphql.String) })
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async resolve(rootVal, { [identityField]: identity, token }, context) {
-          if (!context.startSession) {
+          if (!context.sessionStrategy) {
             throw new Error('No session implementation available on context');
           }
 
@@ -108,23 +107,27 @@ export function getMagicAuthLinkSchema<I extends string>({
           );
 
           if (!result.success) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-              return { code: result.code, message: getAuthTokenErrorMessage({ code: result.code }) };
+            return { code: result.code, message: getAuthTokenErrorMessage({ code: result.code }) };
           }
           // Update system state
           // Save the token and related info back to the item
           await dbItemAPI.updateOne({
             where: { id: result.item.id },
-            data: { [`${tokenType}RedeemedAt`]: new Date().toISOString() },
+            data: { [`${tokenType}RedeemedAt`]: new Date().toISOString() }
           });
 
-          const sessionToken = await context.startSession({
-            listKey,
-            itemId: result.item.id.toString(),
-          });
+          const sessionToken = (await context.sessionStrategy.start({
+            data: {
+              listKey,
+              itemId: result.item.id.toString()
+            },
+            context
+          })) as string;
           return { token: sessionToken, item: result.item };
-        },
-      }),
-    },
+        }
+      })
+    }
   };
 }

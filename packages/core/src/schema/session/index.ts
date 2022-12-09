@@ -1,10 +1,9 @@
-import { IncomingMessage, ServerResponse } from 'http';
 import * as cookie from 'cookie';
 import Iron from '@hapi/iron';
 // uid-safe is what express-session uses so let's just use it
 import { sync as uid } from 'uid-safe';
 // import { Request, Response } from 'express';
-import { CreateContext, SessionContext, SessionStoreFunction, SessionStrategy, JSONValue } from '../types';
+import { SessionStoreFunction, SessionStrategy, JSONValue } from '../types';
 // import { extractSessionToken } from '../../api/common/extract-auth-token';
 // import {
 //     SessionStrategy,
@@ -87,18 +86,12 @@ export function statelessSessions<T>({
     throw new Error('The session secret must be at least 32 characters long');
   }
   return {
-    async get({ req }) {
-      // const sessionToken = extractSessionToken(req, this.configService.authOptions.tokenMethod);
-      // const authHeader = req.get('Authorization');
-      // if (authHeader) {
-      //     const matches = authHeader.trim().match(/^bearer\s(.+)$/i);
-      //     if (matches) {
-      //         return matches[1];
-      //     }
-      // }
-      // console.log(authHeader)
-      const cookies = cookie.parse(req.headers.cookie || '');
-      const bearer = req.headers.authorization?.replace('Bearer ', '');
+    async get({ context }) {
+      if (!context?.req) {
+        return;
+      }
+      const cookies = cookie.parse(context.req.headers.cookie || '');
+      const bearer = context.req.headers.authorization?.replace('Bearer ', '');
       const token = bearer || cookies[TOKEN_NAME];
       if (!token) return;
       try {
@@ -106,8 +99,8 @@ export function statelessSessions<T>({
         return await Iron.unseal(token, secret, ironOptions);
       } catch (err) {}
     },
-    async end({ res }) {
-      res.setHeader(
+    async end({ context }) {
+      context.res.setHeader(
         'Set-Cookie',
         cookie.serialize(TOKEN_NAME, '', {
           maxAge: 0,
@@ -121,7 +114,8 @@ export function statelessSessions<T>({
       );
     },
     // Token 在这里生成
-    async start({ res, data }) {
+    async start({ context, data }) {
+      if (!context?.res) return;
       // 将对象序列化、加密和签名为协议字符串
       // 参数
       // object - 数据被密封
@@ -131,7 +125,7 @@ export function statelessSessions<T>({
       // 密封的字符串
       const sealedData = await Iron.seal(data, secret, { ...ironOptions, ttl: maxAge * 1000 });
 
-      res.setHeader(
+      context.res.setHeader(
         'Set-Cookie',
         cookie.serialize(TOKEN_NAME, sealedData, {
           maxAge,
@@ -144,6 +138,7 @@ export function statelessSessions<T>({
         })
       );
 
+      // eslint-disable-next-line consistent-return
       return sealedData;
     }
   };
@@ -156,51 +151,67 @@ export function storedSessions({
 }: { store: SessionStoreFunction } & StatelessSessionsOptions): SessionStrategy<JSONValue> {
   const { get, start, end } = statelessSessions({ ...statelessSessionsOptions, maxAge });
   const store = typeof storeOption === 'function' ? storeOption({ maxAge }) : storeOption;
-  let isConnected = false;
+  // let isConnected = false;
   return {
     // eslint-disable-next-line consistent-return
-    async get({ req, createContext }) {
-      const data = (await get({ req, createContext })) as { sessionId: string } | undefined;
+    async get({ context }) {
+      const data = (await get({ context })) as { sessionId: string } | undefined;
       const sessionId = data?.sessionId;
       if (typeof sessionId === 'string') {
-        if (!isConnected) {
-          await store.connect?.();
-          // eslint-disable-next-line require-atomic-updates
-          isConnected = true;
-        }
         return store.get(sessionId);
       }
+      // if (typeof sessionId === 'string') {
+      //   if (!isConnected) {
+      //     await store.connect?.();
+      //     // eslint-disable-next-line require-atomic-updates
+      //     isConnected = true;
+      //   }
+      //   return store.get(sessionId);
+      // }
     },
-    async start({ res, data, createContext }) {
+    async start({ data, context }) {
       const sessionId = generateSessionId();
-      if (!isConnected) {
-        await store.connect?.();
-        // eslint-disable-next-line require-atomic-updates
-        isConnected = true;
-      }
       await store.set(sessionId, data);
-      return start?.({ res, data: { sessionId }, createContext }) || '';
+      return start?.({ data: { sessionId }, context }) || '';
     },
-    async end({ req, res, createContext }) {
-      const data = (await get({ req, createContext })) as { sessionId: string } | undefined;
+    async end({ context }) {
+      const data = (await get({ context })) as { sessionId: string } | undefined;
       const sessionId = data?.sessionId;
       if (typeof sessionId === 'string') {
-        if (!isConnected) {
-          await store.connect?.();
-          // eslint-disable-next-line require-atomic-updates
-          isConnected = true;
-        }
         await store.delete(sessionId);
       }
-      await end?.({ req, res, createContext });
-    },
-    async disconnect() {
-      if (isConnected) {
-        await store.disconnect?.();
-        // eslint-disable-next-line require-atomic-updates
-        isConnected = false;
-      }
+      await end?.({ context });
     }
+    // async start({ res, data, createContext }) {
+    //   const sessionId = generateSessionId();
+    //   if (!isConnected) {
+    //     await store.connect?.();
+    //     // eslint-disable-next-line require-atomic-updates
+    //     isConnected = true;
+    //   }
+    //   await store.set(sessionId, data);
+    //   return start?.({ res, data: { sessionId }, createContext }) || '';
+    // },
+    // async end({ req, res, createContext }) {
+    //   const data = (await get({ req, createContext })) as { sessionId: string } | undefined;
+    //   const sessionId = data?.sessionId;
+    //   if (typeof sessionId === 'string') {
+    //     if (!isConnected) {
+    //       await store.connect?.();
+    //       // eslint-disable-next-line require-atomic-updates
+    //       isConnected = true;
+    //     }
+    //     await store.delete(sessionId);
+    //   }
+    //   await end?.({ req, res, createContext });
+    // },
+    // async disconnect() {
+    //   if (isConnected) {
+    //     await store.disconnect?.();
+    //     // eslint-disable-next-line require-atomic-updates
+    //     isConnected = false;
+    //   }
+    // }
   };
 }
 
@@ -208,16 +219,16 @@ export function storedSessions({
  * This is the function createSystem uses to implement the session strategy provided
  */
 // eslint-disable-next-line max-params
-export async function createSessionContext<T>(
-  sessionStrategy: SessionStrategy<T>,
-  req: IncomingMessage,
-  res: ServerResponse,
-  createContext: CreateContext
-): Promise<SessionContext<T>> {
-  const sessionStore = await sessionStrategy.get({ req, createContext });
-  return {
-    session: sessionStore,
-    startSession: (data: T) => sessionStrategy.start({ res, data, createContext }),
-    endSession: () => sessionStrategy.end({ req, res, createContext })
-  };
-}
+// export async function createSessionContext<T>(
+//   sessionStrategy: SessionStrategy<T>,
+//   req: IncomingMessage,
+//   res: ServerResponse,
+//   createContext: CreateContext
+// ): Promise<SessionContext<T>> {
+//   const sessionStore = await sessionStrategy.get({ req, createContext });
+//   return {
+//     session: sessionStore,
+//     startSession: (data: T) => sessionStrategy.start({ res, data, createContext }),
+//     endSession: () => sessionStrategy.end({ req, res, createContext })
+//   };
+// }

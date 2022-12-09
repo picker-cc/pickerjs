@@ -1,6 +1,6 @@
-import {GraphQLError, GraphQLInputType, GraphQLSchema, Kind, VariableDefinitionNode} from 'graphql';
-import {getVariableValues} from 'graphql/execution/values';
-import {getTypeNodeForType} from "./context/executeGraphQLFieldToRootVal";
+import { GraphQLError, GraphQLInputType, GraphQLSchema, Kind, VariableDefinitionNode } from 'graphql';
+import { getVariableValues } from 'graphql/execution/values';
+import { getTypeNodeForType } from './context/executeGraphQLFieldToRootVal';
 
 const argName = 'where';
 
@@ -14,12 +14,12 @@ export function coerceAndValidateForGraphQLInput(
     {
       kind: Kind.VARIABLE_DEFINITION,
       type: getTypeNodeForType(type),
-      variable: { kind: Kind.VARIABLE, name: { kind: Kind.NAME, value: argName } },
-    },
+      variable: { kind: Kind.VARIABLE, name: { kind: Kind.NAME, value: argName } }
+    }
   ];
 
   const coercedVariableValues = getVariableValues(schema, variableDefintions, {
-    [argName]: value,
+    [argName]: value
   });
   if (coercedVariableValues.errors) {
     return { kind: 'error', error: coercedVariableValues.errors[0] };

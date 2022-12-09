@@ -1,25 +1,29 @@
-import type { ServerResponse, IncomingMessage } from 'http';
-import { CreateContext } from './core';
 import { JSONValue } from './utils';
+import { PickerContext } from './picker-context';
 
 export interface SessionStrategy<StoredSessionData, StartSessionData = never> {
   // creates token from data, sets the cookie with token via res, returns token
-  start: (args: {
-    res: ServerResponse;
-    data: StoredSessionData | StartSessionData;
-    createContext: CreateContext;
-  }) => Promise<string>;
+  // start: (args: {
+  //   res: ServerResponse;
+  //   data: StoredSessionData | StartSessionData;
+  //   createContext: CreateContext;
+  // }) => Promise<string>;
   // resets the cookie via res
-  end: (args: { req: IncomingMessage; res: ServerResponse; createContext: CreateContext }) => Promise<void>;
-  // -- this one is invoked at the start of every request
-  // reads the token, gets the data, returns it
-  get: (args: { req: IncomingMessage; createContext: CreateContext }) => Promise<StoredSessionData | undefined>;
-  disconnect?: () => Promise<void>;
+  // end: (args: { req: IncomingMessage; res: ServerResponse; createContext: CreateContext }) => Promise<void>;
+  // // -- this one is invoked at the start of every request
+  // // reads the token, gets the data, returns it
+  // get: (args: { req: IncomingMessage; createContext: CreateContext }) => Promise<StoredSessionData | undefined>;
+  get: (args: { context: PickerContext }) => Promise<StoredSessionData | undefined>;
+
+  start: (args: { data: StoredSessionData | StartSessionData; context: PickerContext }) => Promise<unknown>;
+
+  end: (args: { context: PickerContext }) => Promise<unknown>;
+  // disconnect?: () => Promise<void>;
 }
 
 export interface SessionStore {
-  connect?: () => Promise<void>;
-  disconnect?: () => Promise<void>;
+  // connect?: () => Promise<void>;
+  // disconnect?: () => Promise<void>;
   get(key: string): undefined | JSONValue | Promise<JSONValue | undefined>;
   // 😞 using any here rather than void to be compatible with Map. note that `| Promise<void>` doesn't actually do anything type wise because it just turns into any, it's just to show intent here
   set(key: string, value: JSONValue): any | Promise<void>;

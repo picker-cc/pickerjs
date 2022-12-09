@@ -1,9 +1,10 @@
-import { list, relationship, text, timestamp } from '@pickerjs/core';
+import { allowAll, list, relationship, text, timestamp } from '@pickerjs/core';
 import { trackingFields } from './utils';
 
 export const Administrator = list({
   // access: {},
   // ui: {}
+  access: allowAll,
   fields: {
     name: text({
       validation: {

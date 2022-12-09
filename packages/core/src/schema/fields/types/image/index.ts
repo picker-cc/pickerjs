@@ -1,162 +1,160 @@
 import {
-    filters,
-    graphql,
-    BaseModelTypeInfo,
-    CommonFieldConfig,
-    FieldData,
-    FieldTypeFunc,
-    Decimal,
-    fieldType,
-    orderDirectionEnum,
-    ImageData,
-    ImageExtension,
-    PickerContext
-} from "../../../types";
-import {SUPPORTED_IMAGE_EXTENSIONS} from "./utils";
+  BaseModelTypeInfo,
+  CommonFieldConfig,
+  FieldTypeFunc,
+  fieldType,
+  ImageData,
+  ImageExtension,
+  PickerContext
+} from '../../../types';
+import { graphql } from '../../../types/schema';
+import { SUPPORTED_IMAGE_EXTENSIONS } from './utils';
 
 export type ImageFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = {
-    storage: string;
+  storage: string;
 } & CommonFieldConfig<ModelTypeInfo>;
 
 const ImageExtensionEnum = graphql.enum({
-    name: 'ImageExtension',
-    values: graphql.enumValues(SUPPORTED_IMAGE_EXTENSIONS),
+  name: 'ImageExtension',
+  values: graphql.enumValues(SUPPORTED_IMAGE_EXTENSIONS)
 });
 
 const ImageFieldInput = graphql.inputObject({
-    name: 'ImageFieldInput',
-    fields: {
-        upload: graphql.arg({ type: graphql.nonNull(graphql.Upload) }),
-    },
+  name: 'ImageFieldInput',
+  fields: {
+    upload: graphql.arg({ type: graphql.nonNull(graphql.Upload) })
+  }
 });
 
 const inputArg = graphql.arg({ type: ImageFieldInput });
 
 const ImageFieldOutput = graphql.object<ImageData & { storage: string }>()({
-    name: 'ImageFieldOutput',
-    fields: {
-        id: graphql.field({ type: graphql.nonNull(graphql.ID) }),
-        filesize: graphql.field({ type: graphql.nonNull(graphql.Int) }),
-        width: graphql.field({ type: graphql.nonNull(graphql.Int) }),
-        height: graphql.field({ type: graphql.nonNull(graphql.Int) }),
-        extension: graphql.field({ type: graphql.nonNull(ImageExtensionEnum) }),
-        url: graphql.field({
-            type: graphql.nonNull(graphql.String),
-            resolve(data, args, context) {
-                return context.images(data.storage).getUrl(data.id, data.extension);
-            },
-        }),
-    },
+  name: 'ImageFieldOutput',
+  fields: {
+    id: graphql.field({ type: graphql.nonNull(graphql.ID) }),
+    filesize: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    width: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    height: graphql.field({ type: graphql.nonNull(graphql.Int) }),
+    extension: graphql.field({ type: graphql.nonNull(ImageExtensionEnum) }),
+    url: graphql.field({
+      type: graphql.nonNull(graphql.String),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      resolve(data, args, context) {
+        return context.images(data.storage).getUrl(data.id, data.extension);
+      }
+    })
+  }
 });
 
 async function inputResolver(
-    storage: string,
-    data: graphql.InferValueFromArg<typeof inputArg>,
-    context: PickerContext
+  storage: string,
+  data: graphql.InferValueFromArg<typeof inputArg>,
+  context: PickerContext
 ) {
-    if (data === null || data === undefined) {
-        return { extension: data, filesize: data, height: data, id: data, width: data };
-    }
-    const upload = await data.upload;
-    return context.images(storage).getDataFromStream(upload.createReadStream(), upload.filename);
+  if (data === null || data === undefined) {
+    return { extension: data, filesize: data, height: data, id: data, width: data };
+  }
+  const upload = await data.upload;
+  return context.images(storage).getDataFromStream(upload.createReadStream(), upload.filename);
 }
 
 const extensionsSet = new Set(SUPPORTED_IMAGE_EXTENSIONS);
 
 function isValidImageExtension(extension: string): extension is ImageExtension {
-    return extensionsSet.has(extension);
+  return extensionsSet.has(extension);
 }
 
 export const image =
-    <ModelTypeInfo extends BaseModelTypeInfo>(
-        config: ImageFieldConfig<ModelTypeInfo>
-    ): FieldTypeFunc<ModelTypeInfo> =>
-        meta => {
-            const storage = meta.getStorage(config.storage);
+  <ModelTypeInfo extends BaseModelTypeInfo>(config: ImageFieldConfig<ModelTypeInfo>): FieldTypeFunc<ModelTypeInfo> =>
+  meta => {
+    const storage = meta.getStorage(config.storage);
 
-            if (!storage) {
-                throw new Error(
-                    `${meta.modelKey}.${meta.fieldKey} has storage set to ${config.storage}, but no storage configuration was found for that key`
-                );
+    if (!storage) {
+      throw new Error(
+        `${meta.listKey}.${meta.fieldKey} has storage set to ${config.storage}, but no storage configuration was found for that key`
+      );
+    }
+
+    if ('isIndexed' in config) {
+      throw Error("isIndexed: 'unique' is not a supported option for field type image");
+    }
+
+    return fieldType({
+      kind: 'multi',
+      fields: {
+        filesize: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
+        extension: { kind: 'scalar', scalar: 'String', mode: 'optional' },
+        width: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
+        height: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
+        id: { kind: 'scalar', scalar: 'String', mode: 'optional' }
+      }
+    })({
+      ...config,
+      hooks: storage.preserve
+        ? config.hooks
+        : {
+            ...config.hooks,
+            async beforeOperation(args) {
+              await config.hooks?.beforeOperation?.(args);
+              if (args.operation === 'update' || args.operation === 'delete') {
+                const idKey = `${meta.fieldKey}_id`;
+                const id = args.item[idKey];
+                const extensionKey = `${meta.fieldKey}_extension`;
+                const extension = args.item[extensionKey];
+
+                // This will occur on an update where an image already existed but has been
+                // changed, or on a delete, where there is no longer an item
+                if (
+                  (args.operation === 'delete' ||
+                    typeof args.resolvedData[meta.fieldKey].id === 'string' ||
+                    args.resolvedData[meta.fieldKey].id === null) &&
+                  typeof id === 'string' &&
+                  typeof extension === 'string' &&
+                  isValidImageExtension(extension)
+                ) {
+                  await args.context.images(config.storage).deleteAtSource(id, extension);
+                }
+              }
             }
-
-            if ('isIndexed' in config) {
-                throw Error("isIndexed: 'unique' is not a supported option for field type image");
-            }
-
-            return fieldType({
-                kind: 'multi',
-                fields: {
-                    filesize: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
-                    extension: { kind: 'scalar', scalar: 'String', mode: 'optional' },
-                    width: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
-                    height: { kind: 'scalar', scalar: 'Int', mode: 'optional' },
-                    id: { kind: 'scalar', scalar: 'String', mode: 'optional' },
-                },
-            })({
-                ...config,
-                hooks: storage.preserve
-                    ? config.hooks
-                    : {
-                        ...config.hooks,
-                        async beforeOperation(args) {
-                            await config.hooks?.beforeOperation?.(args);
-                            if (args.operation === 'update' || args.operation === 'delete') {
-                                const idKey = `${meta.fieldKey}_id`;
-                                const id = args.item[idKey];
-                                const extensionKey = `${meta.fieldKey}_extension`;
-                                const extension = args.item[extensionKey];
-
-                                // This will occur on an update where an image already existed but has been
-                                // changed, or on a delete, where there is no longer an item
-                                if (
-                                    (args.operation === 'delete' ||
-                                        typeof args.resolvedData[meta.fieldKey].id === 'string' ||
-                                        args.resolvedData[meta.fieldKey].id === null) &&
-                                    typeof id === 'string' &&
-                                    typeof extension === 'string' &&
-                                    isValidImageExtension(extension)
-                                ) {
-                                    await args.context.images(config.storage).deleteAtSource(id, extension);
-                                }
-                            }
-                        },
-                    },
-                input: {
-                    create: {
-                        arg: inputArg,
-                        // @ts-ignore
-                        resolve: (data, context) => inputResolver(config.storage, data, context),
-                    },
-                    update: {
-                        arg: inputArg,
-                        // @ts-ignore
-                        resolve: (data, context) => inputResolver(config.storage, data, context),
-                    },
-                },
-                output: graphql.field({
-                    type: ImageFieldOutput,
-                    resolve({ value: { extension, filesize, height, id, width } }) {
-                        if (
-                            extension === null ||
-                            !isValidImageExtension(extension) ||
-                            filesize === null ||
-                            height === null ||
-                            width === null ||
-                            id === null
-                        ) {
-                            return null;
-                        }
-                        return {
-                            extension,
-                            filesize,
-                            height,
-                            width,
-                            id,
-                            storage: config.storage,
-                        };
-                    },
-                }),
-                views: '@pickerjs/core/fields/types/image/views',
-            });
-        };
+          },
+      input: {
+        create: {
+          arg: inputArg,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          resolve: (data, context) => inputResolver(config.storage, data, context)
+        },
+        update: {
+          arg: inputArg,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          resolve: (data, context) => inputResolver(config.storage, data, context)
+        }
+      },
+      output: graphql.field({
+        type: ImageFieldOutput,
+        resolve({ value: { extension, filesize, height, id, width } }) {
+          if (
+            extension === null ||
+            !isValidImageExtension(extension) ||
+            filesize === null ||
+            height === null ||
+            width === null ||
+            id === null
+          ) {
+            return null;
+          }
+          return {
+            extension,
+            filesize,
+            height,
+            width,
+            id,
+            storage: config.storage
+          };
+        }
+      }),
+      __pickerTelemetryFieldTypeName: '@pickerjs/image',
+      views: '@pickerjs/core/fields/types/image/views'
+    });
+  };

@@ -2,10 +2,8 @@ import type { DynamicModule, Type } from '@nestjs/common';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import type { PluginDefinition } from 'apollo-server-core';
 import type { GraphQLSchema } from 'graphql';
-import { ValidationContext } from 'graphql';
 import type { Middleware } from '../common';
-import { Injector } from '../common';
-import type { CreateContext, SchemaConfig } from '../schema/types';
+import type { SchemaConfig } from '../schema/types';
 import { PickerContext } from '../schema/types';
 import type { PickerLogger } from './logger/picker-logger';
 import type { AssetNamingStrategy } from './asset-naming-strategy/asset-naming-strategy';
@@ -154,7 +152,7 @@ export interface PickerConfig {
    */
   shouldDropDatabase: boolean;
   schemaConfig: SchemaConfig;
-  context?: CreateContext;
+  context?: PickerContext;
   graphqlSchema?: GraphQLSchema;
   /**
    * 配置 APIs，包含 hostname, port, CORS 设置
@@ -198,7 +196,8 @@ export interface PickerConfig {
  * @docsPage Configuration
  */
 export interface RuntimePickerConfig extends Required<PickerConfig> {
-  context: CreateContext;
+  // context: CreateContext;
+  context: PickerContext;
   apiOptions: Required<ApiOptions>;
 }
 

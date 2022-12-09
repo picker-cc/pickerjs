@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, OnApplicationShutdown } from '@nestjs/common';
-import { APP_GUARD, ModuleRef } from '@nestjs/core';
-import { Injector, Middleware, MiddlewareHandler } from './common';
+// import { APP_GUARD, ModuleRef } from '@nestjs/core';
+import { Middleware, MiddlewareHandler } from './common';
 import { ConfigModule, ConfigService, Logger } from './config';
 import { I18nModule } from './i18n/i18n.module';
 import { I18nService } from './i18n';
@@ -8,7 +8,7 @@ import { ApiModule } from './api/api.module';
 import { PluginModule } from './plugin/plugin.module';
 import { ServiceModule } from './service/service.module';
 import { RequestContextService } from './api/common/request-context.service';
-import { AuthGuard } from './api/middleware/auth-guard';
+// import { AuthGuard } from './api/middleware/auth-guard';
 import { EventBusModule } from './event-bus';
 import { ProcessContextModule } from './process-context/process-context.module';
 import { PickerContextModule } from './picker-context/picker-context.module';

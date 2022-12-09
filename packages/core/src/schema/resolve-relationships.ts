@@ -1,4 +1,4 @@
-import { DBField, MultiDBField, NoDBField, RelationDBField, ScalarishDBField } from "./prisma/prisma-schema";
+import { DBField, MultiDBField, NoDBField, RelationDBField, ScalarishDBField } from './types';
 
 type BaseResolvedRelationDBField = {
   kind: 'relation';
@@ -9,12 +9,12 @@ type BaseResolvedRelationDBField = {
 
 export type ResolvedRelationDBField =
   | (BaseResolvedRelationDBField & {
-  mode: 'many';
-})
+      mode: 'many';
+    })
   | (BaseResolvedRelationDBField & {
-  mode: 'one';
-  foreignIdField: { kind: 'none' } | { kind: 'owned' | 'owned-unique'; map: string };
-});
+      mode: 'one';
+      foreignIdField: { kind: 'none' } | { kind: 'owned' | 'owned-unique'; map: string };
+    });
 
 export type ListsWithResolvedRelations = Record<string, FieldsWithResolvedRelations>;
 
@@ -38,6 +38,7 @@ type RelWithoutForeignKeyAndName = Omit<Rel, 'field'> & {
   field: Omit<RelationDBField<'many' | 'one'>, 'foreignKey' | 'relationName'>;
 };
 
+// eslint-disable-next-line complexity
 function sortRelationships(left: Rel, right: Rel): readonly [Rel, RelWithoutForeignKeyAndName] {
   if (left.field.mode === 'one' && right.field.mode === 'one') {
     if (left.field.foreignKey !== undefined && right.field.foreignKey !== undefined) {
@@ -94,6 +95,7 @@ function sortRelationships(left: Rel, right: Rel): readonly [Rel, RelWithoutFore
 //   you only have to reason about two-sided relationships
 //   (note that this means that there are "fields" in the returned ListsWithResolvedRelations
 //   which are not actually proper Keystone fields, they are just a db field and nothing else)
+// eslint-disable-next-line complexity
 export function resolveRelationships(
   lists: Record<string, { fields: Record<string, { dbField: DBField }> }>
 ): ListsWithResolvedRelations {
@@ -106,6 +108,7 @@ export function resolveRelationships(
     for (const [fieldPath, { dbField: field }] of Object.entries(fields.fields)) {
       if (field.kind !== 'relation') {
         resolvedList[fieldPath] = field;
+        // eslint-disable-next-line no-continue
         continue;
       }
       const foreignUnresolvedList = lists[field.list];
@@ -118,6 +121,7 @@ export function resolveRelationships(
         const localRef = `${listKey}.${fieldPath}`;
         const foreignRef = `${field.list}.${field.field}`;
         if (alreadyResolvedTwoSidedRelationships.has(localRef)) {
+          // eslint-disable-next-line no-continue
           continue;
         }
         alreadyResolvedTwoSidedRelationships.add(foreignRef);
@@ -152,7 +156,7 @@ export function resolveRelationships(
           );
         }
 
-        let [leftRel, rightRel] = sortRelationships(
+        const [leftRel, rightRel] = sortRelationships(
           { listKey, fieldPath, field },
           { listKey: field.list, fieldPath: field.field, field: foreignField }
         );
@@ -166,12 +170,9 @@ export function resolveRelationships(
             list: rightRel.listKey,
             foreignIdField: {
               kind: 'owned-unique',
-              map:
-                typeof leftRel.field.foreignKey === 'object'
-                  ? leftRel.field.foreignKey?.map
-                  : leftRel.fieldPath,
+              map: typeof leftRel.field.foreignKey === 'object' ? leftRel.field.foreignKey?.map : leftRel.fieldPath
             },
-            relationName,
+            relationName
           };
           resolvedLists[rightRel.listKey][rightRel.fieldPath] = {
             kind: 'relation',
@@ -179,26 +180,26 @@ export function resolveRelationships(
             field: leftRel.fieldPath,
             list: leftRel.listKey,
             foreignIdField: { kind: 'none' },
-            relationName,
+            relationName
           };
+          // eslint-disable-next-line no-continue
           continue;
         }
         if (leftRel.field.mode === 'many' && rightRel.field.mode === 'many') {
-          const relationName =
-            leftRel.field.relationName ?? `${leftRel.listKey}_${leftRel.fieldPath}`;
+          const relationName = leftRel.field.relationName ?? `${leftRel.listKey}_${leftRel.fieldPath}`;
           resolvedLists[leftRel.listKey][leftRel.fieldPath] = {
             kind: 'relation',
             mode: 'many',
             field: rightRel.fieldPath,
             list: rightRel.listKey,
-            relationName,
+            relationName
           };
           resolvedLists[rightRel.listKey][rightRel.fieldPath] = {
             kind: 'relation',
             mode: 'many',
             field: leftRel.fieldPath,
             list: leftRel.listKey,
-            relationName,
+            relationName
           };
           continue;
         }
@@ -210,20 +211,18 @@ export function resolveRelationships(
           list: rightRel.listKey,
           foreignIdField: {
             kind: 'owned',
-            map:
-              typeof leftRel.field.foreignKey === 'object'
-                ? leftRel.field.foreignKey?.map
-                : leftRel.fieldPath,
+            map: typeof leftRel.field.foreignKey === 'object' ? leftRel.field.foreignKey?.map : leftRel.fieldPath
           },
-          relationName,
+          relationName
         };
         resolvedLists[rightRel.listKey][rightRel.fieldPath] = {
           kind: 'relation',
           mode: 'many',
           field: leftRel.fieldPath,
           list: leftRel.listKey,
-          relationName,
+          relationName
         };
+        // eslint-disable-next-line no-continue
         continue;
       }
       const foreignFieldPath = `from_${listKey}_${fieldPath}`;
@@ -240,14 +239,14 @@ export function resolveRelationships(
           mode: 'many',
           list: listKey,
           field: fieldPath,
-          relationName,
+          relationName
         };
         resolvedList[fieldPath] = {
           kind: 'relation',
           mode: 'many',
           list: field.list,
           field: foreignFieldPath,
-          relationName,
+          relationName
         };
       } else {
         const relationName = `${listKey}_${fieldPath}`;
@@ -256,7 +255,7 @@ export function resolveRelationships(
           mode: 'many',
           list: listKey,
           field: fieldPath,
-          relationName,
+          relationName
         };
         resolvedList[fieldPath] = {
           kind: 'relation',
@@ -264,10 +263,10 @@ export function resolveRelationships(
           field: foreignFieldPath,
           foreignIdField: {
             kind: 'owned',
-            map: typeof field.foreignKey === 'object' ? field.foreignKey?.map : fieldPath,
+            map: typeof field.foreignKey === 'object' ? field.foreignKey?.map : fieldPath
           },
           relationName,
-          mode: 'one',
+          mode: 'one'
         };
       }
     }

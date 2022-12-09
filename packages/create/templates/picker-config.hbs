@@ -25,7 +25,7 @@ export const schemaConfig = withAuth(
             // 检查是否有会话数据，能否有权限看到 Admin UI
             isAccessAllowed: (context: PickerContext) => !!context.session?.data,
         },
-        models: lists,
+        lists,
         session,
     })
 );

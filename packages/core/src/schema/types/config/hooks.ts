@@ -1,5 +1,5 @@
-import {BaseListTypeInfo, PickerContextFromListTypeInfo} from '../type-info';
-import {MaybePromise} from "../utils";
+import { BaseListTypeInfo, PickerContextFromListTypeInfo } from '../type-info';
+import { MaybePromise } from '../utils';
 
 type CommonArgs<ListTypeInfo extends BaseListTypeInfo> = {
   context: PickerContextFromListTypeInfo<ListTypeInfo>;
@@ -35,6 +35,7 @@ export type ListHooks<ListTypeInfo extends BaseListTypeInfo> = {
   afterOperation?: AfterOperationHook<ListTypeInfo>;
 };
 
+// eslint-disable-next-line no-warning-comments
 // TODO: probably maybe don't do this and write it out manually
 // (this is also incorrect because the return value is wrong for many of them)
 type AddFieldPathToObj<T extends (arg: any) => any> = T extends (args: infer Args) => infer Result
@@ -82,7 +83,7 @@ type ArgsForCreateOrUpdateOperation<ListTypeInfo extends BaseListTypeInfo> =
       // but making it optional rather than not here
       // makes for a better experience
       // because then people will see the right type even if they haven't refined the type of operation to 'create'
-    // 从技术上讲，创建的时候不会有这个选项但把它设为可选而不是不设，会给用户带来更好的体验因为这样人们就会看到正确的类型即使他们还没有细化创建的操作类型
+      // 从技术上讲，创建的时候不会有这个选项但把它设为可选而不是不设，会给用户带来更好的体验因为这样人们就会看到正确的类型即使他们还没有细化创建的操作类型
       item?: ListTypeInfo['item'];
       /**
        * The GraphQL input **before** default values are applied
@@ -111,13 +112,10 @@ type ResolveInputListHook<ListTypeInfo extends BaseListTypeInfo> = (
   args: ArgsForCreateOrUpdateOperation<ListTypeInfo> & CommonArgs<ListTypeInfo>
 ) => MaybePromise<ListTypeInfo['prisma']['create'] | ListTypeInfo['prisma']['update']>;
 
-type ResolveInputFieldHook<
-  ListTypeInfo extends BaseListTypeInfo,
-  FieldKey extends FieldKeysForList<ListTypeInfo>
-> = (args: ArgsForCreateOrUpdateOperation<ListTypeInfo> & CommonArgs<ListTypeInfo>) => MaybePromise<
-  | ListTypeInfo['prisma']['create'][FieldKey]
-  | ListTypeInfo['prisma']['update'][FieldKey]
-  | undefined // undefined represents 'don't do anything'
+type ResolveInputFieldHook<ListTypeInfo extends BaseListTypeInfo, FieldKey extends FieldKeysForList<ListTypeInfo>> = (
+  args: ArgsForCreateOrUpdateOperation<ListTypeInfo> & CommonArgs<ListTypeInfo>
+) => MaybePromise<
+  ListTypeInfo['prisma']['create'][FieldKey] | ListTypeInfo['prisma']['update'][FieldKey] | undefined // undefined represents 'don't do anything'
 >;
 
 type ValidateInputHook<ListTypeInfo extends BaseListTypeInfo> = (

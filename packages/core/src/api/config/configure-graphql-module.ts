@@ -12,12 +12,13 @@ import { I18nService } from '../../i18n';
 import { I18nModule } from '../../i18n/i18n.module';
 import { ServiceModule } from '../../service/service.module';
 import { getDynamicGraphQlModulesForPlugins } from '../../plugin/dynamic-plugin-api.module';
-import { createSessionContext } from '../../schema/session';
+// import { createSessionContext } from '../../schema/session';
 import { EventBus, EventBusModule } from '../../event-bus';
 import { getPluginAPIExtensions } from '../../plugin/plugin-metadata';
 import { ConfigModule, ConfigService } from '../../config';
 import { REQUEST_CONTEXT_KEY, RequestContextService } from '../common/request-context.service';
 import { RequestContext } from '../common/request-context';
+import { PickerContext } from '../../schema/types';
 
 // import {}
 export interface GraphQLApiOptions {
@@ -27,6 +28,7 @@ export interface GraphQLApiOptions {
   debug: boolean;
   playground: boolean | any;
   // tslint:disable-next-line:ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   resolverModule?: Function;
   validationRules?: Array<(context: ValidationContext) => any>;
 }
@@ -34,22 +36,23 @@ export interface GraphQLApiOptions {
 export function configureGraphQLModule(getOptions: (configService: ConfigService) => GraphQLApiOptions): DynamicModule {
   return GraphQLModule.forRootAsync<ApolloDriverConfig>({
     driver: ApolloDriver,
+    // eslint-disable-next-line max-params
     useFactory: (
       configService: ConfigService,
       eventBus: EventBus,
       requestContextService: RequestContextService,
-      i18nService: I18nService,
+      // i18nService: I18nService,
       // idCodecService: IdCodecService,
-      typesLoader: GraphQLTypesLoader
+      // typesLoader: GraphQLTypesLoader
       // customFieldRelationResolverService: CustomFieldRe
     ) => {
       return createGraphQLOptions(
         configService,
         eventBus,
-        i18nService,
+        // i18nService,
         requestContextService,
         // idCodecService,
-        typesLoader,
+        // typesLoader,
         // customFieldRelationResolverService,
         getOptions(configService)
 
@@ -71,11 +74,11 @@ export function configureGraphQLModule(getOptions: (configService: ConfigService
 async function createGraphQLOptions(
   configService: ConfigService,
   eventBus: EventBus,
-  i18nService: I18nService,
+  // i18nService: I18nService,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   requestContextService: RequestContextService,
   // idCodecService: IdCodecService,
-  typesLoader: GraphQLTypesLoader,
+  // typesLoader: GraphQLTypesLoader,
   options: GraphQLApiOptions
 ): Promise<GqlModuleOptions> {
   const builtSchema = await buildSchemaForApi(configService.graphqlSchema);
@@ -101,25 +104,33 @@ async function createGraphQLOptions(
     debug: options.debug || false,
     // req: IncomingMessage;
     // res: ServerResponse;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: async ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
       // if (req.context)
       //  console.log(configService.context({}).session)
       // console.log('config graphql module...')
-      const context = configService.context({
-        eventBus,
-        injector: configService.injector,
-        // services,
-        sessionContext: configService.schemaConfig.session
-          ? await createSessionContext(configService.schemaConfig.session, req, res, configService.context)
-          : undefined,
-        req
-      });
+      // const context = configService.context({
+      //   eventBus,
+      //   injector: configService.injector,
+      //   // services,
+      //   sessionContext: configService.schemaConfig.session
+      //     ? await createSessionContext(configService.schemaConfig.session, req, res, configService.context)
+      //     : undefined,
+      //   req
+      // });
       // const requestContext = await requestContextService.fromRequest(req as any, context);
+      // configService.
+      const extendContext: PickerContext = {
+        ...configService.context,
+        injector: configService.injector,
+        eventBus
+      };
+
       (req as any)[REQUEST_CONTEXT_KEY] = new RequestContext({
         req: req as any,
-        picker: context
+        picker: extendContext
       });
-      return context;
+      return extendContext;
       // return configService.context
     },
     // 这是由Express cors插件处理
@@ -152,6 +163,7 @@ async function createGraphQLOptions(
     getPluginAPIExtensions(configService.plugins)
       .map(e => (typeof e.schema === 'function' ? e.schema() : e.schema))
       .filter(notNullOrUndefined)
+      // eslint-disable-next-line no-param-reassign
       .forEach(documentNode => (schema = extendSchema(schema, documentNode)));
 
     // schema = generateListOptions(schema);

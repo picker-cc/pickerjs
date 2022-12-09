@@ -1,38 +1,50 @@
+import { getGqlNames, graphql } from '../../..';
+import { InitialisedList } from '../../types-for-lists';
 import * as queries from './resolvers';
-import { getGqlNames, InitialisedList } from "../../prisma/prisma-schema";
-import { graphql } from '../../types';
 
 export function getQueriesForList(list: InitialisedList) {
   if (!list.graphql.isEnabled.query) return {};
   const names = getGqlNames(list);
 
   const findOne = graphql.field({
-    type: list.types.output as any,
-    args: { where: graphql.arg({ type: graphql.nonNull(list.types.uniqueWhere) }) },
+    type: list.types.output,
+    args: {
+      where: graphql.arg({
+        type: graphql.nonNull(list.types.uniqueWhere),
+        defaultValue: list.isSingleton ? { id: '1' } : undefined
+      })
+    },
     async resolve(_rootVal, args, context) {
       return queries.findOne(args, list, context);
-    },
+    }
   });
 
   const findMany = graphql.field({
-    type: graphql.list(graphql.nonNull(list.types.output)) as any,
+    type: graphql.list(graphql.nonNull(list.types.output)),
     args: list.types.findManyArgs,
+    // eslint-disable-next-line max-params
     async resolve(_rootVal, args, context, info) {
-        return queries.findMany(args, list, context, info);
-    },
+      return queries.findMany(args, list, context, info);
+    }
   });
 
   const countQuery = graphql.field({
     type: graphql.Int,
-    args: { where: graphql.arg({ type: graphql.nonNull(list.types.where), defaultValue: {} }) },
+    args: {
+      where: graphql.arg({
+        type: graphql.nonNull(list.types.where),
+        defaultValue: list.isSingleton ? ({ id: { equals: '1' } } as {}) : {}
+      })
+    },
+    // eslint-disable-next-line max-params
     async resolve(_rootVal, args, context, info) {
       return queries.count(args, list, context, info);
-    },
+    }
   });
 
   return {
     [names.listQueryName]: findMany,
     [names.itemQueryName]: findOne,
-    [names.listQueryCountName]: countQuery,
+    [names.listQueryCountName]: countQuery
   };
 }

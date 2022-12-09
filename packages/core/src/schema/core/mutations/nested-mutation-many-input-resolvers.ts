@@ -1,45 +1,42 @@
+import { GraphQLTypesForList, PickerContext } from '../../types';
+import { UniqueInputFilter } from '../../fields/filters/where-inputs';
+import { InitialisedList } from '../../types-for-lists';
+import { userInputError } from '../../error/graphql-errors';
+import { isFulfilled, isRejected } from '../../utils';
 import { graphql } from '../../types/schema';
-import {UniqueInputFilter} from "../../types/filters/where-inputs";
-import {InitialisedList} from "../../prisma/prisma-schema";
-import {isFulfilled, isRejected, NestedMutationState} from "./create-update";
-import {userInputError} from "../../error/graphql-errors";
-import {checkUniqueItemExists} from "./access-control";
-import {BaseItem, PickerContext, GraphQLTypesForList} from "../../types";
-
+import { checkUniqueItemExists } from './access-control';
+import { NestedMutationState } from './create-update';
 
 type _CreateValueType = Exclude<
-  graphql.InferValueFromArg<
-    graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['many']['create'], undefined>>
-  >,
+  graphql.InferValueFromArg<graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['many']['create'], undefined>>>,
   null | undefined
 >;
 
 type _UpdateValueType = Exclude<
-  graphql.InferValueFromArg<
-    graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['many']['update'], undefined>>
-  >,
+  graphql.InferValueFromArg<graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['many']['update'], undefined>>>,
   null | undefined
 >;
 
 export class RelationshipErrors extends Error {
   errors: { error: Error; tag: string }[];
+
   constructor(errors: { error: Error; tag: string }[]) {
     super('Multiple relationship errors');
     this.errors = errors;
   }
 }
 
+// eslint-disable-next-line max-params
 function getResolvedUniqueWheres(
   uniqueInputs: UniqueInputFilter[],
   context: PickerContext,
   foreignList: InitialisedList,
   operation: string
 ) {
-  return uniqueInputs.map(uniqueInput =>
-    checkUniqueItemExists(uniqueInput, foreignList, context, operation)
-  );
+  return uniqueInputs.map(uniqueInput => checkUniqueItemExists(uniqueInput, foreignList, context, operation));
 }
 
+// eslint-disable-next-line max-params
 export function resolveRelateToManyForCreateInput(
   nestedMutationState: NestedMutationState,
   context: PickerContext,
@@ -49,19 +46,16 @@ export function resolveRelateToManyForCreateInput(
   return async (value: _CreateValueType) => {
     if (!Array.isArray(value.connect) && !Array.isArray(value.create)) {
       throw userInputError(
-        `You must provide "connect" or "create" in to-many relationship inputs for "create" operations.`
+        `必须在 "create" 或 "connect" 的 to-many 关系的输入中提供 "create"`
+        // `You must provide "connect" or "create" in to-many relationship inputs for "create" operations.`
       );
     }
 
     // Perform queries for the connections
-    const connects = Promise.allSettled(
-      getResolvedUniqueWheres(value.connect || [], context, foreignList, 'connect')
-    );
+    const connects = Promise.allSettled(getResolvedUniqueWheres(value.connect || [], context, foreignList, 'connect'));
 
     // Perform nested mutations for the creations
-    const creates = Promise.allSettled(
-      (value.create || []).map((x: any) => nestedMutationState.create(x, foreignList))
-    );
+    const creates = Promise.allSettled((value.create || []).map(x => nestedMutationState.create(x, foreignList)));
 
     const [connectResult, createResult] = await Promise.all([connects, creates]);
 
@@ -72,7 +66,7 @@ export function resolveRelateToManyForCreateInput(
     }
 
     const result = {
-      connect: [...connectResult, ...createResult].filter(isFulfilled).map(x => x.value),
+      connect: [...connectResult, ...createResult].filter(isFulfilled).map(x => x.value)
     };
 
     // Perform queries for the connections
@@ -80,6 +74,7 @@ export function resolveRelateToManyForCreateInput(
   };
 }
 
+// eslint-disable-next-line max-params
 export function resolveRelateToManyForUpdateInput(
   nestedMutationState: NestedMutationState,
   context: PickerContext,
@@ -104,34 +99,26 @@ export function resolveRelateToManyForUpdateInput(
     }
 
     // Perform queries for the connections
-    const connects = Promise.allSettled(
-      getResolvedUniqueWheres(value.connect || [], context, foreignList, 'connect')
-    );
+    const connects = Promise.allSettled(getResolvedUniqueWheres(value.connect || [], context, foreignList, 'connect'));
 
     const disconnects = Promise.allSettled(
       getResolvedUniqueWheres(value.disconnect || [], context, foreignList, 'disconnect')
     );
 
-    const sets = Promise.allSettled(
-      getResolvedUniqueWheres(value.set || [], context, foreignList, 'set')
-    );
+    const sets = Promise.allSettled(getResolvedUniqueWheres(value.set || [], context, foreignList, 'set'));
 
     // Perform nested mutations for the creations
-    const creates = Promise.allSettled(
-      (value.create || []).map((x: any) => nestedMutationState.create(x, foreignList))
-    );
+    const creates = Promise.allSettled((value.create || []).map(x => nestedMutationState.create(x, foreignList)));
 
     const [connectResult, createResult, disconnectResult, setResult] = await Promise.all([
       connects,
       creates,
       disconnects,
-      sets,
+      sets
     ]);
 
     // Collect all the errors
-    const errors = [...connectResult, ...createResult, ...disconnectResult, ...setResult].filter(
-      isRejected
-    );
+    const errors = [...connectResult, ...createResult, ...disconnectResult, ...setResult].filter(isRejected);
     if (errors.length) {
       throw new RelationshipErrors(errors.map(x => ({ error: x.reason, tag })));
     }
@@ -140,7 +127,7 @@ export function resolveRelateToManyForUpdateInput(
       // unlike all the other operations, an empty array isn't a no-op for set
       set: value.set ? setResult.filter(isFulfilled).map(x => x.value) : undefined,
       disconnect: disconnectResult.filter(isFulfilled).map(x => x.value),
-      connect: [...connectResult, ...createResult].filter(isFulfilled).map(x => x.value),
+      connect: [...connectResult, ...createResult].filter(isFulfilled).map(x => x.value)
     };
   };
 }

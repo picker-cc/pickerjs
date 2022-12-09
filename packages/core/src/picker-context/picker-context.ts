@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { PickerContext } from '../schema/types';
 
 // type ProcessContextType = 'server' | 'worker';
@@ -28,19 +27,19 @@ let currentContext: PickerContext;
  * @docsCategory common
  */
 export class Picker {
-    // get isServer(): boolean {
-    //     return currentContext === 'server';
+  // get isServer(): boolean {
+  //     return currentContext === 'server';
+  // }
+  // get isWorker(): boolean {
+  //     return currentContext === 'worker';
+  // }
+  get context(): PickerContext {
+    return currentContext;
+    // return {
+    // query: currentContext.query
+    // ...currentContext
     // }
-    // get isWorker(): boolean {
-    //     return currentContext === 'worker';
-    // }
-    get context(): PickerContext {
-        return currentContext
-        // return {
-            // query: currentContext.query
-            // ...currentContext
-        // }
-    }
+  }
 }
 
 /**
@@ -49,5 +48,5 @@ export class Picker {
  * @internal
  */
 export function setPickerContext(context: PickerContext) {
-    currentContext = context;
+  currentContext = context;
 }

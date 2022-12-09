@@ -1,6 +1,7 @@
 import { SecretFieldImpl } from '../types';
 import { PickerDbAPI } from '../../schema/types';
 
+// eslint-disable-next-line max-params
 export async function validateSecret(
   secretFieldImpl: SecretFieldImpl,
   identityField: string,

@@ -26,7 +26,7 @@ const schemaConfig = typeInfoConfig({
     provider: 'mysql',
     url: 'mysql://root:abcd1234@localhost:3306/cx_favorite'
   },
-  models: {
+  lists: {
     Asset,
     User,
     Post,
@@ -36,7 +36,8 @@ const schemaConfig = typeInfoConfig({
   },
   session: statelessSessions(sessionConfig),
   experimental: {
-    generateNodeAPI: true
+    // generateNodeAPI: true
+    // generateClientGraphqlAPI: true
   }
 });
 const { withAuth } = createAuth({

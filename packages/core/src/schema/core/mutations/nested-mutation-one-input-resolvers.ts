@@ -1,26 +1,22 @@
+import { InitialisedList } from '../../types-for-lists';
+import { userInputError } from '../../error/graphql-errors';
+import { GraphQLTypesForList, PickerContext } from '../../types';
+import { graphql } from '../../types/schema';
 import { NestedMutationState } from './create-update';
 import { checkUniqueItemExists } from './access-control';
 
-import {InitialisedList} from "../../prisma/prisma-schema";
-import {userInputError} from "../../error/graphql-errors";
-import {GraphQLTypesForList, PickerContext} from "../../types";
-import { graphql } from '../../types/schema';
-
 type _CreateValueType = Exclude<
-  graphql.InferValueFromArg<
-    graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['one']['create'], undefined>>
-  >,
+  graphql.InferValueFromArg<graphql.Arg<Exclude<GraphQLTypesForList['relateTo']['one']['create'], undefined>>>,
   null | undefined
 >;
 type _UpdateValueType = Exclude<
   graphql.InferValueFromArg<
-    graphql.Arg<
-      graphql.NonNullType<Exclude<GraphQLTypesForList['relateTo']['one']['update'], undefined>>
-    >
+    graphql.Arg<graphql.NonNullType<Exclude<GraphQLTypesForList['relateTo']['one']['update'], undefined>>>
   >,
   null | undefined
 >;
 
+// eslint-disable-next-line consistent-return,max-params
 async function handleCreateAndUpdate(
   value: _CreateValueType,
   nestedMutationState: NestedMutationState,
@@ -56,6 +52,7 @@ export function resolveRelateToOneForUpdateInput(
   context: PickerContext,
   foreignList: InitialisedList
 ) {
+  // eslint-disable-next-line consistent-return
   return async (value: _UpdateValueType) => {
     if (Object.keys(value).length !== 1) {
       throw userInputError(
@@ -63,13 +60,10 @@ export function resolveRelateToOneForUpdateInput(
       );
     }
 
-    // @ts-ignore
-      if (value.connect || value.create) {
+    if (value.connect || value.create) {
       return handleCreateAndUpdate(value, nestedMutationState, context, foreignList);
-    } else { // @ts-ignore
-          if (value.disconnect) {
-                return { disconnect: true };
-              }
-      }
+    } else if (value.disconnect) {
+      return { disconnect: true };
+    }
   };
 }

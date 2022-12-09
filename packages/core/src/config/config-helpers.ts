@@ -1,6 +1,6 @@
-import {defaultConfig} from './default-config';
-import {mergeConfig} from './merge-config';
-import {PartialPickerConfig, RuntimePickerConfig} from './picker-config';
+import { defaultConfig } from './default-config';
+import { mergeConfig } from './merge-config';
+import { PartialPickerConfig, RuntimePickerConfig } from './picker-config';
 
 let activeConfig = defaultConfig;
 

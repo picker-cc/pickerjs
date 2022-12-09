@@ -1,6 +1,7 @@
 import { assertInputObjectType, GraphQLInputObjectType, GraphQLSchema } from 'graphql';
 import { AuthGqlNames, InitFirstItemConfig } from '../types';
-import { BaseItem, graphql } from '../../schema/types';
+import { BaseItem } from '../../schema/types';
+import { graphql } from '../../schema';
 
 export function getInitFirstItemSchema({
   listKey,
@@ -38,7 +39,7 @@ export function getInitFirstItemSchema({
         args: { data: graphql.arg({ type: graphql.nonNull(initialCreateInput) }) },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async resolve(rootVal, { data }, context) {
-          if (!context.startSession) {
+          if (!context.sessionStrategy) {
             throw new Error('No session implementation available on context');
           }
 
@@ -55,7 +56,10 @@ export function getInitFirstItemSchema({
           // the input value can't round-trip like the Upload scalar here is quite low)
           const item = await dbItemAPI.createOne({ data: { ...data, ...itemData } });
 
-          const sessionToken = await context.startSession({ listKey, itemId: item.id.toString() });
+          const sessionToken = (await context.sessionStrategy.start({
+            data: { listKey, itemId: item.id.toString() },
+            context
+          })) as string;
           return { item, sessionToken };
         }
       })

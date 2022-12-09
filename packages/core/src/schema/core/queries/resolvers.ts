@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
+import { InitialisedList } from '../../types-for-lists';
 import {
   InputFilter,
   PrismaFilter,
@@ -6,92 +7,15 @@ import {
   resolveWhereInput,
   UniqueInputFilter,
   UniquePrismaFilter
-} from '../../types/filters/where-inputs';
-import { getDBFieldKeyForFieldOnMultiField, InitialisedList } from '../../prisma/prisma-schema';
-import { checkFilterOrderAccess } from '../../types/filters/filter-order-access';
-import { limitsExceededError, prismaError, userInputError } from '../../error/graphql-errors';
-import { getAccessFilters, getOperationAccess } from '../access-control';
-import { BaseItem, PickerContext, FindManyArgsValue, OrderDirection } from '../../types';
-declare const prisma: unique symbol;
-
-export type PrismaPromise<T> = Promise<T> & { [prisma]: true };
-
-interface PrismaModel {
-  count: (arg: {
-    where?: PrismaFilter;
-    take?: number;
-    skip?: number;
-    // this is technically wrong because relation orderBy but we're not doing that yet so it's fine
-    orderBy?: readonly Record<string, 'asc' | 'desc'>[];
-  }) => PrismaPromise<number>;
-  findMany: (arg: {
-    where?: PrismaFilter;
-    take?: number;
-    skip?: number;
-    // this is technically wrong because relation orderBy but we're not doing that yet so it's fine
-    orderBy?: readonly Record<string, 'asc' | 'desc'>[];
-    include?: Record<string, boolean>;
-    select?: Record<string, any>;
-  }) => PrismaPromise<BaseItem[]>;
-  delete: (arg: { where: UniquePrismaFilter }) => PrismaPromise<BaseItem>;
-  deleteMany: (arg: { where: PrismaFilter }) => PrismaPromise<BaseItem>;
-  findUnique: (args: {
-    where: UniquePrismaFilter;
-    include?: Record<string, any>;
-    select?: Record<string, any>;
-  }) => PrismaPromise<BaseItem | null>;
-  findFirst: (args: {
-    where: PrismaFilter;
-    include?: Record<string, any>;
-    select?: Record<string, any>;
-  }) => PrismaPromise<BaseItem | null>;
-  create: (args: {
-    data: Record<string, any>;
-    include?: Record<string, any>;
-    select?: Record<string, any>;
-  }) => PrismaPromise<BaseItem>;
-  update: (args: {
-    where: UniquePrismaFilter;
-    data: Record<string, any>;
-    include?: Record<string, any>;
-    select?: Record<string, any>;
-  }) => PrismaPromise<BaseItem>;
-}
-
-export type UnwrapPromise<TPromise extends Promise<any>> = TPromise extends Promise<infer T> ? T : never;
-
-export type UnwrapPromises<T extends Promise<any>[]> = {
-  // unsure about this conditional
-  [Key in keyof T]: Key extends number ? UnwrapPromise<T[Key]> : never;
-};
-
-// please do not make this type be the value of KeystoneContext['prisma']
-// this type is meant for generic usage, KeystoneContext should be generic over a PrismaClient
-// and we should generate a KeystoneContext type in node_modules/.picker-cc/types which passes in the user's PrismaClient type
-// so that users get right PrismaClient types specifically for their project
-export type PrismaClient = {
-  $disconnect(): Promise<void>;
-  $connect(): Promise<void>;
-  $transaction<T extends PrismaPromise<any>[]>(promises: [...T]): UnwrapPromises<T>;
-} & Record<string, PrismaModel>;
-
-// Run prisma operations as part of a resolver
-export async function runWithPrisma<T>(
-  context: PickerContext,
-  { listKey }: InitialisedList,
-  fn: (model: PrismaModel) => Promise<T>
-) {
-  const model = context.prisma[listKey[0].toLowerCase() + listKey.slice(1)];
-  try {
-    return await fn(model);
-  } catch (err: any) {
-    throw prismaError(err);
-  }
-}
-
+} from '../../fields/filters/where-inputs';
+import { getOperationAccess, getAccessFilters } from '../access-control';
+import { BaseItem, FindManyArgsValue, OrderDirection, PickerContext } from '../../types';
+import { checkFilterOrderAccess } from '../../fields/filters/filter-order-access';
+import { getDBFieldKeyForFieldOnMultiField, runWithPrisma } from '../../utils';
+import { limitsExceededError, userInputError } from '../../error/graphql-errors';
 // we want to put the value we get back from the field's unique where resolver into an equals
-// rather than directly passing the value as the filters (even though Prisma supports that), we use equals
-// because we want to disallow fields from providing an arbitrary filters
+// rather than directly passing the value as the filter (even though Prisma supports that), we use equals
+// because we want to disallow fields from providing an arbitrary filter
 export function mapUniqueWhereToWhere(uniqueWhere: UniquePrismaFilter): PrismaFilter {
   // inputResolvers.uniqueWhere validates that there is only one key
   const key = Object.keys(uniqueWhere)[0];
@@ -99,16 +23,18 @@ export function mapUniqueWhereToWhere(uniqueWhere: UniquePrismaFilter): PrismaFi
   return { [key]: { equals: val } };
 }
 
+// eslint-disable-next-line max-params
 function traverseQuery(
   list: InitialisedList,
   context: PickerContext,
   inputFilter: InputFilter,
   filterFields: Record<string, { fieldKey: string; list: InitialisedList }>
 ) {
-  // Recursively traverse a where filters to find all the fields which are being
+  // Recursively traverse a where filter to find all the fields which are being
   // filtered on.
   Object.entries(inputFilter).forEach(([fieldKey, value]) => {
     if (fieldKey === 'OR' || fieldKey === 'AND' || fieldKey === 'NOT') {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       value.forEach((value: any) => {
         traverseQuery(list, context, value, filterFields);
       });
@@ -133,14 +59,16 @@ export async function checkFilterAccess(list: InitialisedList, context: PickerCo
   await checkFilterOrderAccess(Object.values(filterFields), context, 'filter');
 }
 
+// eslint-disable-next-line max-params
 export async function accessControlledFilter(
   list: InitialisedList,
   context: PickerContext,
   resolvedWhere: PrismaFilter,
   accessFilters: boolean | InputFilter
 ) {
-  // Merge the filters access control
+  // Merge the filter access control
   if (typeof accessFilters === 'object') {
+    // eslint-disable-next-line no-param-reassign
     resolvedWhere = { AND: [resolvedWhere, await resolveWhereInput(accessFilters, list, context)] };
   }
 
@@ -159,20 +87,21 @@ export async function findOne(args: { where: UniqueInputFilter }, list: Initiali
     return null;
   }
 
-  // Validate and resolve the input filters
-  const uniqueWhere = await resolveUniqueWhereInput(args.where, list.fields, context);
+  // Validate and resolve the input filter
+  const uniqueWhere = await resolveUniqueWhereInput(args.where, list, context);
   const resolvedWhere = mapUniqueWhereToWhere(uniqueWhere);
 
-  // Check filters access
+  // Check filter access
   const fieldKey = Object.keys(args.where)[0];
   await checkFilterOrderAccess([{ fieldKey, list }], context, 'filter');
 
   // Apply access control
-  // const filters = await accessControlledFilter(list, context, resolvedWhere,accessFilters);
   const filter = await accessControlledFilter(list, context, resolvedWhere, accessFilters);
+
   return runWithPrisma(context, list, model => model.findFirst({ where: filter }));
 }
 
+// eslint-disable-next-line max-params
 export async function findMany(
   { where, take, skip, orderBy: rawOrderBy }: FindManyArgsValue,
   list: InitialisedList,
@@ -180,6 +109,11 @@ export async function findMany(
   info: GraphQLResolveInfo,
   extraFilter?: PrismaFilter
 ): Promise<BaseItem[]> {
+  const maxTake = (list.types.findManyArgs.take.defaultValue ?? Infinity) as number;
+  if ((take ?? Infinity) > maxTake) {
+    throw limitsExceededError({ list: list.listKey, type: 'maxTake', limit: maxTake });
+  }
+
   const orderBy = await resolveOrderBy(rawOrderBy, list, context);
 
   // Check operation permission, throw access denied if not allowed
@@ -193,13 +127,12 @@ export async function findMany(
     return [];
   }
 
-  applyEarlyMaxResults(take, list);
-
   let resolvedWhere = await resolveWhereInput(where, list, context);
 
-  // Check filters access
+  // Check filter access
   await checkFilterAccess(list, context, where);
 
+  // eslint-disable-next-line require-atomic-updates
   resolvedWhere = await accessControlledFilter(list, context, resolvedWhere, accessFilters);
 
   const results = await runWithPrisma(context, list, model =>
@@ -211,13 +144,11 @@ export async function findMany(
     })
   );
 
-  applyMaxResults(results, list, context);
-
-  // if (info.cacheControl && list.cacheHint) {
-  //   info.cacheControl.setCacheHint(
-  //     list.cacheHint({ results, operationName: info.operation.name?.value, meta: false }) as any
-  //   );
-  // }
+  if (info.cacheControl && list.cacheHint) {
+    info.cacheControl.setCacheHint(
+      list.cacheHint({ results, operationName: info.operation.name?.value, meta: false }) as any
+    );
+  }
   return results;
 }
 
@@ -247,6 +178,7 @@ async function resolveOrderBy(
   }));
   await checkFilterOrderAccess(orderByKeys, context, 'orderBy');
 
+  // eslint-disable-next-line no-return-await
   return await Promise.all(
     orderBy.map(async orderBySelection => {
       const keys = Object.keys(orderBySelection);
@@ -258,6 +190,7 @@ async function resolveOrderBy(
       if (field.dbField.kind === 'multi') {
         // Note: no built-in field types support multi valued database fields *and* orderBy.
         // This code path is only relevent to custom fields which fit that criteria.
+        // eslint-disable-next-line @typescript-eslint/no-shadow
         const keys = Object.keys(resolvedValue);
         if (keys.length !== 1) {
           throw new Error(`Only a single key must be returned from an orderBy input resolver for a multi db field`);
@@ -272,6 +205,7 @@ async function resolveOrderBy(
   );
 }
 
+// eslint-disable-next-line max-params
 export async function count(
   { where }: { where: Record<string, any> },
   list: InitialisedList,
@@ -292,54 +226,26 @@ export async function count(
 
   let resolvedWhere = await resolveWhereInput(where, list, context);
 
-  // Check filters access
+  // Check filter access
   await checkFilterAccess(list, context, where);
 
+  // eslint-disable-next-line require-atomic-updates
   resolvedWhere = await accessControlledFilter(list, context, resolvedWhere, accessFilters);
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const count = await runWithPrisma(context, list, model =>
     model.count({
       where: extraFilter === undefined ? resolvedWhere : { AND: [resolvedWhere, extraFilter] }
     })
   );
-  // if (info.cacheControl && list.cacheHint) {
-  //   info.cacheControl.setCacheHint(
-  //     list.cacheHint({
-  //       results: count,
-  //       operationName: info.operation.name?.value,
-  //       meta: true,
-  //     }) as any
-  //   );
-  // }
+  if (info.cacheControl && list.cacheHint) {
+    info.cacheControl.setCacheHint(
+      list.cacheHint({
+        results: count,
+        operationName: info.operation.name?.value,
+        meta: true
+      }) as any
+    );
+  }
   return count;
-}
-
-function applyEarlyMaxResults(_take: number | null | undefined, list: InitialisedList) {
-  const take = Math.abs(_take ?? Infinity);
-  // We want to help devs by failing fast and noisily if limits are violated.
-  // Unfortunately, we can't always be sure of intent.
-  // E.g., if the query has a "take: 10", is it bad if more results could come back?
-  // Maybe yes, or maybe the dev is just paginating posts.
-  // But we can be sure there's a problem in two cases:
-  // * The query explicitly has a "take" that exceeds the limit
-  // * The query has no "take", and has more results than the limit
-  if (take < Infinity && take > list.maxResults) {
-    throw limitsExceededError({ list: list.listKey, type: 'maxResults', limit: list.maxResults });
-  }
-}
-
-function applyMaxResults(results: unknown[], list: InitialisedList, context: PickerContext) {
-  if (results.length > list.maxResults) {
-    throw limitsExceededError({ list: list.listKey, type: 'maxResults', limit: list.maxResults });
-  }
-  if (context) {
-    context.totalResults += results.length;
-    if (context.totalResults > context.maxTotalResults) {
-      throw limitsExceededError({
-        list: list.listKey,
-        type: 'maxTotalResults',
-        limit: context.maxTotalResults
-      });
-    }
-  }
 }

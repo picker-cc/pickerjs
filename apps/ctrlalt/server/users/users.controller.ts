@@ -49,7 +49,7 @@ export class UsersController {
         // ApiConfigKit.devMode = true;
         // 设置当前应用
         // ApiConfigKit.setCurrentAppId(devApiConfig.getAppId);
-        // const userType: Models.User
+        // const userType: Lists.User
         // const { picker:  } = ctx
         // const {User} = ctx.picker.sudo().query
        // const queryUser = await User.findMany({

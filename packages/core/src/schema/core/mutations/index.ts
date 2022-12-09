@@ -1,10 +1,8 @@
-// import * as createAndUpdate from './create-update';
-import { getGqlNames, InitialisedList } from '../../prisma/prisma-schema';
 import * as graphql from '../../types/schema/graphql-ts-schema';
-// import { EventBus } from '../../../event-bus';
+import { InitialisedList } from '../../types-for-lists';
+import { getGqlNames } from '../../types';
 import * as createAndUpdate from './create-update';
 import * as deletes from './delete';
-// import { PickerContext } from "../context";
 
 // This is not a thing that I really agree with but it's to make the behaviour consistent with old picker-cc.
 // Basically, old picker-cc uses Promise.allSettled and then after that maps that into promises that resolve and reject,
@@ -69,16 +67,12 @@ export function getMutationsForList(list: InitialisedList) {
     async resolve(_rootVal, args, context: any) {
       return promisesButSettledWhenAllSettledAndInOrder(await createAndUpdate.updateMany(args, list, context));
     }
-    // async resolve(_rootVal, args, context) {
-    //   return promisesButSettledWhenAllSettledAndInOrder(
-    //     await createAndUpdate.updateMany(args, list, context)
-    //   );
-    // },
   });
 
   const deleteOne = graphql.field({
     type: list.types.output as any,
     args: { where: graphql.arg({ type: graphql.nonNull(list.types.uniqueWhere) }) },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     resolve(rootVal, { where }, context: any) {
       return deletes.deleteOne(where, list, context);
     }
@@ -91,6 +85,7 @@ export function getMutationsForList(list: InitialisedList) {
         type: graphql.nonNull(graphql.list(graphql.nonNull(list.types.uniqueWhere)))
       })
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async resolve(rootVal, { where }, context: any) {
       return promisesButSettledWhenAllSettledAndInOrder(await deletes.deleteMany(where, list, context));
     }

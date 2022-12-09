@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { INestApplication } from '@nestjs/common';
 import { Command } from 'commander';
 // import fs from 'fs-extra';
 // import path from 'path';
@@ -9,6 +8,7 @@ import { logColored } from './cli-utils';
 import { postinstall } from './postinstall';
 import { prisma } from './prisma';
 // tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const version = require('../../package.json').version;
 
 // tslint:disable:no-console
@@ -27,13 +27,15 @@ program
   .command('postinstall')
   .description('生成客户有端 APIs 和 types')
   .option('-f, --fix', '生成确定的项目构件（prisma、graphql ...）', false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   .action(async (options, command) => {
-    return await postinstall(process.cwd(), options.fix);
+    return postinstall(process.cwd(), options.fix);
   });
 
 program
   .command('prisma')
   .description('安全状态下运行 Prisma CLI 命令')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   .action(command => {
     return prisma(process.cwd(), process.argv.slice(1));
   });

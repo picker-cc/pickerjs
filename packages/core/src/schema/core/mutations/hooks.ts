@@ -23,10 +23,12 @@ export async function runSideEffectOnlyHook<
   let shouldRunFieldLevelHook: (fieldKey: string) => boolean;
   if (args.operation === 'delete') {
     // Always run field hooks for delete operations
+    // 总是为删除操作运行字段钩子
     shouldRunFieldLevelHook = () => true;
   } else {
     // Only run field hooks on if the field was specified in the
     // original input for create and update operations.
+    // 只在创建和更新操作的原始输入中指定的字段上运行 field 钩子
     const inputDataKeys = new Set(Object.keys(args.inputData));
     shouldRunFieldLevelHook = fieldKey => inputDataKeys.has(fieldKey);
   }

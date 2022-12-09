@@ -1,6 +1,6 @@
 import { BaseListTypeInfo, PickerContext } from '../schema/types';
 
-export interface AuthGqlNames {
+export type AuthGqlNames = {
   CreateInitialInput: string;
   createInitialItem: string;
   authenticateItemWithPassword: string;
@@ -19,7 +19,7 @@ export interface AuthGqlNames {
   RedeemItemMagicAuthTokenResult: string;
   RedeemItemMagicAuthTokenSuccess: string;
   RedeemItemMagicAuthTokenFailure: string;
-}
+};
 
 export type SendTokenFn = (args: {
   itemId: string | number | bigint;
@@ -28,14 +28,14 @@ export type SendTokenFn = (args: {
   context: PickerContext;
 }) => Promise<void> | void;
 
-export interface AuthTokenTypeConfig {
+export type AuthTokenTypeConfig = {
   /** Called when a user should be sent the magic signin token they requested */
   sendToken: SendTokenFn;
   /** How long do tokens stay valid for from time of issue, in minutes **/
   tokensValidForMins?: number;
-}
+};
 
-export interface AuthConfig<ListTypeInfo extends BaseListTypeInfo> {
+export type AuthConfig<ListTypeInfo extends BaseListTypeInfo> = {
   /** The key of the list to authenticate users with */
   listKey: ListTypeInfo['key'];
   /** The path of the field the identity is stored in; must be text-ish */
@@ -50,20 +50,20 @@ export interface AuthConfig<ListTypeInfo extends BaseListTypeInfo> {
   magicAuthLink?: AuthTokenTypeConfig;
   /** Session data population */
   sessionData?: string;
-}
+};
 
-export interface InitFirstItemConfig<ListTypeInfo extends BaseListTypeInfo> {
+export type InitFirstItemConfig<ListTypeInfo extends BaseListTypeInfo> = {
   /** Array of fields to collect, e.g ['name', 'email', 'password'] */
   fields: readonly ListTypeInfo['fields'][];
   /** Suppresses the second screen where we ask people to subscribe and follow Keystone */
   skipKeystoneWelcome?: boolean;
   /** Extra input to add for the create mutation */
   itemData?: Partial<ListTypeInfo['inputs']['create']>;
-}
+};
 
 export type AuthTokenRedemptionErrorCode = 'FAILURE' | 'TOKEN_EXPIRED' | 'TOKEN_REDEEMED';
 
-export interface SecretFieldImpl {
+export type SecretFieldImpl = {
   generateHash: (secret: string) => Promise<string>;
   compare: (secret: string, hash: string) => Promise<string>;
-}
+};

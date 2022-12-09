@@ -1,7 +1,8 @@
-import {checkbox, integer, json, list, relationship, text} from "@pickerjs/core";
-import {trackingFields} from "../utils";
+import { allowAll, checkbox, integer, json, list, relationship, text } from '@pickerjs/core';
+import { trackingFields } from '../utils';
 
 export const WechatUser = list({
+  access: allowAll,
   fields: {
     // 所属的小程序应用 ID
     appId: text(),
@@ -15,7 +16,7 @@ export const WechatUser = list({
       }
     }),
     unionId: text({
-      isIndexed: 'unique',
+      isIndexed: 'unique'
     }),
     nickName: text({
       db: {
@@ -64,6 +65,6 @@ export const WechatUser = list({
      * }
      */
     phone: json(),
-    ...trackingFields,
+    ...trackingFields
   }
-})
+});

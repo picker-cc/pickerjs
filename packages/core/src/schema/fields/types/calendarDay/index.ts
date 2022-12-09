@@ -3,16 +3,10 @@ import {
   assertReadIsNonNullAllowed,
   getResolvedIsNullable
 } from '../../non-null-graphql';
-import { humanize } from '../../../types-for-lists';
-import {
-  BaseModelTypeInfo,
-  CommonFieldConfig,
-  graphql,
-  filters,
-  fieldType,
-  FieldTypeFunc,
-  orderDirectionEnum
-} from '../../../types';
+import { BaseModelTypeInfo, CommonFieldConfig, fieldType, FieldTypeFunc, orderDirectionEnum } from '../../../types';
+import { filters } from '../../filters';
+import { humanize } from '../../../../utils/utils';
+import { graphql } from '../../../types/schema';
 
 export type CalendarDayFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = CommonFieldConfig<ModelTypeInfo> & {
   isIndexed?: boolean | 'unique';
@@ -43,7 +37,7 @@ export const calendarDay =
         graphql.CalendarDay.graphQLType.parseValue(defaultValue);
       } catch (err) {
         throw new Error(
-          `The calendarDay field at ${meta.modelKey}.${meta.fieldKey} specifies defaultValue: ${defaultValue} but values must be provided as a full-date ISO8601 string such as 1970-01-01`
+          `The calendarDay field at ${meta.listKey}.${meta.fieldKey} specifies defaultValue: ${defaultValue} but values must be provided as a full-date ISO8601 string such as 1970-01-01`
         );
       }
     }
@@ -61,7 +55,7 @@ export const calendarDay =
     const usesNativeDateType = meta.provider === 'postgresql' || meta.provider === 'mysql';
 
     const resolveInput = (value: null | undefined | string) => {
-      if (meta.provider === 'sqlite' || value == null) {
+      if (meta.provider === 'sqlite' || value === null) {
         return value;
       }
       return dateStringToDateObjectInUTC(value);
@@ -119,6 +113,7 @@ export const calendarDay =
           }),
           resolve(val: string | null | undefined) {
             if (val === undefined) {
+              // eslint-disable-next-line no-param-reassign
               val = defaultValue ?? null;
             }
             return resolveInput(val);
@@ -169,7 +164,7 @@ function transformFilterDateStringsToDateObjects(
   }
   return Object.fromEntries(
     Object.entries(filter).map(([key, value]) => {
-      if (value == null) {
+      if (value === null) {
         return [key, value];
       }
       if (Array.isArray(value)) {

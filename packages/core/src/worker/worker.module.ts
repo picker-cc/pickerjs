@@ -1,11 +1,8 @@
 import { Module, OnApplicationShutdown } from '@nestjs/common';
-
-import { ConfigModule } from '../config';
-import { Logger } from '../config';
+import { ConfigModule, Logger } from '../config';
 import { I18nModule } from '../i18n/i18n.module';
 import { PluginModule } from '../plugin/plugin.module';
 import { ProcessContextModule } from '../process-context/process-context.module';
-
 import { WorkerHealthService } from './worker-health.service';
 
 /**
@@ -14,18 +11,13 @@ import { WorkerHealthService } from './worker-health.service';
  * 省略ApiModule会大大增加启动时间(在测试中大约是4倍)。
  */
 @Module({
-    imports: [
-        ProcessContextModule,
-        ConfigModule,
-        I18nModule,
-        PluginModule.forRoot(),
-    ],
-    providers: [WorkerHealthService],
+  imports: [ProcessContextModule, ConfigModule, I18nModule, PluginModule.forRoot()],
+  providers: [WorkerHealthService]
 })
 export class WorkerModule implements OnApplicationShutdown {
-    async onApplicationShutdown(signal?: string) {
-        if (signal) {
-            Logger.info('收到 Worker 关闭信号:' + signal);
-        }
+  async onApplicationShutdown(signal?: string) {
+    if (signal) {
+      Logger.info(`收到 Worker 关闭信号:${signal}`);
     }
+  }
 }

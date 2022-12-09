@@ -1,4 +1,15 @@
-import { graphql, json, list, relationship, select, text, timestamp, virtual } from '@pickerjs/core';
+import {
+  allOperations,
+  allowAll,
+  graphql,
+  json,
+  list,
+  relationship,
+  select,
+  text,
+  timestamp,
+  virtual
+} from '@pickerjs/core';
 import slugify from 'limax';
 import { nanoid } from 'nanoid';
 import { WeChatService } from '@pickerjs/wechat-plugin';
@@ -11,9 +22,10 @@ const id = nanoid();
 export const Post = list({
   access: {
     operation: {
-      update: access.isUser,
-      create: access.isUser,
-      delete: access.isUser
+      ...allOperations(access.isUser),
+      // update: access.isUser,
+      // create: access.isUser,
+      // delete: access.isUser
     },
     item: {
       // create: access.isSelf,

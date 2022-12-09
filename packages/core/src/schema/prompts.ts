@@ -32,12 +32,16 @@ async function textPromptImpl(message: string): Promise<string> {
   return value;
 }
 
+// eslint-disable-next-line import/no-mutable-exports
 export let shouldPrompt = process.stdout.isTTY && !process.env.SKIP_PROMPTS;
 
+// eslint-disable-next-line import/no-mutable-exports
 export let confirmPrompt = confirmPromptImpl;
+// eslint-disable-next-line import/no-mutable-exports
 export let textPrompt = textPromptImpl;
 
 // we could do this with jest.mock but i find jest.mock unpredictable and this is much easier to understand
+// eslint-disable-next-line @typescript-eslint/no-shadow
 export function mockPrompts(prompts: {
   text: (message: string) => Promise<string>;
   confirm: (message: string) => Promise<boolean>;

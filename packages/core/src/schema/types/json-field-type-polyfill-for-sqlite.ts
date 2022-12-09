@@ -1,17 +1,16 @@
-import {JSONValue} from "./utils";
+import { JSONValue } from './utils';
 import {
-    BaseItem,
-    CreateFieldInputArg, fieldType,
-    FieldTypeWithoutDBField,
-    ScalarDBField,
-    UpdateFieldInputArg
-} from "./next-fields";
-import {DatabaseProvider} from "../prisma/prisma-schema";
-import {PickerContext} from "./picker-context";
-import { graphql } from "./schema";
-function mapOutputFieldToSQLite(
-  field: graphql.Field<{ value: JSONValue; item: BaseItem }, {}, any, 'value'>
-) {
+  BaseItem,
+  CreateFieldInputArg,
+  fieldType,
+  FieldTypeWithoutDBField,
+  ScalarDBField,
+  UpdateFieldInputArg
+} from './next-fields';
+import { PickerContext } from './picker-context';
+import { graphql } from './schema';
+import { DatabaseProvider } from './core';
+function mapOutputFieldToSQLite(field: graphql.Field<{ value: JSONValue; item: BaseItem }, {}, any, 'value'>) {
   const innerResolver = field.resolve || (({ value }) => value);
   return graphql.fields<{
     value: string | null;
@@ -32,8 +31,8 @@ function mapOutputFieldToSQLite(
           value = JSON.parse(rootVal.value);
         } catch (err) {}
         return innerResolver({ item: rootVal.item, value }, ...extra);
-      },
-    }),
+      }
+    })
   }).value;
 }
 
@@ -45,20 +44,14 @@ function mapUpdateInputArgToSQLite<Arg extends graphql.Arg<graphql.InputType, an
   }
   return {
     arg: arg.arg,
-    async resolve(
-      input: graphql.InferValueFromArg<Arg>,
-      context: PickerContext,
-      relationshipInputResolver: any
-    ) {
+    async resolve(input: graphql.InferValueFromArg<Arg>, context: PickerContext, relationshipInputResolver: any) {
       const resolvedInput =
-        arg.resolve === undefined
-          ? input
-          : await arg.resolve(input, context, relationshipInputResolver);
+        arg.resolve === undefined ? input : await arg.resolve(input, context, relationshipInputResolver);
       if (resolvedInput === undefined || resolvedInput === null) {
         return resolvedInput;
       }
       return JSON.stringify(resolvedInput);
-    },
+    }
   } as any;
 }
 
@@ -70,20 +63,14 @@ function mapCreateInputArgToSQLite<Arg extends graphql.Arg<graphql.InputType, an
   }
   return {
     arg: arg.arg,
-    async resolve(
-      input: graphql.InferValueFromArg<Arg>,
-      context: PickerContext,
-      relationshipInputResolver: any
-    ) {
+    async resolve(input: graphql.InferValueFromArg<Arg>, context: PickerContext, relationshipInputResolver: any) {
       const resolvedInput =
-        arg.resolve === undefined
-          ? input
-          : await arg.resolve(input, context, relationshipInputResolver);
+        arg.resolve === undefined ? input : await arg.resolve(input, context, relationshipInputResolver);
       if (resolvedInput === undefined || resolvedInput === null) {
         return resolvedInput;
       }
       return JSON.stringify(resolvedInput);
-    },
+    }
   } as any;
 }
 
@@ -116,20 +103,17 @@ export function jsonFieldTypePolyfilledForSQLite<
       mode: dbFieldConfig?.mode ?? 'optional',
       scalar: 'String',
       default: dbFieldConfig?.default,
-      map: dbFieldConfig?.map,
+      map: dbFieldConfig?.map
     })({
       ...config,
       input: {
         create: mapCreateInputArgToSQLite(config.input?.create) as any,
-        update: mapUpdateInputArgToSQLite(config.input?.update),
+        update: mapUpdateInputArgToSQLite(config.input?.update)
       },
       output: mapOutputFieldToSQLite(config.output),
       extraOutputFields: Object.fromEntries(
-        Object.entries(config.extraOutputFields || {}).map(([key, field]) => [
-          key,
-          mapOutputFieldToSQLite(field),
-        ])
-      ),
+        Object.entries(config.extraOutputFields || {}).map(([key, field]) => [key, mapOutputFieldToSQLite(field)])
+      )
     });
   }
   return fieldType({
@@ -137,6 +121,6 @@ export function jsonFieldTypePolyfilledForSQLite<
     mode: (dbFieldConfig?.mode ?? 'optional') as 'optional',
     scalar: 'Json',
     default: dbFieldConfig?.default,
-    map: dbFieldConfig?.map,
+    map: dbFieldConfig?.map
   })(config);
 }

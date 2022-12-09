@@ -1,29 +1,32 @@
-import { IncomingMessage } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { Readable } from 'stream';
 import { GraphQLSchema, ExecutionResult, DocumentNode } from 'graphql';
-import { InitialisedList } from '../prisma/prisma-schema';
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { EventBus } from '../../event-bus';
 import { Injector } from '../../common';
+import { InitialisedList } from '../types-for-lists';
 import { GqlNames } from './utils';
 import { BaseListTypeInfo, BasePickerTypeInfo } from './type-info';
+import { SessionStrategy } from './session';
 
 export type PickerContext<TypeInfo extends BasePickerTypeInfo = BasePickerTypeInfo> = {
   req?: IncomingMessage;
+  res?: ServerResponse;
   db: PickerDbAPI<TypeInfo['lists']>;
   query: PickerListsAPI<TypeInfo['lists']>;
   graphql: PickerGraphQLAPI;
   sudo: () => PickerContext<TypeInfo>;
   exitSudo: () => PickerContext<TypeInfo>;
   withSession: (session: any) => PickerContext<TypeInfo>;
+  withRequest: (req: IncomingMessage, res?: ServerResponse) => Promise<PickerContext<TypeInfo>>;
   prisma: TypeInfo['prisma'];
   eventBus?: EventBus;
   injector?: Injector;
-  // serivce?:
   services?: any;
   files?: FilesContext;
   images?: ImagesContext;
-  totalResults: number;
-  maxTotalResults: number;
+  // totalResults: number;
+  // maxTotalResults: number;
   /** @deprecated */
   gqlNames: (listKey: string) => GqlNames;
   experimental?: {
@@ -32,10 +35,13 @@ export type PickerContext<TypeInfo extends BasePickerTypeInfo = BasePickerTypeIn
      */
     initialisedLists: Record<string, InitialisedList>;
   };
-} & Partial<SessionContext<any>>;
+  sessionStrategy?: SessionStrategy<any>;
+  session?: any;
+};
 
 // List item API
 
+// eslint-disable-next-line no-warning-comments
 // TODO: Work out whether we can generate useful return types based on the GraphQL Query
 // passed to List API functions (see `readonly Record<string, any>` below)
 
@@ -139,16 +145,20 @@ export type PickerDbAPI<PickerListsTypeInfo extends Record<string, BaseListTypeI
 };
 
 // GraphQL API
-
+type GraphQLExecutionArguments<TData, TVariables> = {
+  query: string | DocumentNode | TypedDocumentNode<TData, TVariables>;
+  variables?: TVariables;
+};
 export interface PickerGraphQLAPI {
   schema: GraphQLSchema;
-  run: (args: GraphQLExecutionArguments) => Promise<Record<string, any>>;
-  raw: (args: GraphQLExecutionArguments) => Promise<ExecutionResult>;
-}
-
-interface GraphQLExecutionArguments {
-  query: string | DocumentNode;
-  variables?: Record<string, any>;
+  // run: (args: GraphQLExecutionArguments) => Promise<Record<string, any>>;
+  // raw: (args: GraphQLExecutionArguments) => Promise<ExecutionResult>;
+  run: <TData, TVariables extends Record<string, any>>(
+    args: GraphQLExecutionArguments<TData, TVariables>
+  ) => Promise<TData>;
+  raw: <TData, TVariables extends Record<string, any>>(
+    args: GraphQLExecutionArguments<TData, TVariables>
+  ) => Promise<ExecutionResult<TData>>;
 }
 
 // Session API
@@ -160,7 +170,7 @@ export interface SessionContext<T> {
   endSession(): Promise<void>;
 }
 
-export type AssetMode = 'local' | 's3';
+export type AssetMode = 'local' | 's3' | 'ali';
 
 // Files API
 

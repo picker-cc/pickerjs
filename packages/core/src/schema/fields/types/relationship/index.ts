@@ -1,19 +1,10 @@
-import { AdminMetaRootVal } from '../admin-meta';
-import {
-  filters,
-  BaseModelTypeInfo,
-  CommonFieldConfig,
-  graphql,
-  BaseItem,
-  fieldType,
-  FieldData,
-  FieldTypeFunc,
-  ListGraphQLTypes,
-  orderDirectionEnum
-} from '../../../types';
+import { BaseListTypeInfo, FieldTypeFunc, CommonFieldConfig, fieldType } from '../../../types';
+import { graphql } from '../../../types/schema';
+
+// import { getAdminMetaForRelationshipField } from '../../../admin-ui/system/createAdminMeta';
 
 // This is the default display mode for Relationships
-interface SelectDisplayConfig {
+type SelectDisplayConfig = {
   ui?: {
     // Sets the relationship to display as a Select field
     displayMode?: 'select';
@@ -22,10 +13,11 @@ interface SelectDisplayConfig {
      * Defaults to the labelField configured on the related list.
      */
     labelField?: string;
+    searchFields?: string[];
   };
-}
+};
 
-interface CardsDisplayConfig {
+type CardsDisplayConfig = {
   ui?: {
     // Sets the relationship to display as a list of Cards
     displayMode: 'cards';
@@ -40,19 +32,28 @@ interface CardsDisplayConfig {
     /** Configures inline edit mode for cards */
     inlineEdit?: { fields: readonly string[] };
     /** Configures whether a select to add existing items should be shown or not */
-    inlineConnect?: boolean;
+    inlineConnect?:
+      | boolean
+      | {
+          /**
+           * The path of the field to use from the related list for item labels in the inline connect
+           * Defaults to the labelField configured on the related list.
+           */
+          labelField: string;
+          searchFields?: string[];
+        };
   };
-}
+};
 
-interface CountDisplayConfig {
+type CountDisplayConfig = {
   many: true;
   ui?: {
     // Sets the relationship to display as a count
     displayMode: 'count';
   };
-}
+};
 
-interface OneDbConfig {
+type OneDbConfig = {
   many?: false;
   db?: {
     foreignKey?:
@@ -61,16 +62,16 @@ interface OneDbConfig {
           map: string;
         };
   };
-}
+};
 
-interface ManyDbConfig {
+type ManyDbConfig = {
   many: true;
   db?: {
     relationName?: string;
   };
-}
+};
 
-export type RelationshipFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = CommonFieldConfig<ModelTypeInfo> & {
+export type RelationshipFieldConfig<ListTypeInfo extends BaseListTypeInfo> = CommonFieldConfig<ListTypeInfo> & {
   many?: boolean;
   ref: string;
   ui?: {
@@ -80,24 +81,26 @@ export type RelationshipFieldConfig<ModelTypeInfo extends BaseModelTypeInfo> = C
   (SelectDisplayConfig | CardsDisplayConfig | CountDisplayConfig);
 
 export const relationship =
-  <ModelTypeInfo extends BaseModelTypeInfo>({
+  <ListTypeInfo extends BaseListTypeInfo>({
     ref,
     ...config
-  }: RelationshipFieldConfig<ModelTypeInfo>): FieldTypeFunc<ModelTypeInfo> =>
-  meta => {
+  }: RelationshipFieldConfig<ListTypeInfo>): FieldTypeFunc<ListTypeInfo> =>
+  ({ fieldKey, listKey, lists }) => {
     const { many = false } = config;
     const [foreignListKey, foreignFieldKey] = ref.split('.');
+    const foreignList = lists[foreignListKey];
+    if (!foreignList) {
+      throw new Error(`Unable to resolve list '${foreignListKey}' for field ${listKey}.${fieldKey}`);
+    }
+    const foreignListTypes = foreignList.types;
+
     const commonConfig = {
       ...config,
-      views: '',
-      getAdminMeta: (adminMetaRoot: AdminMetaRootVal) => {
-        return '';
-      }
+      __pickerTelemetryFieldTypeName: '@pickerjs/relationship',
+      views: '@pickerjs/core/fields/types/relationship/views',
+      getAdminMeta: (): any => {}
     };
-    if (!meta.lists[foreignListKey]) {
-      throw new Error(`Unable to resolve related list '${foreignListKey}' from ${meta.modelKey}.${meta.fieldKey}`);
-    }
-    const listTypes = meta.lists[foreignListKey].types;
+
     if (config.many) {
       return fieldType({
         kind: 'relation',
@@ -109,36 +112,42 @@ export const relationship =
         ...commonConfig,
         input: {
           where: {
-            arg: graphql.arg({ type: listTypes.relateTo.many.where }),
+            arg: graphql.arg({ type: foreignListTypes.relateTo.many.where }),
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             resolve(value, context, resolve) {
               return resolve(value);
             }
           },
-          create: listTypes.relateTo.many.create && {
-            arg: graphql.arg({ type: listTypes.relateTo.many.create }),
+          create: foreignListTypes.relateTo.many.create && {
+            arg: graphql.arg({ type: foreignListTypes.relateTo.many.create }),
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async resolve(value, context, resolve) {
               return resolve(value);
             }
           },
-          update: listTypes.relateTo.many.update && {
-            arg: graphql.arg({ type: listTypes.relateTo.many.update }),
+          update: foreignListTypes.relateTo.many.update && {
+            arg: graphql.arg({ type: foreignListTypes.relateTo.many.update }),
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async resolve(value, context, resolve) {
               return resolve(value);
             }
           }
         },
         output: graphql.field({
-          args: listTypes.findManyArgs,
-          type: graphql.list(graphql.nonNull(listTypes.output)),
+          args: foreignListTypes.findManyArgs,
+          type: graphql.list(graphql.nonNull(foreignListTypes.output)),
           resolve({ value }, args) {
             return value.findMany(args);
           }
         }),
         extraOutputFields: {
-          [`${meta.fieldKey}Count`]: graphql.field({
+          [`${fieldKey}Count`]: graphql.field({
             type: graphql.Int,
             args: {
-              where: graphql.arg({ type: graphql.nonNull(listTypes.where), defaultValue: {} })
+              where: graphql.arg({
+                type: graphql.nonNull(foreignListTypes.where),
+                defaultValue: {}
+              })
             },
             resolve({ value }, args) {
               return value.count({
@@ -149,38 +158,43 @@ export const relationship =
         }
       });
     }
+
     return fieldType({
       kind: 'relation',
       mode: 'one',
       list: foreignListKey,
       field: foreignFieldKey,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       foreignKey: config.db?.foreignKey
     })({
       ...commonConfig,
       input: {
         where: {
-          arg: graphql.arg({ type: listTypes.where }),
+          arg: graphql.arg({ type: foreignListTypes.where }),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           resolve(value, context, resolve) {
             return resolve(value);
           }
         },
-        create: listTypes.relateTo.one.create && {
-          arg: graphql.arg({ type: listTypes.relateTo.one.create }),
+        create: foreignListTypes.relateTo.one.create && {
+          arg: graphql.arg({ type: foreignListTypes.relateTo.one.create }),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           async resolve(value, context, resolve) {
             return resolve(value);
           }
         },
 
-        update: listTypes.relateTo.one.update && {
-          arg: graphql.arg({ type: listTypes.relateTo.one.update }),
+        update: foreignListTypes.relateTo.one.update && {
+          arg: graphql.arg({ type: foreignListTypes.relateTo.one.update }),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           async resolve(value, context, resolve) {
             return resolve(value);
           }
         }
       },
       output: graphql.field({
-        type: listTypes.output,
+        type: foreignListTypes.output,
         resolve({ value }) {
           return value();
         }

@@ -1,6 +1,6 @@
-import {SchemaConfig} from "../schema/types";
-import {createSystem} from "../createSystem";
-import {initConfig} from "../schema/initConfig";
+import { SchemaConfig } from '../schema/types';
+import { createSystem } from '../createSystem';
+import { initConfig } from '../schema/initConfig';
 
 export function createQueryAPI(config: SchemaConfig, prismaClient: any) {
   const { getPicker } = createSystem(initConfig(config));

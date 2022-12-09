@@ -6,7 +6,9 @@ module.exports = {
   rules: {
     'class-methods-use-this': 'off',
     'no-useless-constructor': 'off',
+    '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/consistent-type-imports': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
     'import/order': [
       'error',
       {

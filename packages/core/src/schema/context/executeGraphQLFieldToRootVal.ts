@@ -197,7 +197,7 @@ export function executeGraphQLFieldToRootVal(field: GraphQLField<any, any>) {
   if (validationErrors.length > 0) {
     throw validationErrors[0];
   }
-  //
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return async (args: Record<string, any>, context: PickerContext, rootValue: Record<string, string> = {}) => {
     const result = await execute({
       schema,

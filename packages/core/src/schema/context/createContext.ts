@@ -1,11 +1,12 @@
 import type { IncomingMessage } from 'http';
-import { graphql, GraphQLSchema, print } from 'graphql';
-import { PickerContext, PickerGraphQLAPI, SchemaConfig, SessionContext } from '../types';
-import { PrismaClient } from '../core/queries/resolvers';
+import { ServerResponse } from 'http';
+import { ExecutionResult, graphql, GraphQLSchema, print } from 'graphql';
+import { PickerContext, PickerGraphQLAPI, SchemaConfig } from '../types';
 import { GqlNames } from '../types/utils';
-import { InitialisedList } from '../prisma/prisma-schema';
 import { EventBus } from '../../event-bus';
 import { Injector } from '../../common';
+import { InitialisedList } from '../types-for-lists';
+import { PrismaClient } from '../utils';
 import { getDbAPIFactory, itemAPIForList } from './itemAPI';
 
 export function makeCreateContext({
@@ -15,7 +16,9 @@ export function makeCreateContext({
   gqlNamesByList,
   config,
   lists,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   eventBus,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   injector
 }: {
   graphQLSchema: GraphQLSchema;
@@ -48,69 +51,95 @@ export function makeCreateContext({
   }
 
   const createContext = ({
-    eventBus,
-    injector,
-    sessionContext,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    session,
     sudo = false,
-    req
-  }: {
-    eventBus?: EventBus;
-    injector?: Injector;
-    sessionContext?: SessionContext<any>;
+    req,
+    res,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    eventBus,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    injector
+  }: // sessionContext,
+  {
+    session?: any;
     sudo?: boolean;
     req?: IncomingMessage;
+    res?: ServerResponse;
+    eventBus?: EventBus;
+    injector?: Injector;
   } = {}): PickerContext => {
     const schema = sudo ? sudoGraphQLSchema : graphQLSchema;
 
     const rawGraphQL: PickerGraphQLAPI['raw'] = ({ query, variables }) => {
       const source = typeof query === 'string' ? query : print(query);
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return Promise.resolve(graphql({ schema, source, contextValue: contextToReturn, variableValues: variables }));
+      return Promise.resolve(
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        graphql({ schema, source, contextValue: contextToReturn, variableValues: variables }) as ExecutionResult<any>
+      );
     };
     const runGraphQL: PickerGraphQLAPI['run'] = async ({ query, variables }) => {
       const result = await rawGraphQL({ query, variables });
       if (result.errors?.length) {
         throw result.errors[0];
       }
-      return result.data as Record<string, any>;
+      // return result.data as Record<string, any>;
+      return result.data as any;
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    async function withRequest(req: IncomingMessage, res?: ServerResponse) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      contextToReturn.req = req;
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      contextToReturn.res = res;
+      if (!config.session) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        return contextToReturn;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define,require-atomic-updates
+      contextToReturn.session = await config.session.get({ context: contextToReturn });
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return createContext({ session: contextToReturn.session, sudo, req, res, eventBus, injector });
+    }
+
     const dbAPI: PickerContext['db'] = {};
     const itemAPI: PickerContext['query'] = {};
     const contextToReturn: PickerContext = {
       db: dbAPI,
       query: itemAPI,
-      totalResults: 0,
       prisma: prismaClient,
       graphql: { raw: rawGraphQL, run: runGraphQL, schema },
-      maxTotalResults: config.graphql?.queryLimits?.maxTotalResults ?? Infinity,
+      sessionStrategy: config.session,
       sudo: () =>
         createContext({
-          sessionContext,
+          // sessionContext,
           eventBus,
           injector,
           sudo: true,
-          req
+          req,
+          res
         }),
       exitSudo: () =>
         createContext({
-          sessionContext,
+          // sessionContext,
           eventBus,
           injector,
           sudo: false,
-          req
+          req,
+          res
         }),
-      withSession: session =>
-        createContext({
-          eventBus,
-          injector,
-          sessionContext: { ...sessionContext, session } as SessionContext<any>,
-          sudo,
-          req
-        }),
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      withSession: session => {
+        return createContext({ session, sudo, req, res });
+      },
       req,
       eventBus,
       injector,
-      ...sessionContext,
+      session,
+      withRequest,
+      // ...sessionContext,
       // Note: This field lets us use the server-side-graphql-client library.
       // We may want to remove it once the updated itemAPI w/ query is available.
       gqlNames: (listKey: string) => gqlNamesByList[listKey]
@@ -131,5 +160,5 @@ export function makeCreateContext({
     return contextToReturn;
   };
 
-  return createContext;
+  return createContext();
 }

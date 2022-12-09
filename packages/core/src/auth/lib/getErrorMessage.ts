@@ -1,6 +1,8 @@
 import { AuthTokenRedemptionErrorCode } from '../types';
 
+// eslint-disable-next-line consistent-return
 export function getAuthTokenErrorMessage({ code }: { code: AuthTokenRedemptionErrorCode }): string {
+  // eslint-disable-next-line default-case
   switch (code) {
     case 'FAILURE':
       return 'Auth token redemption failed.';
