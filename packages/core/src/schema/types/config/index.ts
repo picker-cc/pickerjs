@@ -39,12 +39,12 @@ export type StorageConfig = (
        * ```
        */
       generateUrl: (path: string) => string;
-      /** The configuration for keystone's hosting of the assets - if set to null, keystone will not host the assets */
+      /** The configuration for picker's hosting of the assets - if set to null, picker will not host the assets */
       serverRoute: {
-        /** The partial path that the assets will be hosted at by keystone, eg `/images` or `/our-cool-files` */
+        /** The partial path that the assets will be hosted at by picker, eg `/images` or `/our-cool-files` */
         path: string;
       } | null;
-      /** Sets whether the assets should be preserved locally on removal from keystone's database */
+      /** Sets whether the assets should be preserved locally on removal from picker's database */
       preserve?: boolean;
       transformName?: (filename: string) => string;
     }
@@ -54,7 +54,7 @@ export type StorageConfig = (
       /** Sets signing of the asset - for use when you want private assets */
       signed?: { expiry: number };
       generateUrl?: (path: string) => string;
-      /** Sets whether the assets should be preserved locally on removal from keystone's database */
+      /** Sets whether the assets should be preserved locally on removal from picker's database */
       preserve?: boolean;
       pathPrefix?: string;
       /** Your s3 instance's bucket name */
@@ -81,7 +81,7 @@ export type SchemaConfig<TypeInfo extends BasePickerTypeInfo = BasePickerTypeInf
   session?: SessionStrategy<any>;
   graphql?: GraphQLConfig;
   extendGraphqlSchema?: ExtendGraphqlSchema;
-  /** An object containing configuration about keystone's various external storages.
+  /** An object containing configuration about picker's various external storages.
    *
    * Each entry should be of either `kind: 'local'` or `kind: 's3'`, and follow the configuration of each.
    *
@@ -153,13 +153,13 @@ type HealthCheckConfig = {
 };
 
 export type ServerConfig<TypeInfo extends BasePickerTypeInfo> = {
-  /** Configuration options for the cors middleware. Set to `true` to use core Keystone defaults */
+  /** Configuration options for the cors middleware. Set to `true` to use core picker defaults */
   cors?: CorsOptions | true;
   /** Maximum upload file size allowed (in bytes) */
   maxFileSize?: number;
   /** Health check configuration. Set to `true` to add a basic `/_healthcheck` route, or specify the path and data explicitly */
   healthCheck?: HealthCheckConfig | true;
-  /** Hook to extend the Express App that Keystone creates */
+  /** Hook to extend the Express App that picker creates */
   extendExpressApp?: (app: express.Express, context: PickerContext<TypeInfo>) => void | Promise<void>;
   extendHttpServer?: (server: Server, context: PickerContext<TypeInfo>, graphqlSchema: GraphQLSchema) => void;
 } & (
@@ -196,13 +196,13 @@ export type GraphQLConfig = {
   apolloConfig?: Config;
   /**
    * When an error is returned from the GraphQL API, Apollo can include a stacktrace
-   * indicating where the error occurred. When Keystone is processing mutations, it
+   * indicating where the error occurred. When picker is processing mutations, it
    * will sometimes captures more than one error at a time, and then group these into
    * a single error returned from the GraphQL API. Each of these errors will include
    * a stacktrace.
    *
    * In general both categories of stacktrace are useful for debugging while developing,
-   * but should not be exposed in production, and this is the default behaviour of Keystone.
+   * but should not be exposed in production, and this is the default behaviour of picker.
    *
    * You can use the `debug` option to change this behaviour. A use case for this
    * would be if you need to send the stacktraces to a log, but do not want to return them
@@ -244,7 +244,7 @@ export type FilesConfig = {
      */
     storagePath?: string;
     /**
-     * The base of the URL local files will be served from, outside of keystone.
+     * The base of the URL local files will be served from, outside of picker.
      * @default '/files'
      */
     baseUrl?: string;
@@ -260,7 +260,7 @@ export type ImagesConfig = {
      */
     storagePath?: string;
     /**
-     * The base of the URL local images will be served from, outside of keystone.
+     * The base of the URL local images will be served from, outside of picker.
      * @default '/images'
      */
     baseUrl?: string;

@@ -10,7 +10,7 @@ export function createGraphQLSchema(
   lists: Record<string, InitialisedList>,
   adminMeta: AdminMetaRootVal
 ) {
-  // Start with the core keystone graphQL schema
+  // Start with the core picker graphQL schema
   let graphQLSchema = getGraphQLSchema(lists, {
     mutation: config.session
       ? {
@@ -27,7 +27,7 @@ export function createGraphQLSchema(
         }
       : {},
     query: {
-      keystone: graphql.field({
+      picker: graphql.field({
         type: graphql.nonNull(PickerMeta),
         resolve: () => ({ adminMeta })
       })

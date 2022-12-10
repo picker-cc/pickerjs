@@ -9,6 +9,7 @@ module.exports = {
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/consistent-type-imports': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    'require-atomic-updates': 'off',
     'import/order': [
       'error',
       {

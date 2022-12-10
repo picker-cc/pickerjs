@@ -91,10 +91,10 @@ function sortRelationships(left: Rel, right: Rel): readonly [Rel, RelWithoutFore
 // what's going on here:
 // - validating all the relationships
 // - for relationships involving to-one: deciding which side owns the foreign key
-// - turning one-sided relationships into two-sided relationships so that elsewhere in Keystone,
+// - turning one-sided relationships into two-sided relationships so that elsewhere in picker,
 //   you only have to reason about two-sided relationships
 //   (note that this means that there are "fields" in the returned ListsWithResolvedRelations
-//   which are not actually proper Keystone fields, they are just a db field and nothing else)
+//   which are not actually proper Picker fields, they are just a db field and nothing else)
 // eslint-disable-next-line complexity
 export function resolveRelationships(
   lists: Record<string, { fields: Record<string, { dbField: DBField }> }>
@@ -228,7 +228,7 @@ export function resolveRelationships(
       const foreignFieldPath = `from_${listKey}_${fieldPath}`;
       if (foreignUnresolvedList.fields[foreignFieldPath]) {
         throw new Error(
-          `The relationship field at ${listKey}.${fieldPath} points to the list ${field.list}, Keystone needs to a create a relationship field at ${field.list}.${foreignFieldPath} to support the relationship at ${listKey}.${fieldPath} but ${field.list} already has a field named ${foreignFieldPath}`
+          `The relationship field at ${listKey}.${fieldPath} points to the list ${field.list}, Picker needs to a create a relationship field at ${field.list}.${foreignFieldPath} to support the relationship at ${listKey}.${fieldPath} but ${field.list} already has a field named ${foreignFieldPath}`
         );
       }
 

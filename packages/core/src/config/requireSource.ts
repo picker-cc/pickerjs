@@ -1,6 +1,6 @@
 /*
 This is a slightly-modified version of preconstruct's hook for use with
-keystone project files in the monorepo. Importantly it doesn't accept a cwd and
+picker project files in the monorepo. Importantly it doesn't accept a cwd and
 sets rootMode: "upward-optional"
 */
 

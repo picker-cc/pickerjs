@@ -15,7 +15,7 @@ const fieldPaths = ${JSON.stringify(initFirstItem.fields)};
 export default getInitPage(${JSON.stringify({
     listKey,
     fieldPaths: initFirstItem.fields,
-    enableWelcome: !initFirstItem.skipKeystoneWelcome
+    enableWelcome: !initFirstItem.skipPickerWelcome
   })});
 `;
   // -- TEMPLATE END

@@ -91,7 +91,7 @@ export async function runWithPrisma<T>(
 // i don't want to deal with that right now though
 declare const idTypeSymbol: unique symbol;
 
-export type IdType = { ___keystoneIdType: typeof idTypeSymbol; toString(): string };
+export type IdType = { ___pickerIdType: typeof idTypeSymbol; toString(): string };
 
 // these aren't here out of thinking this is better syntax(i do not think it is),
 // it's just because TS won't infer the arg is X bit

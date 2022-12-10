@@ -45,13 +45,13 @@ function assertNoConflictingExtraOutputFields(list: ListForValidation) {
         // note that this and the case handled below are fundamentally the same thing but i want different errors for each of them
         if (fieldKeys.has(outputTypeFieldName)) {
           throw new Error(
-            `The field ${fieldKey} on the ${list.listKey} list defines an extra GraphQL output field named ${outputTypeFieldName} which conflicts with the Keystone field type named ${outputTypeFieldName} on the same list`
+            `The field ${fieldKey} on the ${list.listKey} list defines an extra GraphQL output field named ${outputTypeFieldName} which conflicts with the Picker field type named ${outputTypeFieldName} on the same list`
           );
         }
         const alreadyFoundField = alreadyFoundFields[outputTypeFieldName];
         if (alreadyFoundField !== undefined) {
           throw new Error(
-            `The field ${fieldKey} on the ${list.listKey} list defines an extra GraphQL output field named ${outputTypeFieldName} which conflicts with the Keystone field type named ${alreadyFoundField} which also defines an extra GraphQL output field named ${outputTypeFieldName}`
+            `The field ${fieldKey} on the ${list.listKey} list defines an extra GraphQL output field named ${outputTypeFieldName} which conflicts with the Picker field type named ${alreadyFoundField} which also defines an extra GraphQL output field named ${outputTypeFieldName}`
           );
         }
         alreadyFoundFields[outputTypeFieldName] = fieldKey;

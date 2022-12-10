@@ -58,7 +58,7 @@ async function ensurePrismaBinariesExist() {
   // and we just want to use whatever version @prisma/internals is using
   // also note we use an exact version of @prisma/internals
   // so if @prisma/internals suddenly stops depending on @prisma/engines
-  // that won't break a released version of Keystone
+  // that won't break a released version of picker
   // also, we're not just directly importing @prisma/engines
   // since stricter package managers(e.g. pnpm, Yarn Berry)
   // don't allow importing packages that aren't explicitly depended on
@@ -110,7 +110,6 @@ export async function validateCommittedArtifacts(graphQLSchema: GraphQLSchema, c
       graphql: '您的 GraphQL schema 不是最新的',
       prisma: '您的 Prisma schema 不是最新的'
     }[outOfDateSchemas];
-    console.log(message);
     const term = {
       both: 'Prisma 和 GraphQL schemas',
       prisma: 'Prisma schema',

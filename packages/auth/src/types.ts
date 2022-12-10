@@ -56,7 +56,7 @@ export type InitFirstItemConfig<ListTypeInfo extends BaseListTypeInfo> = {
     /** Array of fields to collect, e.g ['name', 'email', 'password'] */
     fields: readonly ListTypeInfo['fields'][];
     /** Suppresses the second screen where we ask people to subscribe and follow Keystone */
-    skipKeystoneWelcome?: boolean;
+    skipPickerWelcome?: boolean;
     /** Extra input to add for the create mutation */
     itemData?: Partial<ListTypeInfo['inputs']['create']>;
 };

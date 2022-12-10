@@ -83,7 +83,7 @@ export function createSystem(config: SchemaConfig) {
       setPrismaNamespace(prismaClient, prismaModule.Prisma);
       prismaClient.$on('beforeExit', async () => {
         // Prisma is failing to properly clean up its child processes
-        // https://github.com/keystonejs/keystone/issues/5477
+        // https://github.com/picker-cc/pickerjs/issues/5477
         // We explicitly send a SIGINT signal to the prisma child process on exit
         // to ensure that the process is cleaned up appropriately.
         // eslint-disable-next-line no-underscore-dangle
