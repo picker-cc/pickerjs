@@ -1,6 +1,6 @@
 {
   "name": "admin-ui-plugin",
-  "version": "0.2.1-beta.2",
+  "version": "0.2.1-beta.3",
   "description": "",
   "main": "index.js",
   "scripts": {
