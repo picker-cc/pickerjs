@@ -23,6 +23,7 @@ import {
 import { CliLogLevel } from './types';
 
 // tslint:disable-next-line:no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
 checkNodeVersion(REQUIRED_NODE_VERSION);
 
@@ -113,6 +114,7 @@ async function createApp(name: string | undefined, useNpm: boolean, logLevel: Cl
 
           subscriber.next(`安装中 ${dependencies.join(', ')}`);
           installPackages(root, usePnpm, dependencies, false, logLevel, isCi)
+            // eslint-disable-next-line consistent-return
             .then(() => {
               if (devDependencies.length) {
                 subscriber.next(`安装中 ${devDependencies.join(', ')}`);
@@ -171,7 +173,8 @@ async function createApp(name: string | undefined, useNpm: boolean, logLevel: Cl
         try {
           if (usingTs) {
             // register ts-node so that the config file can be loaded
-            require(path.join(root, 'node_modules/ts-node')).register();
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            await require(path.join(root, 'node_modules/ts-node')).register();
           }
           const { bootstrap, DefaultLogger, LogLevel } = await import(
             path.join(root, 'node_modules/@pickerjs/core/dist/index')

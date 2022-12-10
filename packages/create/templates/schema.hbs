@@ -13,14 +13,7 @@ field：字段是列表中的单个数据，每个字段都有自己的类型。
 
 // 在 starter 中我们使用了一些通用字段。
 // 请查看 https://picker.cc/docs/apis/fields#fields-api 中获取完整的字段列表。
-import {
-  text,
-  relationship,
-  password,
-  timestamp,
-  select,
-  list,
-} from '@pickerjs/core';
+import { allowAll, integer, json, list, password, relationship, select, text, timestamp } from '@pickerjs/core';
 
 // document 是一个复杂的字段，在独立的包中，Picker 的目标是饮食所有基础字段类型，你可以自己创建属于自己的自字义字段。
 // import { document } from '@pickerjs/fields-document';
@@ -35,6 +28,7 @@ import {
 export const lists = {
   // 用户列表定义
   User: list({
+    access: allowAll,
     // 这里定义了几个 `User` 的字段，邮箱、密码方便用户进行登录，名称方便我们找到用户。以及一个用户关联博客内容的方法
     fields: {
       name: text({ validation: { isRequired: true } }),
@@ -58,6 +52,7 @@ export const lists = {
   }),
   // 列表二是 Posts 列表。在这里定义博客内容饮食的所有信息
   Post: list({
+    access: allowAll,
     fields: {
       title: text(),
       // 状态字段，用于控制是否显示内容
@@ -122,6 +117,7 @@ export const lists = {
     ui: {
       isHidden: true,
     },
+    access: allowAll,
     fields: {
       name: text(),
       posts: relationship({ ref: 'Post.tags', many: true }),
