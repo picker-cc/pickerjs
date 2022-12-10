@@ -83,7 +83,7 @@ model UserFavorite {
   post      Post?    @relation("UserFavorite_post", fields: [postId], references: [id])
   postId    String?  @map("post")
   ip        String?
-  date      String   @default("2022-11-28")
+  date      String   @default("2022-12-10")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

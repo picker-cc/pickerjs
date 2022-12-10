@@ -3,7 +3,6 @@ import {
   AssetService,
   ConfigModule,
   ConfigService,
-  Ctx,
   EventBus,
   Picker,
   PickerPlugin,
@@ -17,7 +16,6 @@ import gql from 'graphql-tag';
 import { debounceTime } from 'rxjs';
 import axios from 'axios';
 import { nanoid } from 'nanoid';
-import { Context } from '@pickerjs/core/cli/schema/types/schema/graphql-ts-schema';
 import { UserEvent } from './user-event';
 import { WeappResolver } from './resolvers/weapp.resolver';
 import { UploadController } from './controller/upload.controller';
@@ -79,7 +77,7 @@ export interface PluginOptions {
 export class AppPlugin implements NestModule, OnModuleInit {
   private static options: PluginOptions;
 
-  // eslint-disable-next-line no-useless-constructor
+  // eslint-disable-next-line no-useless-constructor,max-params
   constructor(
     private configService: ConfigService,
     private processContext: ProcessContext,
@@ -97,7 +95,7 @@ export class AppPlugin implements NestModule, OnModuleInit {
     return AppPlugin;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
   async configure(consumer: MiddlewareConsumer) {}
 
   onModuleInit(): any {
@@ -147,6 +145,7 @@ export class AppPlugin implements NestModule, OnModuleInit {
     });
 
     if (userId) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const updatedUser = await ctx.picker.db.User.updateOne({
         where: {
           id: userId

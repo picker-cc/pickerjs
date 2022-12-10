@@ -1,14 +1,11 @@
 import {
   allOperations,
-  allowAll,
-  graphql,
   json,
   list,
   relationship,
   select,
   text,
   timestamp,
-  virtual
 } from '@pickerjs/core';
 import slugify from 'limax';
 import { nanoid } from 'nanoid';
@@ -18,11 +15,11 @@ import { access } from '../auth-and-access-control';
 // import dayjs from "dayjs";
 // import { nanoid } from 'nanoid'
 
-const id = nanoid();
+// const id = nanoid();
 export const Post = list({
   access: {
     operation: {
-      ...allOperations(access.isUser),
+      ...allOperations(access.isUser)
       // update: access.isUser,
       // create: access.isUser,
       // delete: access.isUser

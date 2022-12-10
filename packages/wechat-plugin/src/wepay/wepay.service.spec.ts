@@ -1,13 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-
 import { RefundParameters, RequireOnlyOne, TransactionOrder } from '../types';
 import { WePayService } from './wepay.service';
 
 jest.setTimeout(20000);
 
 describe('WePayService Test(Unit)', () => {
-
   const appId = 'your mini program app id';
   const mchId = 'your wechat mch id';
   const openId = 'your open id in app id above';
@@ -43,20 +41,19 @@ describe('WePayService Test(Unit)', () => {
       notify_url: notifyUrl,
       amount: {
         total: 1,
-        currency: 'CNY',
+        currency: 'CNY'
       },
       payer: {
-        openid: openId,
-      },
-    }
+        openid: openId
+      }
+    };
 
     try {
       const ret = await service.jsapi(order, serial, privateKey);
       expect(ret.data).toBeDefined();
       expect(ret.data.prepay_id).toBeDefined();
       prepayId = ret.data.prepay_id;
-    } catch (error) {
-    }
+    } catch (error) {}
   });
 
   it('Should build the wechat pay parameters', () => {
@@ -85,8 +82,8 @@ describe('WePayService Test(Unit)', () => {
       amount: {
         refund: 1,
         total: 1,
-        currency: 'CNY',
-      },
+        currency: 'CNY'
+      }
     };
     try {
       const ret = await service.refund(refundParameters, mchId, serial, privateKey);
@@ -110,5 +107,4 @@ describe('WePayService Test(Unit)', () => {
     expect(ret.data).toBeDefined();
     expect(ret.data.out_refund_no).toStrictEqual(no);
   });
-
 });

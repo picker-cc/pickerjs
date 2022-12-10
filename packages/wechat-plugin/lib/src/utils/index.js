@@ -25,10 +25,11 @@ __exportStar(require("./message-crypto"), exports);
  * @returns
  */
 function createNonceStr(length = 16) {
+    // eslint-disable-next-line no-param-reassign
     length = length > 32 ? 32 : length;
     let str = '';
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < length; i += 1) {
         str += chars[Math.floor(Math.random() * chars.length)];
     }
     return str;
@@ -47,8 +48,6 @@ function parseRid(errMsg) {
     if (index >= 0) {
         return errMsg.substring(index + 5);
     }
-    else {
-        return '';
-    }
+    return '';
 }
 exports.parseRid = parseRid;

@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
+import { MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
 import { Logger, PickerPlugin, PluginCommonModule, Type } from '@pickerjs/core';
 import { WeChatModuleOptions } from '../types';
 import { WeChatModule } from './wechat.module';
@@ -37,7 +37,7 @@ export class WechatPlugin implements NestModule, OnModuleInit {
     return this;
   }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   configure(consumer: MiddlewareConsumer): any {
     Logger.info('Creating Wechat server middleware');
   }

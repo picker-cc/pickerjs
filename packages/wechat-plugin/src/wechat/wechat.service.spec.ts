@@ -1,12 +1,10 @@
-import * as env from 'dotenv';
-import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-
+import * as env from 'dotenv';
+import { XMLParser } from 'fast-xml-parser';
 import { WeChatService } from './wechat.service';
 
 describe('wechat service test', () => {
-
   let service: WeChatService;
 
   beforeAll(() => {
@@ -23,16 +21,15 @@ describe('wechat service test', () => {
       appId: 'wxb11529c136998cb6',
       secret: 'secret',
       token: 'pamtest',
-      encodingAESKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
+      encodingAESKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG'
     });
-
   });
 
   it('Test encrypt & decrypt message', () => {
-
     const timestamp = '1409304348';
     const nonce = 'xxxxxx';
-    const text = '<xml><ToUserName><![CDATA[oia2Tj我是中文jewbmiOUlr6X-1crbLOvLw]]></ToUserName><FromUserName><![CDATA[gh_7f083739789a]]></FromUserName><CreateTime>1407743423</CreateTime><MsgType><![CDATA[video]]></MsgType><Video><MediaId><![CDATA[eYJ1MbwPRJtOvIEabaxHs7TX2D-HV71s79GUxqdUkjm6Gs2Ed1KF3ulAOA9H1xG0]]></MediaId><Title><![CDATA[testCallBackReplyVideo]]></Title><Description><![CDATA[testCallBackReplyVideo]]></Description></Video></xml>';
+    const text =
+      '<xml><ToUserName><![CDATA[oia2Tj我是中文jewbmiOUlr6X-1crbLOvLw]]></ToUserName><FromUserName><![CDATA[gh_7f083739789a]]></FromUserName><CreateTime>1407743423</CreateTime><MsgType><![CDATA[video]]></MsgType><Video><MediaId><![CDATA[eYJ1MbwPRJtOvIEabaxHs7TX2D-HV71s79GUxqdUkjm6Gs2Ed1KF3ulAOA9H1xG0]]></MediaId><Title><![CDATA[testCallBackReplyVideo]]></Title><Description><![CDATA[testCallBackReplyVideo]]></Description></Video></xml>';
 
     const encryptMessage = service.encryptMessage(text, timestamp, nonce);
 
@@ -50,11 +47,11 @@ describe('wechat service test', () => {
   it('Can not get an access token', async () => {
     let ret = await service.getAccountAccessToken();
     // 40125, invalid app secret
-    expect(ret.errcode).toStrictEqual(40125)
+    expect(ret.errcode).toStrictEqual(40125);
     ret = await service.getAccountAccessToken('appid', undefined);
-    expect(ret.errcode).toStrictEqual(40125)
+    expect(ret.errcode).toStrictEqual(40125);
     ret = await service.getAccountAccessToken(undefined, 'secret');
-    expect(ret.errcode).toStrictEqual(40125)
+    expect(ret.errcode).toStrictEqual(40125);
   });
 
   it('Can not get a jsapi ticket', async () => {
@@ -65,7 +62,7 @@ describe('wechat service test', () => {
 
   it('Can not sign jsapi', async () => {
     expect(async () => {
-      await service.jssdkSignature('https://www.baidu.com')
+      await service.jssdkSignature('https://www.baidu.com');
     }).rejects.toThrowError(new Error(`${WeChatService.name}: No access token of official account.`));
   });
 
@@ -94,5 +91,4 @@ describe('wechat service test', () => {
     expect(ret.appId).toStrictEqual(anotherAppId);
     expect(ret.signature.length > 0).toBeTruthy();
   });
-
 });

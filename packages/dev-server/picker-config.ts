@@ -7,7 +7,7 @@ import {
   LogLevel,
   statelessSessions
 } from '@pickerjs/core';
-import { ADMIN_API_PATH, API_PORT, APP_API_PATH } from '@pickerjs/common/lib/shared-constants';
+import { API_PORT, APP_API_PATH } from '@pickerjs/common/lib/shared-constants';
 import { AssetServerPlugin, configureAliOSSAssetStorage } from '@pickerjs/asset-server-plugin';
 import { AppPlugin } from './plugin';
 import { User, WechatUser, Post, UserFavorite, Tag, Asset } from './schemas';

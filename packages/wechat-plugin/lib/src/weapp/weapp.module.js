@@ -9,8 +9,8 @@ var WeAppModule_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WeAppModule = void 0;
 const common_1 = require("@nestjs/common");
-const weapp_service_1 = require("./weapp.service");
 const wechat_constants_1 = require("../wechat/wechat.constants");
+const weapp_service_1 = require("./weapp.service");
 let WeAppModule = WeAppModule_1 = class WeAppModule {
     static register(options) {
         return {

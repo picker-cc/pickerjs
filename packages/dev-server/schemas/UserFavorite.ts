@@ -6,7 +6,7 @@ import { access } from '../auth-and-access-control';
 export const UserFavorite = list({
   access: {
     operation: {
-      ...allOperations(access.isUser),
+      ...allOperations(access.isUser)
       // update: access.isUser,
       // create: access.isUser,
       // delete: access.isUser

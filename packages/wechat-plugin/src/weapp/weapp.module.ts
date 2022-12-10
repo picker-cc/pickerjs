@@ -1,7 +1,7 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { WeChatModuleOptions, WeChatModuleRootOptions } from '../../index';
-import { WeAppService } from './weapp.service';
 import { WECHAT_MODULE_OPTIONS } from '../wechat/wechat.constants';
+import { WeAppService } from './weapp.service';
 
 @Module({})
 export class WeAppModule {

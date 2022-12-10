@@ -127,7 +127,7 @@ export class WeappResolver {
     @Ctx() ctx: RequestContext,
     identifier: string
   ): Promise<UserAuthenticationWithPasswordResult> {
-    const authenticated = await ctx.picker.graphql.run({
+    return ctx.picker.graphql.run({
       query: `
         mutation($identifier: String!, $password: String!) {
           authenticateUserWithPassword(identifier: $identifier, password: $password) {
@@ -146,7 +146,6 @@ export class WeappResolver {
       variables: { identifier, password: identifier }
     });
 
-    return authenticated.authenticateUserWithPassword;
   }
 
   @Mutation('wxLogin')
