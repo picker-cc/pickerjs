@@ -29,6 +29,7 @@ export const lists = {
   // 用户列表定义
   User: list({
     access: allowAll,
+    description: '用户表',
     // 这里定义了几个 `User` 的字段，邮箱、密码方便用户进行登录，名称方便我们找到用户。以及一个用户关联博客内容的方法
     fields: {
       name: text({ validation: { isRequired: true } }),
@@ -50,9 +51,10 @@ export const lists = {
       },
     },
   }),
-  // 列表二是 Posts 列表。在这里定义博客内容饮食的所有信息
+  // 列表二是 Posts 列表。在这里定义博客内容包含的所有信息
   Post: list({
     access: allowAll,
+    description: '博客内容表',
     fields: {
       title: text(),
       // 状态字段，用于控制是否显示内容
@@ -114,6 +116,7 @@ export const lists = {
   }),
   // 最后定义一个标签列表。这个列表只与 post 关联
   Tag: list({
+    description: '内容标签表',
     ui: {
       isHidden: true,
     },

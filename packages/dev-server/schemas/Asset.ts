@@ -3,6 +3,7 @@ import { trackingFields } from '../utils';
 
 export const Asset = list({
   access: allowAll,
+  description: '',
   fields: {
     name: text(),
     title: text(),
