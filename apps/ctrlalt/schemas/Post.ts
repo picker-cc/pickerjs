@@ -4,11 +4,15 @@ import {ScraperService} from "../server/scraper/scraper.service";
 
 
 export const Post = list({
-    // access: {
-    //     operation: {
-    //         delete: ({ session }) => session?.data.isAdmin,
-    //     }
-    // },
+    access: {
+      operation: {
+        delete: {
+        }
+      }
+        // operation: {
+        //     delete: ({ session }) => session?.data.isAdmin,
+        // }
+    },
     hooks: {
         beforeOperation({operation, resolvedData, context}) {
             console.log('--d-d-d-d--d')
