@@ -1,6 +1,6 @@
 {
   "name": "@pickerjs/testing",
-  "version": "0.2.5",
+  "version": "0.2.6-beta.0",
   "description": "End-to-end testing tools for Picker projects",
   "keywords": [
     "vendure",
