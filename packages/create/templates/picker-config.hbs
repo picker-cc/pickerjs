@@ -18,7 +18,7 @@ export const schemaConfig = withAuth(
         // 数据库设置
         db: {
             provider: '{{ dbType }}',
-            url: '{{#if isSQLite}}'file:./picker.db'{{else}}{{dbType}}://{{dbUserName}}:{{dbPassword}}@{{dbHost}}:{{dbPort}}/{{dbName}}{{/if}}',
+            url: '{{#if isSQLite}}file:./picker.db{{else}}{{dbType}}://{{dbUserName}}:{{dbPassword}}@{{dbHost}}:{{dbPort}}/{{dbName}}{{/if}}',
         },
         // 这个配置允许我们设置 Admin UI 的特性（暂未实现，仅配置）
         ui: {
