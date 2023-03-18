@@ -1,5 +1,6 @@
-import { CacheHint } from 'apollo-server-types';
+// import { CacheHint } from 'apollo-server-types';
 import { GraphQLString, isInputObjectType } from 'graphql';
+import { CacheHint } from '@apollo/cache-control-types';
 import {
   BaseItem,
   GraphQLTypesForList,

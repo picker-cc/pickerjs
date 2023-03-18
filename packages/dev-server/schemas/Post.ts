@@ -224,7 +224,7 @@ export const Post = list({
     }),
     content: text({
       db: {
-        nativeType: 'Text',
+        // nativeType: 'Text',
         isNullable: true
       }
     }),
@@ -285,7 +285,8 @@ export const Post = list({
       many: true
     }),
     ...trackingFields,
-    featured: relationship({ ref: 'Asset.posts' })
+    featured: relationship({ ref: 'Asset.posts' }),
+    // test: text(),
     // children: virtual({
     //   field: graphql.field({
     //     type: graphql.

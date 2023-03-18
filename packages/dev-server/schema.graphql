@@ -940,7 +940,7 @@ type Query {
   ): [Tag!]
   tag(where: TagWhereUniqueInput!): Tag
   tagsCount(where: TagWhereInput! = {}): Int
-  keystone: PickerMeta!
+  picker: PickerMeta!
   authenticatedItem: AuthenticatedItem
 }
 

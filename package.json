@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "watch:all": "pnpm watch --parallel",
-    "watch:core-common": "pnpm run --filter @pickerjs/common --filter @pickerjs/core watch --parallel",
+    "watch:core-common": "pnpm  --parallel --filter @pickerjs/common --filter @pickerjs/core watch",
     "format": "prettier --write --html-whitespace-sensitivity ignore",
     "bootstrap": "pnpm recursive install",
     "docs:generate-typescript-docs": "ts-node scripts/docs/generate-typescript-docs.ts",

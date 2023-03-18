@@ -4,8 +4,8 @@ import {
   GraphQLRequestContext,
   GraphQLRequestListener,
   GraphQLServerListener,
-  GraphQLServiceContext
-} from 'apollo-server-plugin-base';
+  GraphQLServerContext
+} from '@apollo/server';
 import { DocumentNode, GraphQLNamedType, isUnionType } from 'graphql';
 import { AssetStorageStrategy, ConfigService } from '../../config';
 import { GraphqlValueTransformer } from '../common/graphql-value-transformer';
@@ -28,28 +28,41 @@ export class AssetInterceptorPlugin implements ApolloServerPlugin {
   // serverWillStart(service: GraphQLServiceContext) {
   //     this.graphqlValueTransformer = new GraphqlValueTransformer(service.schema);
   // }
-  serverWillStart(service: GraphQLServiceContext): Promise<GraphQLServerListener | void> {
-    return new Promise<GraphQLServerListener | void>(() => {
+  serverWillStart(service: GraphQLServerContext): Promise<GraphQLServerListener | void> {
+    return new Promise<GraphQLServerListener | void>(resolve => {
       this.graphqlValueTransformer = new GraphqlValueTransformer(service.schema);
+      resolve(undefined);
     });
   }
 
   requestDidStart(
     requestContext: GraphQLRequestContext<BaseContext>
   ): Promise<GraphQLRequestListener<BaseContext> | void> {
-    return new Promise<GraphQLRequestListener<BaseContext> | void>(() => {
-      return {
-        willSendResponse: (requestContext: any) => {
+    return new Promise<GraphQLRequestListener<BaseContext> | void>(resolve => {
+      // eslint-disable-next-line no-promise-executor-return
+      const { document } = requestContext;
+      if (document) {
+        const data = requestContext.response?.data;
+        const req = requestContext.context?.req;
+        if (data && req) {
+          this.prefixAssetUrls(req, document, data);
+        }
+      }
+      const listener: GraphQLRequestListener<BaseContext> = {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        willSendResponse: requestContext => {
+          // eslint-disable-next-line @typescript-eslint/no-shadow
           const { document } = requestContext;
           if (document) {
-            const data = requestContext.response.data;
-            const req = requestContext.context.req;
-            if (data) {
+            const data = requestContext.response?.data;
+            const req = requestContext.context?.req;
+            if (data && req) {
               this.prefixAssetUrls(req, document, data);
             }
           }
         }
       };
+      resolve(listener);
     });
   }
 

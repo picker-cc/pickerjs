@@ -1,6 +1,6 @@
 import type { DynamicModule, Type } from '@nestjs/common';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import type { PluginDefinition } from 'apollo-server-core';
+// import type { PluginDefinition } from 'apollo-server-core';
 import type { GraphQLSchema } from 'graphql';
 import type { Middleware } from '../common';
 import type { SchemaConfig } from '../schema/types';
@@ -9,6 +9,7 @@ import type { PickerLogger } from './logger/picker-logger';
 import type { AssetNamingStrategy } from './asset-naming-strategy/asset-naming-strategy';
 import type { AssetPreviewStrategy } from './asset-preview-strategy/asset-preview-strategy';
 import type { AssetStorageStrategy } from './asset-storage-strategy/asset-storage-strategy';
+import { ApolloServerPlugin } from '@apollo/server';
 /**
  * @description
  * ApiOptions定义了如何公开的Picker GraphQL API，以及允许API层与中间件扩展。
@@ -77,7 +78,7 @@ export interface ApiOptions {
      *
      * @default []
      */
-  apolloServerPlugins?: PluginDefinition[];
+  apolloServerPlugins?: ApolloServerPlugin[];
 
   /**
    * 控制是否启用GraphQL api的自检。对于生产环境，建议禁用

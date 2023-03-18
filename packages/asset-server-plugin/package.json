@@ -18,16 +18,16 @@
     "access": "public"
   },
   "dependencies": {
-    "@nestjs/graphql": "^10.1.2",
+    "@nestjs/graphql": "^11.0.0",
     "file-type": "16.5.3",
     "fs-extra": "^10.1.0",
     "image-size": "^1.0.1",
     "sharp": "^0.30.4"
   },
   "devDependencies": {
-    "@nestjs/common": "^9.1.2",
-    "@nestjs/core": "^9.1.2",
-    "@nestjs/platform-express": "^9.1.2",
+    "@nestjs/common": "^9.3.10",
+    "@nestjs/core": "^9.3.10",
+    "@nestjs/platform-express": "^9.3.10",
     "@pickerjs/common": "workspace:*",
     "@pickerjs/core": "workspace:*",
     "@types/ali-oss": "^6.16.6",

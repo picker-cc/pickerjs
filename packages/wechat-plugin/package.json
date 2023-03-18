@@ -33,10 +33,10 @@
     "raw-body": "^2.5.1"
   },
   "devDependencies": {
-    "@nestjs/common": "^9.1.2",
-    "@nestjs/core": "^9.1.2",
-    "@nestjs/platform-express": "^9.1.2",
-    "@nestjs/testing": "^9.1.2",
+    "@nestjs/common": "^9.3.10",
+    "@nestjs/core": "^9.3.10",
+    "@nestjs/platform-express": "^9.3.10",
+    "@nestjs/testing": "^9.3.10",
     "@pickerjs/core": "workspace:*",
     "@types/cache-manager": "^4.0.2",
     "@types/cache-manager-redis-store": "^2.0.1",

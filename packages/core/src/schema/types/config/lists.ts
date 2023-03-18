@@ -1,4 +1,4 @@
-import type { CacheHint } from 'apollo-server-types';
+import { CacheHint } from '@apollo/cache-control-types';
 import type { MaybePromise } from '../utils';
 import { BaseListTypeInfo, PickerContextFromListTypeInfo } from '../type-info';
 import type { ListAccessControl } from '../../core';
@@ -10,13 +10,13 @@ export type ListSchemaConfig = Record<string, ListConfig<any, BaseFields<BaseLis
 export type IdFieldConfig =
   | { kind: 'cuid' | 'uuid' }
   | {
-      kind: 'autoincrement';
-      /**
-       * 配置数库 id 字段的类型。SQLite 只支持 `Int`
-       * @default 'Int'
-       */
-      type?: 'Int' | 'BigInt';
-    };
+  kind: 'autoincrement';
+  /**
+   * 配置数库 id 字段的类型。SQLite 只支持 `Int`
+   * @default 'Int'
+   */
+  type?: 'Int' | 'BigInt';
+};
 
 export type ListConfig<ListTypeInfo extends BaseListTypeInfo, Fields extends BaseFields<ListTypeInfo>> = {
   isSingleton?: boolean;
@@ -173,10 +173,10 @@ export type MaybeSessionFunction<T extends string | boolean, ListTypeInfo extend
 export type MaybeItemFunction<T, ListTypeInfo extends BaseListTypeInfo> =
   | T
   | ((args: {
-      session: any;
-      context: PickerContextFromListTypeInfo<ListTypeInfo>;
-      item: ListTypeInfo['item'];
-    }) => MaybePromise<T>);
+  session: any;
+  context: PickerContextFromListTypeInfo<ListTypeInfo>;
+  item: ListTypeInfo['item'];
+}) => MaybePromise<T>);
 
 export interface ListGraphQLConfig {
   /**

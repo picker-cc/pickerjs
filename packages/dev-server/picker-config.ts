@@ -21,10 +21,10 @@ const sessionConfig = {
 
 const schemaConfig = typeInfoConfig({
   db: {
-    // provider: 'sqlite',
-    // url: 'file:./dev.db'
-    provider: 'mysql',
-    url: 'mysql://root:abcd1234@localhost:3306/cx_favorite'
+    provider: 'sqlite',
+    url: 'file:./dev.db'
+    // provider: 'mysql',
+    // url: 'mysql://root:abcd1234@localhost:3306/cx_favorite'
   },
   lists: {
     Asset,

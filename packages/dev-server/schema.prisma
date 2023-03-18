@@ -1,9 +1,9 @@
 // 该文件由 Picker 自动生成，请勿手动修改。当您需要修改 Picker 配置时，请修改 Picker config。
 
-datasource mysql {
+datasource sqlite {
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  provider          = "mysql"
+  provider          = "sqlite"
 }
 
 generator client {
@@ -12,24 +12,24 @@ generator client {
 }
 
 model Asset {
-  id               String           @id @default(cuid())
-  name             String           @default("")
-  title            String           @default("")
-  type             AssetTypeType?
-  status           AssetStatusType? @default(PENDING)
-  mimeType         String           @default("")
-  width            Int?             @default(0)
-  height           Int?             @default(0)
+  id               String   @id @default(cuid())
+  name             String   @default("")
+  title            String   @default("")
+  type             String?
+  status           String?  @default("PENDING")
+  mimeType         String   @default("")
+  width            Int?     @default(0)
+  height           Int?     @default(0)
   fileSize         Int?
-  source           String           @default("")
-  preview          String           @default("")
-  focalPoint       Json?
-  tags             Tag[]            @relation("Asset_tags")
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  traceId          String?          @unique
-  posts            Post[]           @relation("Post_featured")
-  from_User_avatar User[]           @relation("User_avatar")
+  source           String   @default("")
+  preview          String   @default("")
+  focalPoint       String?
+  tags             Tag[]    @relation("Asset_tags")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  traceId          String?  @unique
+  posts            Post[]   @relation("Post_featured")
+  from_User_avatar User[]   @relation("User_avatar")
 }
 
 model User {
@@ -51,25 +51,25 @@ model User {
 }
 
 model Post {
-  id               String          @id @default(cuid())
-  slug             String          @unique @default("")
-  title            String          @default("")
-  status           PostStatusType? @default(PENDING)
-  content          String?         @mysql.Text
+  id               String         @id @default(cuid())
+  slug             String         @unique @default("")
+  title            String         @default("")
+  status           String?        @default("PENDING")
+  content          String?
   publishDate      DateTime?
-  user             User?           @relation("Post_user", fields: [userId], references: [id])
-  userId           String?         @map("user")
-  favorites        UserFavorite[]  @relation("UserFavorite_post")
-  type             PostTypeType?   @default(FAVORITE)
-  parent           Post?           @relation("Post_parent", fields: [parentId], references: [id])
-  parentId         String?         @map("parent")
-  config           Json?
-  tags             Tag[]           @relation("Post_tags")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  featured         Asset?          @relation("Post_featured", fields: [featuredId], references: [id])
-  featuredId       String?         @map("featured")
-  from_Post_parent Post[]          @relation("Post_parent")
+  user             User?          @relation("Post_user", fields: [userId], references: [id])
+  userId           String?        @map("user")
+  favorites        UserFavorite[] @relation("UserFavorite_post")
+  type             String?        @default("FAVORITE")
+  parent           Post?          @relation("Post_parent", fields: [parentId], references: [id])
+  parentId         String?        @map("parent")
+  config           String?
+  tags             Tag[]          @relation("Post_tags")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  featured         Asset?         @relation("Post_featured", fields: [featuredId], references: [id])
+  featuredId       String?        @map("featured")
+  from_Post_parent Post[]         @relation("Post_parent")
 
   @@index([userId])
   @@index([parentId])
@@ -83,7 +83,7 @@ model UserFavorite {
   post      Post?    @relation("UserFavorite_post", fields: [postId], references: [id])
   postId    String?  @map("post")
   ip        String?
-  date      String   @default("2022-12-10")
+  date      String   @default("2023-03-18")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -104,7 +104,7 @@ model WechatUser {
   province   String?
   country    String?
   user       User?    @relation("User_wechat")
-  phone      Json?
+  phone      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -114,31 +114,4 @@ model Tag {
   name   String  @default("")
   posts  Post[]  @relation("Post_tags")
   assets Asset[] @relation("Asset_tags")
-}
-
-enum AssetTypeType {
-  BINARY
-  IMAGE
-  VIDEO
-  AUDIO
-}
-
-enum AssetStatusType {
-  APPROVED
-  PENDING
-  SPAM
-  TRASH
-}
-
-enum PostStatusType {
-  APPROVED
-  PENDING
-  SPAM
-  TRASH
-}
-
-enum PostTypeType {
-  FAVORITE
-  MEMORY
-  STORY
 }

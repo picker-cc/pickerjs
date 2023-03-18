@@ -1,10 +1,13 @@
 import type { Server } from 'http';
 import type { ListenOptions } from 'net';
-import type { Config } from 'apollo-server-express';
+// import type { Config } from 'apollo-server-express';
+import { ApolloServerOptions, BaseContext } from '@apollo/server';
+// new ApolloServer({})
 import { CorsOptions } from 'cors';
 import express from 'express';
 import type { GraphQLSchema } from 'graphql';
 import type { Options as BodyParserOptions } from 'body-parser';
+// import { ExpressContext } from 'apollo-server-express';
 import { SessionStrategy } from '../session';
 import type { MaybePromise } from '../utils';
 import { AssetMode, PickerContext } from '../picker-context';
@@ -14,6 +17,7 @@ import type { ListSchemaConfig, ListConfig, MaybeSessionFunction, MaybeItemFunct
 import type { BaseFields } from './fields';
 import type { ListAccessControl, FieldAccessControl } from './access-control';
 import type { ListHooks } from './hooks';
+// import { ExpressContextFunctionArgument } from '@apollo/server/express4';
 
 type FileOrImage =
   // is given full file name, returns file name that will be used at
@@ -193,7 +197,7 @@ export type GraphQLConfig = {
    *  Additional options to pass into the ApolloServer constructor.
    *  @see https://www.apollographql.com/docs/apollo-server/api/apollo-server/#constructor
    */
-  apolloConfig?: Config;
+  apolloConfig?: ApolloServerOptions<BaseContext>;
   /**
    * When an error is returned from the GraphQL API, Apollo can include a stacktrace
    * indicating where the error occurred. When picker is processing mutations, it
