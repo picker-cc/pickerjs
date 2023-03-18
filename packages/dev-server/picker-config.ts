@@ -78,18 +78,18 @@ export const config: PickerConfig = {
   },
   logger: new DefaultLogger({ level: LogLevel.Info }),
   plugins: [
-    AssetServerPlugin.init({
-      route: 'assets',
-      assetUploadDir: path.join(__dirname, 'assets'),
-      // namingStrategy: new DefaultAssetNamingStrategy(),
-      storageStrategyFactory: configureAliOSSAssetStorage({
-        bucket: 'caixie-favorite',
-        accessKeyId: 'LTAI5t6hCnZiCx2U3hMorHtL',
-        accessKeySecret: 'mRx3jSCNma1vhRcqOeDoKrujPAFk10',
-        region: 'oss-cn-hangzhou',
-        endpoint: 'oss-cn-hangzhou.aliyuncs.com'
-      })
-    }),
+    // AssetServerPlugin.init({
+    //   route: 'assets',
+    //   assetUploadDir: path.join(__dirname, 'assets'),
+    //   // namingStrategy: new DefaultAssetNamingStrategy(),
+    //   storageStrategyFactory: configureAliOSSAssetStorage({
+    //     bucket: 'caixie-favorite',
+    //     accessKeyId: 'LTAI5t6hCnZiCx2U3hMorHtL',
+    //     accessKeySecret: 'mRx3jSCNma1vhRcqOeDoKrujPAFk10',
+    //     region: 'oss-cn-hangzhou',
+    //     endpoint: 'oss-cn-hangzhou.aliyuncs.com'
+    //   })
+    // }),
     AppPlugin.init({ route: '', port: 0 })
     // AssetServerPlugin.init({
     //   route: 'assets',
