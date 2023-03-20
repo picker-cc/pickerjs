@@ -83,7 +83,7 @@ export function statelessSessions<T>({
     throw new Error('You must specify a session secret to use sessions');
   }
   if (secret.length < 32) {
-    throw new Error('The session secret must be at least 32 characters long');
+    throw new Error('Session secret 至少为 32 个字符');
   }
   return {
     async get({ context }) {

@@ -58,6 +58,7 @@ export function getBaseAuthSchema<I extends string, S extends string>({
           if (typeof session?.itemId === 'string' && typeof session.listKey === 'string') {
             return db[session.listKey].findOne({ where: { id: session.itemId } });
           }
+
           return null;
         }
       })

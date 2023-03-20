@@ -138,18 +138,16 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
    *
    * Automatically injects a session.data value with the authenticated item
    */
-  /* TODO:
-      - [ ] We could support additional where input to validate item sessions (e.g an isEnabled boolean)
-    */
   const withItemData = (
     _sessionStrategy: SessionStrategy<Record<string, any>>
   ): SessionStrategy<{ listKey: string; itemId: string; data: any }> => {
     const { get, ...sessionStrategy } = _sessionStrategy;
     return {
       ...sessionStrategy,
-      get: async ({ req, createContext }) => {
-        const session = await get({ req, createContext });
-        const sudoContext = createContext({ sudo: true });
+      get: async ({ context }) => {
+        const session = await get({ context });
+        // const sudoContext = createContext({ sudo: true });
+        const sudoContext = context.sudo();
         if (
           !session ||
           !session.listKey ||
@@ -167,6 +165,7 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
           });
           if (!data) return;
 
+          // eslint-disable-next-line consistent-return
           return { ...session, itemId: session.itemId, listKey, data };
         } catch (e) {
           // TODO: the assumption is this should only be from an invalid sessionData configuration
@@ -188,33 +187,6 @@ export function createAuth<ListTypeInfo extends BaseListTypeInfo>({
    */
   const withAuth = (schemaConfig: SchemaConfig): SchemaConfig => {
     validateConfig(schemaConfig);
-    // let ui = schemaConfig.ui;
-    // if (!schemaConfig.ui?.isDisabled) {
-    //     ui = {
-    //         ...schemaConfig.ui,
-    //         publicPages: [...(schemaConfig.ui?.publicPages || []), ...publicPages],
-    //         getAdditionalFiles: [...(schemaConfig.ui?.getAdditionalFiles || []), getAdditionalFiles],
-    //         pageMiddleware: async args =>
-    //             (await pageMiddleware(args)) ?? schemaConfig?.ui?.pageMiddleware?.(args),
-    //         isAccessAllowed: async (context: PickerContext) => {
-    //             // Allow access to the adminMeta data from the /init path to correctly render that page
-    //             // even if the user isn't logged in (which should always be the case if they're seeing /init)
-    //             const headers = context.req?.headers;
-    //             const host = headers ? headers['x-forwarded-host'] || headers['host'] : null;
-    //             const url = headers?.referer ? new URL(headers.referer) : undefined;
-    //             const accessingInitPage =
-    //                 url?.pathname === '/init' &&
-    //                 url?.host === host &&
-    //                 (await context.sudo().query[listKey].count({})) === 0;
-    //             return (
-    //                 accessingInitPage ||
-    //                 (schemaConfig.ui?.isAccessAllowed
-    //                     ? schemaConfig.ui.isAccessAllowed(context)
-    //                     : context.session !== undefined)
-    //             );
-    //         },
-    //     };
-    // }
 
     if (!schemaConfig.session) throw new TypeError('Missing .session configuration');
     const session = withItemData(schemaConfig.session);

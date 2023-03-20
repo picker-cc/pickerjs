@@ -40,7 +40,7 @@ export function configureGraphQLModule(getOptions: (configService: ConfigService
     useFactory: (
       configService: ConfigService,
       eventBus: EventBus,
-      requestContextService: RequestContextService,
+      requestContextService: RequestContextService
       // i18nService: I18nService,
       // idCodecService: IdCodecService,
       // typesLoader: GraphQLTypesLoader
@@ -121,14 +121,27 @@ async function createGraphQLOptions(
       // const requestContext = await requestContextService.fromRequest(req as any, context);
       // configService.
       // 这里要返回 res、req 否则会影响 session token 的处理
+
       const extendContext: PickerContext = {
         ...configService.context,
         injector: configService.injector,
         res,
         req,
         eventBus
+        // session: await configService.schemaConfig.session.get({})
+        // session: configService.context.withRequest(req, res)
+        // session: configService.schemaConfig.session
       };
+      // session: await configService.context.sessionStrategy.get({  });
+      // 要改写 withAuth
+      extendContext.session = await configService.context.sessionStrategy.get({ context: extendContext });
+      // extendContext.session = await configService.schemaConfig.session()
+      // console.log(configService.schemaConfig.session)
 
+      // if (configService.context.session) {
+      //   extendContext.session = await configService.context.session.get({
+      //   })
+      // }
       (req as any)[REQUEST_CONTEXT_KEY] = new RequestContext({
         req: req as any,
         picker: extendContext
