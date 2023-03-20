@@ -76,7 +76,12 @@ export function makeCreateContext({
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return Promise.resolve(
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        graphql({ schema, source, contextValue: contextToReturn, variableValues: variables }) as ExecutionResult<any>
+        graphql({
+          schema,
+          source,
+          contextValue: contextToReturn,
+          variableValues: variables
+        }) as ExecutionResult<any>
       );
     };
     const runGraphQL: PickerGraphQLAPI['run'] = async ({ query, variables }) => {
@@ -89,19 +94,33 @@ export function makeCreateContext({
     };
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    async function withRequest(req: IncomingMessage, res?: ServerResponse) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      contextToReturn.req = req;
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      contextToReturn.res = res;
-      if (!config.session) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        return contextToReturn;
+    // async function withRequest(newReq: IncomingMessage, newRes?: ServerResponse) {
+    //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    //   contextToReturn.req = newReq;
+    //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    //   contextToReturn.res = newRes;
+    //   if (!config.session) {
+    //     // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    //     return contextToReturn;
+    //   }
+    //   // eslint-disable-next-line @typescript-eslint/no-use-before-define,require-atomic-updates
+    //   contextToReturn.session = await config.session.get({ context: contextToReturn });
+    //   // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    //   return createContext({ session: contextToReturn.session, sudo, req, res, eventBus, injector });
+    // }
+    async function withRequest(newReq: IncomingMessage, newRes?: ServerResponse) {
+      const newContext = createContext({
+        session,
+        sudo,
+        req: newReq,
+        res: newRes
+      });
+
+      if (config.session) {
+        newContext.session = await config.session.get({ context: newContext });
       }
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define,require-atomic-updates
-      contextToReturn.session = await config.session.get({ context: contextToReturn });
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return createContext({ session: contextToReturn.session, sudo, req, res, eventBus, injector });
+
+      return newContext;
     }
 
     const dbAPI: PickerContext['db'] = {};

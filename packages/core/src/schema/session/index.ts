@@ -115,6 +115,7 @@ export function statelessSessions<T>({
     },
     // Token 在这里生成
     async start({ context, data }) {
+      // console.log(data)
       if (!context?.res) return;
       // 将对象序列化、加密和签名为协议字符串
       // 参数

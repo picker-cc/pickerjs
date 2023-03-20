@@ -120,9 +120,12 @@ async function createGraphQLOptions(
       // });
       // const requestContext = await requestContextService.fromRequest(req as any, context);
       // configService.
+      // 这里要返回 res、req 否则会影响 session token 的处理
       const extendContext: PickerContext = {
         ...configService.context,
         injector: configService.injector,
+        res,
+        req,
         eventBus
       };
 

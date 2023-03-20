@@ -46,10 +46,10 @@ const { withAuth } = createAuth({
   secretField: 'password',
   initFirstItem: {
     fields: ['name', 'identifier', 'password']
-  }
-  // sessionData: `
-  //   id name identifier
-  // `
+  },
+  sessionData: `
+    id name identifier
+  `
 });
 const withAuthSchemaConfig = withAuth(schemaConfig);
 /**
@@ -58,7 +58,7 @@ const withAuthSchemaConfig = withAuth(schemaConfig);
 export const config: PickerConfig = {
   // graphqlSchema: customSchema,
   // context: schemaContext,
-  shouldDropDatabase: false,
+  shouldDropDatabase: true,
   schemaConfig: withAuthSchemaConfig,
   context: null,
   apiOptions: {
